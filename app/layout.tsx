@@ -1,39 +1,21 @@
-import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Luxury Motors | Premium Car Dealership",
-  description:
-    "Discover the world's finest luxury automobiles. Mercedes-Benz, BMW, Rolls-Royce, Porsche, and more.",
+  title: 'Empire Auto | Detroit, MI',
+  description: 'Empire Auto — 2940 East 8 Mile Detroit, MI 48234. Call (313) 251-7447.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="bg-[#0A0A0A] text-white font-sans antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-      </body>
+    <html lang="en">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

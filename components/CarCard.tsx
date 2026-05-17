@@ -1,100 +1,201 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Gauge, Settings2, ArrowRight, MapPin } from "lucide-react";
-import { Car, formatPrice, formatMileage } from "@/lib/data";
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import type { Car } from '@/lib/data';
 
-interface CarCardProps {
-  car: Car;
-  index?: number;
-  showLocation?: boolean;
-}
+export default function CarCard({ car }: { car: Car }) {
+  const [slide, setSlide] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-export default function CarCard({ car, index = 0, showLocation = false }: CarCardProps) {
+  const openLightbox = () => {
+    setLightboxOpen(true);
+    // small tick so the fade-in transition fires after mount
+    requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+  };
+
+  const closeLightbox = useCallback(() => {
+    setVisible(false);
+    setTimeout(() => setLightboxOpen(false), 300);
+  }, []);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeLightbox(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxOpen, closeLightbox]);
+
+  const prev = () =>
+    setSlide(i => (i - 1 + car.images.length) % car.images.length);
+
+  const next = () =>
+    setSlide(i => (i + 1) % car.images.length);
+
+  const priceDisplay =
+    car.price === 'Call'
+      ? 'Call'
+      : `$${car.price.toLocaleString()}`;
+
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay: Math.min(index, 6) * 0.09, ease: [0.22, 1, 0.36, 1] }}
-      className="group flex flex-col bg-[#111111] border border-white/[0.07] hover:border-[#C9A84C]/35 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,.55)] transition-all duration-400 overflow-hidden"
-    >
-      {/* Image */}
-      <div className="relative overflow-hidden aspect-[16/10]">
-        <Image
-          src={car.images[0]}
-          alt={car.title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/60 via-transparent to-transparent" />
-        {/* Status */}
-        <div className="absolute top-3.5 left-3.5">
-          <span className={`text-[10px] font-sans font-semibold tracking-[0.15em] uppercase px-3 py-1.5 ${
-            car.status === "available"
-              ? "bg-[#C9A84C] text-black"
-              : "bg-black/60 text-white/50 border border-white/15"
-          }`}>
-            {car.status === "available" ? "Available" : "Sold"}
-          </span>
+    <div className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+
+      {/* Red accent bar — grows in from left on hover */}
+      <div className="absolute top-0 left-0 h-1 w-0 group-hover:w-full bg-red-600 transition-all duration-500 z-30" />
+
+      {/* IMAGE AREA */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        {car.images.map((src, i) => (
+          <div
+            key={i}
+            className={`absolute inset-0 transition-opacity duration-300 ${
+              i === slide ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
+            <Image
+              src={src}
+              alt={`${car.name} image ${i + 1}`}
+              fill
+              priority={i === 0}
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        ))}
+
+        {/* Dark gradient overlay — fades in on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none" />
+
+        {/* LEFT ARROW — hidden until hover */}
+        <button
+          onClick={prev}
+          aria-label="Previous image"
+          className="absolute left-2 top-1/2 z-20 -translate-y-1/2 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-300"
+        >
+          <div className="w-9 h-9 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all duration-200 shadow-lg">
+            <ChevronLeft size={18} />
+          </div>
+        </button>
+
+        {/* RIGHT ARROW — hidden until hover */}
+        <button
+          onClick={next}
+          aria-label="Next image"
+          className="absolute right-2 top-1/2 z-20 -translate-y-1/2 opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-300"
+        >
+          <div className="w-9 h-9 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all duration-200 shadow-lg">
+            <ChevronRight size={18} />
+          </div>
+        </button>
+
+        {/* Dot indicators */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+          {car.images.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setSlide(i)}
+              className={`transition-all duration-200 rounded-full ${
+                i === slide
+                  ? 'w-4 h-2 bg-red-600'
+                  : 'w-2 h-2 bg-white/70 hover:bg-white'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* IMAGE COUNT */}
+        <div className="absolute bottom-2 right-2 z-20 bg-black/70 text-white text-xs px-2 py-0.5 rounded-full">
+          {slide + 1} / {car.images.length}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1 gap-3.5 px-5 pt-4 pb-5">
-        {/* Stock # */}
-        <p className="text-[#C9A84C]/70 text-[10px] font-sans tracking-[0.22em] uppercase">
-          #{car.stockNumber}
-        </p>
-
-        {/* Title */}
-        <h3 className="font-serif text-white text-[1.15rem] leading-snug group-hover:text-[#C9A84C] transition-colors duration-300">
-          {car.title}
+      {/* CONTENT — clicking here opens the lightbox */}
+      <div className="p-4 cursor-pointer" onClick={openLightbox}>
+        {/* TITLE */}
+        <h3 className="text-[14px] font-extrabold uppercase leading-snug text-gray-900 group-hover:text-red-600 transition-colors duration-300">
+          {car.name}
         </h3>
 
-        {/* Specs */}
-        <div className="flex items-center gap-4 text-white/40 text-xs font-sans">
-          <span className="flex items-center gap-1.5">
-            <Gauge size={12} className="text-[#C9A84C]/60" />
-            {formatMileage(car.mileage)}
-          </span>
-          <span className="text-white/15">·</span>
-          <span className="flex items-center gap-1.5">
-            <Settings2 size={12} className="text-[#C9A84C]/60" />
-            {car.transmission}
-          </span>
-          <span className="text-white/15">·</span>
-          <span>{car.fuelType}</span>
-        </div>
+        {/* STOCK */}
+        <p className="mt-1.5 text-xs text-gray-500 tracking-wide">
+          Stock #: <span className="font-semibold text-gray-700">{car.stockNumber}</span>
+        </p>
 
-        {/* Location */}
-        {showLocation && (
-          <div className="flex items-center gap-1.5 text-white/30 text-xs font-sans">
-            <MapPin size={11} className="text-[#C9A84C]/50 shrink-0" />
-            {car.location}
-          </div>
-        )}
+        {/* Divider */}
+        <div className="my-3 h-px bg-gray-100 group-hover:bg-red-100 transition-colors duration-300" />
 
-        <div className="thin-divider" />
-
-        {/* Price + CTA */}
-        <div className="flex items-end justify-between mt-auto gap-3">
-          <div>
-            <p className="text-white/25 text-[10px] font-sans tracking-widest uppercase mb-1">Asking Price</p>
-            <p className="font-serif text-[#C9A84C] text-2xl leading-none">{formatPrice(car.price)}</p>
-          </div>
-          <Link
-            href={`/inventory/${car.id}`}
-            className="flex items-center gap-1.5 shrink-0 text-[10px] tracking-[0.15em] uppercase font-sans border border-[#C9A84C]/40 text-[#C9A84C] px-4 py-2.5 hover:bg-[#C9A84C] hover:text-black hover:border-[#C9A84C] transition-all duration-300 group/btn"
+        {/* PRICE */}
+        <div className="flex items-end justify-between">
+          <span
+            className={`text-3xl font-extrabold leading-none transition-colors duration-300 ${
+              car.price === 'Call' ? 'text-gray-800' : 'text-red-600'
+            }`}
           >
-            View
-            <ArrowRight size={11} className="transition-transform duration-300 group-hover/btn:translate-x-0.5" />
-          </Link>
+            {priceDisplay}
+          </span>
+          {car.price !== 'Call' && (
+            <span className="text-[10px] text-gray-400 mb-1">+ tax &amp; fees</span>
+          )}
         </div>
       </div>
-    </motion.article>
+
+      {/* LIGHTBOX */}
+      {lightboxOpen && (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
+            visible ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={closeLightbox}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" />
+
+          {/* Panel */}
+          <div
+            className={`relative z-10 w-full max-w-3xl rounded-xl overflow-hidden shadow-2xl transition-all duration-300 ${
+              visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+            }`}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Image */}
+            <div className="relative aspect-[16/9] bg-black">
+              <Image
+                src={car.images[0]}
+                alt={car.name}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 896px"
+                priority
+              />
+            </div>
+
+            {/* Footer strip */}
+            <div className="bg-white px-5 py-4 flex items-center justify-between">
+              <div>
+                <p className="font-extrabold text-sm uppercase text-gray-900">{car.name}</p>
+                <p className="text-xs text-gray-500 mt-0.5">Stock #: {car.stockNumber}</p>
+              </div>
+              <span
+                className={`text-2xl font-extrabold ${
+                  car.price === 'Call' ? 'text-gray-800' : 'text-red-600'
+                }`}
+              >
+                {priceDisplay}
+              </span>
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={closeLightbox}
+              aria-label="Close"
+              className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-red-600 text-white flex items-center justify-center transition-colors duration-200"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
