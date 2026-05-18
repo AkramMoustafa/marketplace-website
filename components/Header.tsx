@@ -57,7 +57,7 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
           {/* Location + phone */}
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-1.5">
-              <MapPin size={10} className="text-amber-500 shrink-0" />
+              <MapPin size={10} className="text-[#FF5500] shrink-0" />
               <span className="text-[10px] text-slate-400 tracking-wide">
                 2940 East 8 Mile, Detroit MI 48234
               </span>
@@ -67,7 +67,7 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
             <span className="hidden sm:block h-3 w-px bg-white/[0.12]" />
 
             <div className="flex items-center gap-1.5">
-              <Phone size={10} className="text-amber-500 shrink-0" />
+              <Phone size={10} className="text-[#FF5500] shrink-0" />
               <a
                 href="tel:3132517447"
                 className="text-[10px] text-slate-400 hover:text-white transition-colors duration-200"
@@ -105,12 +105,12 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
 
           {/* LOGO — amber left accent bar anchors the mark */}
           <div className="flex items-stretch gap-4 shrink-0">
-            <div className="w-[4px] self-stretch bg-amber-500 rounded-full" />
+            <div className="w-[4px] self-stretch bg-[#FF5500] rounded-full" />
             <div>
               <div className="text-[3.5rem] font-black tracking-[5px] text-slate-900 leading-none">
                 NOVA
               </div>
-              <div className="text-[9px] font-black tracking-[10px] text-amber-600 mt-1.5 ml-[1px]">
+              <div className="text-[9px] font-black tracking-[10px] text-[#FF5500] mt-1.5 ml-[1px]">
                 MOTORS
               </div>
             </div>
@@ -119,14 +119,14 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
           {/* CENTER — contact block, visible on large screens only */}
           <div className="hidden lg:flex flex-1 flex-col items-center gap-1.5">
             <div className="flex items-center gap-2 text-slate-400 text-xs tracking-wide">
-              <MapPin size={12} className="text-amber-500 shrink-0" />
+              <MapPin size={12} className="text-[#FF5500] shrink-0" />
               <span>2940 East 8 Mile Road, Detroit, MI 48234</span>
             </div>
             <a
               href="tel:3132517447"
-              className="flex items-center gap-2 text-[1.1rem] font-bold text-slate-800 hover:text-amber-600 transition-colors duration-200 tracking-wide"
+              className="flex items-center gap-2 text-[1.1rem] font-bold text-slate-800 hover:text-[#FF5500] transition-colors duration-200 tracking-wide"
             >
-              <Phone size={14} className="text-amber-500 shrink-0" />
+              <Phone size={14} className="text-[#FF5500] shrink-0" />
               (313) 251-7447
             </a>
           </div>
@@ -150,8 +150,8 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
                   border border-slate-200 bg-slate-50
                   text-sm text-slate-700 placeholder:text-slate-400
                   shadow-sm
-                  focus:outline-none focus:border-amber-400
-                  focus:ring-2 focus:ring-amber-100 focus:bg-white
+                  focus:outline-none focus:border-[#FF5500]
+                  focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white
                   transition-all duration-200
                 "
               />
@@ -162,11 +162,11 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
               href="#inventory"
               className="
                 shrink-0 px-5 py-2.5 rounded-full
-                bg-amber-500 text-black
+                bg-[#FF5500] text-black
                 text-[10.5px] font-black uppercase tracking-[1.5px]
                 whitespace-nowrap
-                hover:bg-amber-400 hover:-translate-y-px
-                hover:shadow-md hover:shadow-amber-500/20
+                hover:bg-[#FF5500] hover:-translate-y-px
+                hover:shadow-md hover:shadow-[#FF5500]/20
                 active:translate-y-0 active:shadow-none
                 transition-all duration-200
               "
@@ -179,7 +179,7 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
         </div>
 
         {/* Subtle amber rule — separates header from nav */}
-        <div className="h-px bg-gradient-to-r from-transparent via-amber-500/35 to-transparent" />
+        <div className="h-px bg-gradient-to-r from-transparent via-[#FF5500]/35 to-transparent" />
       </header>
 
       {/* ── NAVBAR ────────────────────────────────────────────────────── */}
@@ -196,12 +196,12 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
                       relative group block px-4 py-[14px]
                       text-xs font-bold tracking-[1px]
                       transition-colors duration-200
-                      ${active ? 'text-amber-400' : 'text-slate-300 hover:text-amber-400'}
+                      ${active ? 'text-[#FF5500]' : 'text-slate-300 hover:text-[#FF5500]'}
                     `}
                   >
                     {/* Active: very soft amber tint behind text */}
                     {active && (
-                      <span className="absolute inset-0 bg-amber-500/[0.07]" aria-hidden />
+                      <span className="absolute inset-0 bg-[#FF5500]/[0.07]" aria-hidden />
                     )}
 
                     <span className="relative z-10">{link}</span>
@@ -211,7 +211,7 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
                         hover  = slides in from left (w-0 → w-full) */}
                     <span
                       className={`
-                        absolute bottom-0 left-0 h-[2px] rounded-full bg-amber-500
+                        absolute bottom-0 left-0 h-[2px] rounded-full bg-[#FF5500]
                         transition-all duration-300 ease-out
                         ${active ? 'w-full' : 'w-0 group-hover:w-full'}
                       `}

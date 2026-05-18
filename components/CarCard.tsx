@@ -106,7 +106,7 @@ export default function CarCard({ car }: { car: Car }) {
 
         {/* Make badge */}
         <span className="inline-block mb-1 text-[9px] font-black uppercase
-          tracking-[2px] text-amber-600">
+          tracking-[2px] text-[#FF5500]">
           {car.make}
         </span>
 
@@ -135,7 +135,7 @@ export default function CarCard({ car }: { car: Car }) {
           href="#"
           className="mt-3 flex items-center justify-center w-full py-2.5 rounded-lg
             bg-slate-900 text-white text-[10.5px] font-black uppercase tracking-[1.5px]
-            hover:bg-amber-500 hover:text-black
+            hover:bg-[#FF5500] hover:text-black
             transition-colors duration-200"
         >
           View Details

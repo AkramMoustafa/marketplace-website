@@ -93,7 +93,7 @@ export default function HomePage() {
                   Featured Inventory
                 </h2>
                 <div className="mt-2.5 flex items-center gap-3">
-                  <div className="h-[3px] w-12 bg-amber-500 rounded-full" />
+                  <div className="h-[3px] w-12 bg-[#FF5500] rounded-full" />
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
                     {filtered.length} vehicle{filtered.length !== 1 ? 's' : ''} available
                     {query && <> · &ldquo;{query}&rdquo;</>}
@@ -124,7 +124,7 @@ export default function HomePage() {
                 <p className="text-lg text-slate-400">No vehicles found</p>
                 <button
                   onClick={clearAll}
-                  className="mt-4 text-amber-600 hover:underline"
+                  className="mt-4 text-[#FF5500] hover:underline"
                 >
                   Clear filters
                 </button>
@@ -168,7 +168,7 @@ export default function HomePage() {
 
             tracking-[7px]
 
-            text-amber-500
+            text-[#FF5500]
           ">
             MOTORS
           </p>
