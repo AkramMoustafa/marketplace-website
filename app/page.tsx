@@ -1,152 +1,182 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Phone, MapPin } from 'lucide-react';
 import CarCard from '@/components/CarCard';
+import FilterSidebar from '@/components/FilterSidebar';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
 import { cars } from '@/lib/data';
 
-const NAV_LINKS = [
-  'HOME',
-  'INVENTORY',
-  'FINANCING',
-  'GET PRE-QUALIFIED',
-  'SELL/TRADE',
-  'SERVICE',
-  'CONTACT US',
-  'REVIEWS',
-  'Español',
-];
+const allMakes = Array.from(new Set(cars.map(c => c.make))).sort();
+const allYears = Array.from(new Set(cars.map(c => c.year))).sort((a, b) => b - a);
+
+function inPriceRange(price: number | 'Call', rangeId: string): boolean {
+  if (typeof price !== 'number') return false;
+  if (rangeId === 'under-15k') return price < 15000;
+  if (rangeId === '15k-20k') return price >= 15000 && price < 20000;
+  if (rangeId === '20k-25k') return price >= 20000 && price < 25000;
+  if (rangeId === '25k-plus') return price >= 25000;
+  return false;
+}
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
+  const [selectedMakes, setSelectedMakes] = useState<string[]>([]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
 
-  const filtered = cars.filter(car =>
-    car.name.toLowerCase().includes(query.toLowerCase())
-  );
+  const toggleMake = (make: string) =>
+    setSelectedMakes(prev =>
+      prev.includes(make) ? prev.filter(m => m !== make) : [...prev, make]
+    );
+
+  const toggleYear = (year: number) =>
+    setSelectedYears(prev =>
+      prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year]
+    );
+
+  const togglePriceRange = (range: string) =>
+    setSelectedPriceRanges(prev =>
+      prev.includes(range) ? prev.filter(r => r !== range) : [...prev, range]
+    );
+
+  const clearAll = () => {
+    setSelectedMakes([]);
+    setSelectedYears([]);
+    setSelectedPriceRanges([]);
+    setQuery('');
+  };
+
+  const filtered = cars.filter(car => {
+    if (query && !car.name.toLowerCase().includes(query.toLowerCase())) return false;
+    if (selectedMakes.length && !selectedMakes.includes(car.make)) return false;
+    if (selectedYears.length && !selectedYears.includes(car.year)) return false;
+    if (selectedPriceRanges.length && !selectedPriceRanges.some(r => inPriceRange(car.price, r))) return false;
+    return true;
+  });
+
+  const activeFilterCount = selectedMakes.length + selectedYears.length + selectedPriceRanges.length;
+  const hasActiveFilters = !!query || activeFilterCount > 0;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#EEF2F7]">
 
-      {/* ── HEADER ─────────────────────────────────────────── */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center gap-4">
+      <Header query={query} onQueryChange={setQuery} />
 
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <span
-              className="logo-cursive text-5xl text-red-600 leading-none select-none"
-              style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
-            >
-              Empire Auto
-            </span>
-          </div>
+      {/* HERO */}
+      <HeroSection />
 
-          {/* Address + Phone */}
-          <div className="flex flex-col items-center md:items-start gap-1 flex-1 md:pl-8">
-            <div className="flex items-center gap-1.5 text-gray-600 text-sm">
-              <MapPin size={14} className="text-red-600 shrink-0" />
-              <span>2940 EAST 8 MILE DETROIT, MI 48234</span>
+      {/* INVENTORY */}
+      <main className="w-full px-5 py-12">
+
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+
+          {/* SIDEBAR */}
+          <FilterSidebar
+            makes={allMakes}
+            years={allYears}
+            filters={{ selectedMakes, selectedYears, selectedPriceRanges }}
+            onMakeChange={toggleMake}
+            onYearChange={toggleYear}
+            onPriceRangeChange={togglePriceRange}
+            onClearAll={clearAll}
+          />
+
+          {/* INVENTORY CONTENT */}
+          <div className="flex-1 min-w-0">
+
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+
+              <div>
+                <h2 className="font-serif text-4xl font-bold text-slate-900 leading-tight">
+                  Featured Inventory
+                </h2>
+                <div className="mt-3 h-0.5 w-16 rounded-full bg-amber-500" />
+              </div>
+
+              {hasActiveFilters && (
+                <p className="text-sm text-slate-500">
+                  {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                  {query && <> for &ldquo;{query}&rdquo;</>}
+                </p>
+              )}
+
             </div>
-            <div className="flex items-center gap-1.5 text-gray-700 font-semibold text-sm">
-              <Phone size={14} className="text-red-600 shrink-0" />
-              <a href="tel:3132517447" className="hover:text-red-600 transition-colors">
-                (313) 251-7447
-              </a>
-            </div>
-          </div>
 
-          {/* Search bar */}
-          <div className="w-full md:w-72">
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search inventory…"
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+            {filtered.length > 0 ? (
 
-      {/* ── NAV BAR ────────────────────────────────────────── */}
-      <nav className="bg-black">
-        <div className="max-w-7xl mx-auto px-4">
-          <ul className="flex flex-wrap items-center">
-            {NAV_LINKS.map((link, i) => (
-              <li key={link}>
-                <a
-                  href="#"
-                  className={`block px-3 py-3 text-xs font-semibold tracking-wide whitespace-nowrap transition-colors ${
-                    i === 0
-                      ? 'text-white bg-red-600 hover:bg-red-700'
-                      : 'text-gray-200 hover:text-red-400'
-                  }`}
+              <div className="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                md:grid-cols-3
+                xl:grid-cols-4
+                gap-2
+              ">
+                {filtered.map(car => (
+                  <CarCard key={car.id} car={car} />
+                ))}
+              </div>
+
+            ) : (
+
+              <div className="py-24 text-center">
+                <p className="text-lg text-slate-400">No vehicles found</p>
+                <button
+                  onClick={clearAll}
+                  className="mt-4 text-amber-600 hover:underline"
                 >
-                  {link}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
+                  Clear filters
+                </button>
+              </div>
 
-      {/* ── INVENTORY SECTION ──────────────────────────────── */}
-     <main className="w-full px-6 py-10">
+            )}
 
-        {/* Section heading */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 uppercase tracking-wide">
-            Our Inventory
-          </h2>
-          <div className="mt-2 h-1 w-16 bg-red-600 rounded" />
-        </div>
-
-        {/* Results count */}
-        {query && (
-          <p className="text-sm text-gray-500 mb-4">
-            {filtered.length} result{filtered.length !== 1 ? 's' : ''} for &quot;{query}&quot;
-          </p>
-        )}
-
-        {/* Grid */}
-        {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
-          {filtered.map(car => (
-            <CarCard key={car.id} car={car} />
-          ))}
-</div>
-        ) : (
-          <div className="py-20 text-center text-gray-400">
-            <p className="text-lg">No vehicles match &quot;{query}&quot;</p>
-            <button
-              onClick={() => setQuery('')}
-              className="mt-3 text-red-600 text-sm hover:underline"
-            >
-              Clear search
-            </button>
           </div>
-        )}
+
+        </div>
+
       </main>
 
-      {/* ── FOOTER ─────────────────────────────────────────── */}
-      <footer className="bg-black text-white mt-16 py-8 px-4 text-center">
-        <p
-          className="logo-cursive text-3xl text-red-500 mb-2"
-          style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
-        >
-          Empire Auto
-        </p>
-        <p className="text-gray-400 text-sm">2940 East 8 Mile Detroit, MI 48234</p>
-        <p className="text-gray-400 text-sm mt-1">
-          <a href="tel:3132517447" className="hover:text-red-400 transition-colors">(313) 251-7447</a>
-        </p>
-        <p className="text-gray-600 text-xs mt-4">
-          &copy; {new Date().getFullYear()} Empire Auto. All rights reserved.
-        </p>
+      {/* FOOTER */}
+      <footer className="
+        mt-12
+
+        bg-slate-950
+
+        text-white
+
+        py-10
+      ">
+
+        <div className="text-center">
+
+          <h3 className="
+            text-3xl
+            font-black
+
+            tracking-[5px]
+          ">
+            NOVA
+          </h3>
+
+          <p className="
+            mt-1
+
+            text-xs
+            uppercase
+
+            tracking-[7px]
+
+            text-amber-500
+          ">
+            MOTORS
+          </p>
+
+        </div>
+
       </footer>
+
     </div>
   );
 }

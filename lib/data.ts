@@ -35,6 +35,8 @@ export interface Car {
   id: string;
   stockNumber: string;
   name: string;
+  make: string;
+  year: number;
   price: number | 'Call';
   images: StaticImageData[];
 }
@@ -44,6 +46,8 @@ export const cars: Car[] = [
     id: '1',
     stockNumber: 'P48231',
     name: '2017 GMC ACADIA SLT-1',
+    make: 'GMC',
+    year: 2017,
     price: 'Call',
     images: [acadia1, acadia2, acadia3, acadia4],
   },
@@ -52,6 +56,8 @@ export const cars: Car[] = [
     id: '2',
     stockNumber: 'P48302',
     name: '2020 DODGE CHARGER SXT',
+    make: 'Dodge',
+    year: 2020,
     price: 16690,
     images: [charger1, charger2, charger3, charger4],
   },
@@ -60,6 +66,8 @@ export const cars: Car[] = [
     id: '3',
     stockNumber: 'P47918',
     name: '2019 BUICK ENCORE SPORT TOURING',
+    make: 'Buick',
+    year: 2019,
     price: 'Call',
     images: [encore1, encore2, encore3, encore4],
   },
@@ -68,6 +76,8 @@ export const cars: Car[] = [
     id: '4',
     stockNumber: 'P48544',
     name: '2023 CHEVROLET MALIBU 1LT',
+    make: 'Chevrolet',
+    year: 2023,
     price: 16990,
     images: [malibu1, malibu2, malibu3, malibu4],
   },
@@ -76,6 +86,8 @@ export const cars: Car[] = [
     id: '5',
     stockNumber: 'P48617',
     name: '2020 CADILLAC XT4 PREMIUM LUXURY',
+    make: 'Cadillac',
+    year: 2020,
     price: 17490,
     images: [xt41, xt42, xt43, xt44],
   },

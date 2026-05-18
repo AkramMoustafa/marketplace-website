@@ -3,23 +3,45 @@
 @tailwind utilities;
 
 :root {
-  --background: #f0f0f0;
+  --background: #EEF2F7;
   --foreground: #111111;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
-.logo-cursive {
-  font-family: 'Dancing Script', 'Brush Script MT', cursive;
+/* Hero content: staggered fade-up entrance                               */
+/* fill-mode:both keeps opacity:0 during animationDelay (no flash)        */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.hero-animate {
+  opacity: 0;
+  animation: heroFadeUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hero image: slow auto-zoom plays once on load — adds life to still photo */
+@keyframes heroZoom {
+  from { transform: scale(1);    }
+  to   { transform: scale(1.06); }
+}
+
+.hero-zoom {
+  animation: heroZoom 9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform;
 }
 
 @layer utilities {
-  .text-balance { text-wrap: balance; }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 ::-webkit-scrollbar       { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #e5e5e5; }
-::-webkit-scrollbar-thumb { background: #cc0000; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 3px; }
