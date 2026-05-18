@@ -1,177 +1,139 @@
 import Image from 'next/image';
-import { Car, CreditCard, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
-// TODO: Replace with a cinematic road/action vehicle photo.
-// Using best available inventory asset as placeholder.
-import heroImage from '@/assets/xt4-1.jpg';
+// Front-on Charger — high-energy, fills the frame.
+// Replace with a road/action shot for production.
+import heroImage from '@/assets/charger-2.jpg';
 
 const STATS = [
-  { Icon: Car,        value: '500+',   label: 'Vehicles'       },
-  { Icon: CreditCard, value: 'Easy',   label: 'Financing'      },
-  { Icon: MapPin,     value: 'Detroit', label: 'Trusted Dealer' },
+  { value: '500+',    label: 'Vehicles'       },
+  { value: '24hr',    label: 'Financing'      },
+  { value: 'Detroit', label: 'Trusted Dealer' },
 ] as const;
 
 export default function HeroSection() {
   return (
-    <section className="relative w-full min-h-[520px] lg:h-[670px] bg-slate-950 overflow-hidden">
+    <section className="relative w-full min-h-[460px] lg:h-[560px] bg-slate-900 overflow-hidden">
 
-      {/* ── VEHICLE IMAGE ─────────────────────────────────────────────────
-          Slow auto-zoom (9 s, once) adds cinematic life to the still photo.
-          object-[62%_center] shifts the frame so the car's front grille
-          sits in the center-right, bleeding slightly into the content zone.
-      ─────────────────────────────────────────────────────────────────── */}
-      <div className="hero-zoom absolute inset-0">
+      {/* ── VEHICLE IMAGE ──────────────────────────────────────────────
+          No slow-zoom — static bold presence, not cinematic.
+          object-[56%_48%] frames the grille center-right so the car
+          bleeds into the content zone without completely hiding it.
+      ────────────────────────────────────────────────────────────────── */}
+      <div className="absolute inset-0">
         <Image
           src={heroImage}
-          alt="Nova Motors — Premium Vehicles, Detroit MI"
+          alt="Premium vehicles at Nova Motors Detroit"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[62%_center]"
+          className="object-cover object-[56%_48%]"
         />
       </div>
 
-      {/* ── GRADIENT LAYERS (order matters) ───────────────────────────── */}
-
-      {/* 1. Left scrim — primary text protection, car bleeds into text zone */}
+      {/* ── SINGLE GRADIENT SCRIM ──────────────────────────────────────
+          One lean left-to-right scrim only — car reads clearly,
+          not buried under luxury darkness.
+      ────────────────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 bg-gradient-to-r
-        from-slate-950
-        via-slate-950/72
-        to-slate-950/10" />
+        from-slate-900
+        via-slate-900/45
+        to-slate-900/[0.02]" />
 
-      {/* 2. Top vignette */}
-      <div className="absolute inset-0 bg-gradient-to-b
-        from-slate-950/55
-        via-transparent
-        to-transparent" />
+      {/* Mobile: flat blanket so text stays readable */}
+      <div className="absolute inset-0 bg-slate-900/55 lg:hidden" />
 
-      {/* 3. Bottom vignette — eases into inventory section */}
-      <div className="absolute inset-0 bg-gradient-to-t
-        from-slate-950/85
-        via-slate-950/25
-        to-transparent" />
+      {/* Amber heat — energetic, not ambient luxury */}
+      <div className="pointer-events-none absolute -bottom-10 left-[28%]
+        w-[300px] h-[160px] rounded-full
+        bg-amber-500/[0.1] blur-[70px]" />
 
-      {/* 4. Mobile: extra blanket so text is always readable */}
-      <div className="absolute inset-0 bg-slate-950/50 lg:hidden" />
-
-      {/* ── AMBIENT GLOWS ─────────────────────────────────────────────── */}
-
-      {/* Warm amber — bottom-right, adds dealership warmth */}
-      <div className="pointer-events-none absolute -bottom-28 right-[6%]
-        h-[380px] w-[620px] rounded-full
-        bg-amber-500/[0.07] blur-[140px]" />
-
-      {/* Cool blue-navy — top-left, counterbalances warm, adds depth */}
-      <div className="pointer-events-none absolute -left-20 -top-20
-        h-[480px] w-[520px] rounded-full
-        bg-blue-900/[0.28] blur-[110px]" />
-
-      {/* ── GRAIN TEXTURE (micro-detail, very subtle) ─────────────────── */}
-      <div className="pointer-events-none absolute inset-0 bg-grain opacity-[0.18]" />
-
-      {/* ── CONTENT ───────────────────────────────────────────────────── */}
+      {/* ── CONTENT ────────────────────────────────────────────────── */}
       <div className="relative z-10 h-full max-w-7xl mx-auto
-        px-6 lg:px-12 flex items-center py-24 lg:py-0">
+        px-6 lg:px-12 flex items-center py-12 lg:py-0">
 
-        <div className="max-w-[540px]">
+        <div className="max-w-[580px]">
 
-          {/* Badge */}
+          {/* Dealer badge — solid, reads instantly */}
           <div
-            className="hero-animate inline-flex items-center gap-2.5
-              rounded-full border border-amber-500/30 bg-amber-500/[0.08]
-              px-3.5 py-1.5 mb-7"
-            style={{ animationDelay: '60ms' }}
+            className="hero-animate inline-flex items-center gap-1.5
+              px-3 py-1.5 rounded bg-amber-500 text-black mb-4"
+            style={{ animationDelay: '40ms' }}
           >
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
-            <span className="text-[9px] font-black uppercase tracking-[3.5px] text-amber-400">
-              Detroit&apos;s Premier Dealership
+            <MapPin size={10} strokeWidth={3} className="shrink-0" />
+            <span className="text-[9px] font-black uppercase tracking-[2.5px]">
+              Detroit, MI · Trusted Dealer
             </span>
           </div>
 
-          {/* Headline */}
+          {/* Headline — maximum weight, minimum leading */}
           <h1
-            className="hero-animate font-serif font-bold text-white
-              text-[3.1rem] lg:text-[4.1rem]
-              leading-[1.06] tracking-tight"
-            style={{ animationDelay: '190ms' }}
+            className="hero-animate font-sans font-black text-white
+              uppercase tracking-tight leading-[0.88]
+              text-[3.8rem] lg:text-[5.6rem]"
+            style={{ animationDelay: '140ms' }}
           >
-            Find Your<br />Dream Ride
+            FIND YOUR<br />DREAM RIDE
           </h1>
 
           {/* Subheadline */}
           <p
-            className="hero-animate mt-5 max-w-[380px]
-              text-[15px] lg:text-base text-slate-400 leading-relaxed"
-            style={{ animationDelay: '310ms' }}
+            className="hero-animate mt-4 text-slate-300 text-base max-w-[340px] leading-snug"
+            style={{ animationDelay: '250ms' }}
           >
-            Premium inventory. Financing solutions.
-            <br className="hidden sm:block" />
-            Ready to drive today.
+            Browse our inventory and drive home today.
           </p>
 
           {/* CTAs */}
           <div
-            className="hero-animate mt-8 flex flex-wrap gap-3"
-            style={{ animationDelay: '430ms' }}
+            className="hero-animate mt-6 flex flex-wrap gap-3"
+            style={{ animationDelay: '350ms' }}
           >
             <a
               href="#inventory"
               className="inline-flex items-center
-                px-7 py-3.5 rounded-lg
+                px-8 py-4 rounded-xl
                 bg-amber-500 text-black
-                text-[11px] font-black uppercase tracking-[1.5px]
+                text-sm font-black uppercase tracking-[1.5px]
                 hover:bg-amber-400 hover:-translate-y-0.5
-                hover:shadow-xl hover:shadow-amber-500/25
+                hover:shadow-xl hover:shadow-amber-500/30
                 active:translate-y-0 active:shadow-none
                 transition-all duration-200"
             >
-              Browse Inventory
+              SHOP INVENTORY
             </a>
 
             <a
               href="#pre-approval"
               className="inline-flex items-center
-                px-7 py-3.5 rounded-lg
-                border border-white/20 bg-white/[0.05] backdrop-blur-sm
-                text-[11px] font-bold uppercase tracking-[1.5px] text-white/90
-                hover:border-white/40 hover:bg-white/10
+                px-8 py-4 rounded-xl
+                border-2 border-white/30 text-white
+                text-sm font-black uppercase tracking-[1.5px]
+                hover:border-white/55 hover:bg-white/[0.08]
                 hover:-translate-y-0.5 active:translate-y-0
                 transition-all duration-200"
             >
-              Get Pre-Approved
+              GET APPROVED
             </a>
           </div>
 
-          {/* Stats row */}
+          {/* Stats */}
           <div
-            className="hero-animate mt-10 pt-8 border-t border-white/[0.1]"
-            style={{ animationDelay: '560ms' }}
+            className="hero-animate mt-7 pt-5 border-t border-white/[0.12]"
+            style={{ animationDelay: '460ms' }}
           >
-            <div className="flex items-center gap-7 sm:gap-10">
-              {STATS.map(({ Icon, value, label }, i) => (
-                <div key={label} className="flex items-center gap-7 sm:gap-10">
-
-                  {i > 0 && (
-                    <div className="h-8 w-px shrink-0 bg-white/[0.1]" />
-                  )}
-
-                  <div className="flex items-start gap-2.5">
-                    <Icon
-                      size={14}
-                      className="mt-1 shrink-0 text-amber-500"
-                      strokeWidth={2.5}
-                    />
-                    <div>
-                      <p className="text-[1.3rem] font-black text-white leading-none">
-                        {value}
-                      </p>
-                      <p className="mt-1 text-[9px] font-semibold uppercase
-                        tracking-[1.5px] text-slate-500">
-                        {label}
-                      </p>
-                    </div>
+            <div className="flex items-center gap-5 sm:gap-7">
+              {STATS.map(({ value, label }, i) => (
+                <div key={label} className="flex items-center gap-5 sm:gap-7">
+                  {i > 0 && <div className="h-6 w-px shrink-0 bg-white/[0.12]" />}
+                  <div>
+                    <p className="text-[1.75rem] font-black text-amber-400 leading-none">
+                      {value}
+                    </p>
+                    <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[1.5px] text-slate-500">
+                      {label}
+                    </p>
                   </div>
-
                 </div>
               ))}
             </div>

@@ -67,7 +67,7 @@ export default function HomePage() {
       <HeroSection />
 
       {/* INVENTORY */}
-      <main className="w-full px-5 py-12">
+      <main className="w-full px-5 py-8 lg:py-10">
 
         <div className="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -88,18 +88,18 @@ export default function HomePage() {
             <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
 
               <div>
-                <h2 className="font-serif text-4xl font-bold text-slate-900 leading-tight">
+                <h2 className="font-sans font-black uppercase tracking-tight text-slate-900
+                  text-4xl lg:text-5xl leading-none">
                   Featured Inventory
                 </h2>
-                <div className="mt-3 h-0.5 w-16 rounded-full bg-amber-500" />
+                <div className="mt-2.5 flex items-center gap-3">
+                  <div className="h-[3px] w-12 bg-amber-500 rounded-full" />
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+                    {filtered.length} vehicle{filtered.length !== 1 ? 's' : ''} available
+                    {query && <> · &ldquo;{query}&rdquo;</>}
+                  </span>
+                </div>
               </div>
-
-              {hasActiveFilters && (
-                <p className="text-sm text-slate-500">
-                  {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-                  {query && <> for &ldquo;{query}&rdquo;</>}
-                </p>
-              )}
 
             </div>
 

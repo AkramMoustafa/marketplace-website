@@ -101,16 +101,16 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
 
       {/* ── MAIN HEADER ───────────────────────────────────────────────── */}
       <header className="bg-white">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-5 flex flex-col lg:flex-row items-center gap-5 lg:gap-8">
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-4 flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
 
           {/* LOGO — amber left accent bar anchors the mark */}
-          <div className="flex items-stretch gap-3.5 shrink-0">
-            <div className="w-[3px] self-stretch bg-amber-500 rounded-full" />
+          <div className="flex items-stretch gap-4 shrink-0">
+            <div className="w-[4px] self-stretch bg-amber-500 rounded-full" />
             <div>
-              <div className="text-[2.8rem] font-black tracking-[7px] text-slate-900 leading-none">
+              <div className="text-[3.5rem] font-black tracking-[5px] text-slate-900 leading-none">
                 NOVA
               </div>
-              <div className="text-[8.5px] font-black tracking-[9px] text-amber-600 mt-1.5 ml-[2px]">
+              <div className="text-[9px] font-black tracking-[10px] text-amber-600 mt-1.5 ml-[1px]">
                 MOTORS
               </div>
             </div>
