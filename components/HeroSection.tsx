@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { MapPin } from 'lucide-react';
 
@@ -9,7 +11,11 @@ const STATS = [
   { value: 'Detroit', label: 'Trusted Dealer' },
 ] as const;
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onOpenFinder: () => void;
+}
+
+export default function HeroSection({ onOpenFinder }: HeroSectionProps) {
   return (
     <section className="relative w-full min-h-[460px] lg:h-[560px] bg-slate-900 overflow-hidden">
 
@@ -86,8 +92,8 @@ export default function HeroSection() {
               SHOP INVENTORY
             </a>
 
-            <a
-              href="#pre-approval"
+            <button
+              onClick={onOpenFinder}
               className="inline-flex items-center
                 px-8 py-4
                 bg-transparent text-white
@@ -97,8 +103,8 @@ export default function HeroSection() {
                 active:scale-95
                 transition-all duration-150"
             >
-              GET APPROVED
-            </a>
+              Let&apos;s Find Your Car
+            </button>
           </div>
 
           <div
