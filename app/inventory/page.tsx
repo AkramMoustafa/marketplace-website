@@ -8,7 +8,7 @@ import type { VehicleListItem, TransmissionType, FuelType, VehicleStatus } from 
 import { SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 function toDisplay(v: VehicleListItem): DisplayCar {
-  return { id: v.id, title: v.title, make: v.make, year: v.year, price: v.price, images: v.images, mileage: v.mileage };
+  return { id: v.id, title: v.title, make: v.make, year: v.year, price: v.price_on_call ? 'Call' : v.price, images: v.images, mileage: v.mileage };
 }
 
 const TRANSMISSION_LABELS: Record<TransmissionType, string> = {

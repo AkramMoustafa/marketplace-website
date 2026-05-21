@@ -15,7 +15,7 @@ function toDisplayCar(v: VehicleListItem): DisplayCar {
     title: v.title,
     make: v.make,
     year: v.year,
-    price: v.price,
+    price: v.price_on_call ? 'Call' : v.price,
     images: v.images,
     mileage: v.mileage,
     color: v.color,

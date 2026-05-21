@@ -21,6 +21,10 @@ async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers['Content-Type'] = 'application/json';
   }
   if (_token) headers['Authorization'] = `Bearer ${_token}`;
+  if (typeof window !== 'undefined') {
+    const adminAuth = localStorage.getItem('adminAuthenticated');
+    if (adminAuth) headers['x-admin-auth'] = adminAuth;
+  }
 
   const res = await fetch(`${BASE}${path}`, { ...init, headers });
 
@@ -142,6 +146,20 @@ export function updateMe(data: { name?: string; email?: string }): Promise<User>
   return req('/api/users/me', { method: 'PATCH', body: JSON.stringify(data) });
 }
 
+// ── Admin Auth ────────────────────────────────────────────────────────────────
+
+export function getAdminStatus(): Promise<{ configured: boolean }> {
+  return req('/api/admin/status');
+}
+
+export function adminSetup(password: string): Promise<{ success: boolean }> {
+  return req('/api/admin/setup', { method: 'POST', body: JSON.stringify({ password }) });
+}
+
+export function adminLogin(password: string): Promise<{ success: boolean }> {
+  return req('/api/admin/login', { method: 'POST', body: JSON.stringify({ password }) });
+}
+
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
 export function getDashboardStats(): Promise<DashboardStats> {
@@ -168,6 +186,14 @@ export function adminUploadImage(vehicleId: string, file: File): Promise<Vehicle
   const form = new FormData();
   form.append('file', file);
   return req(`/api/admin/vehicles/${vehicleId}/images`, { method: 'POST', body: form });
+}
+
+export function adminDeleteVehicleImage(vehicleId: string, imageUrl: string): Promise<Vehicle> {
+  return req(`/api/admin/vehicles/${vehicleId}/images?image_url=${encodeURIComponent(imageUrl)}`, { method: 'DELETE' });
+}
+
+export function adminReorderImages(vehicleId: string, images: string[]): Promise<Vehicle> {
+  return req(`/api/admin/vehicles/${vehicleId}/images/reorder`, { method: 'PUT', body: JSON.stringify({ images }) });
 }
 
 export function adminListUsers(page = 1): Promise<PaginatedResponse<User>> {

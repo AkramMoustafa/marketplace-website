@@ -39,6 +39,7 @@ export interface Vehicle {
   images: string[];
   status: VehicleStatus;
   featured: boolean;
+  price_on_call: boolean;
   description: string | null;
   color: string | null;
   body_type: string | null;
@@ -59,6 +60,7 @@ export interface VehicleListItem {
   images: string[];
   status: VehicleStatus;
   featured: boolean;
+  price_on_call: boolean;
   color: string | null;
 }
 
@@ -177,5 +179,6 @@ export interface CreateVehiclePayload {
   color?: string;
   body_type?: string;
   featured: boolean;
+  price_on_call?: boolean;
   status: VehicleStatus;
 }

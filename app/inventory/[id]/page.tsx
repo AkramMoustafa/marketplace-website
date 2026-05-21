@@ -147,7 +147,9 @@ export default function VehicleDetailPage() {
   }
 
   const images = vehicle.images.length > 0 ? vehicle.images : [null];
-  const price = parseFloat(vehicle.price);
+  const priceDisplay = vehicle.price_on_call
+    ? 'Call for Price'
+    : `$${parseFloat(vehicle.price).toLocaleString()}`;
 
   const specItems = [
     { label: 'Year', value: String(vehicle.year), Icon: Calendar },
@@ -221,7 +223,7 @@ export default function VehicleDetailPage() {
             <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-[#FF5500]/8 border border-[#FF5500]/25">
               <span className="text-slate-400 text-xs uppercase tracking-wide">Price</span>
               <div className="w-px h-5 bg-white/10" />
-              <span className="text-3xl font-black text-[#FF5500]">${price.toLocaleString()}</span>
+              <span className="text-3xl font-black text-[#FF5500]">{priceDisplay}</span>
             </div>
 
             {vehicle.description && (
