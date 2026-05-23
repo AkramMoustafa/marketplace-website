@@ -5,6 +5,18 @@
 :root {
   --background: #EEF2F7;
   --foreground: #111111;
+
+  /* ── VehicleDetail component tokens ── */
+  --red:       #c0392b;
+  --red-dark:  #96281b;
+  --dark:      #222222;
+  --mid:       #444444;
+  --muted:     #777777;
+  --border:    #dddddd;
+  --bg-alt:    #f5f5f5;
+  --white:     #ffffff;
+  --font:      system-ui, Arial, sans-serif;
+  --sidebar-w: 340px;
 }
 
 body {

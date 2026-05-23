@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2020 KIA SOUL LX Wagon 4D | Empire Auto Sales</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:        #c0392b;
+      --red-dark:   #96281b;
+      --dark:       #222222;
+      --mid:        #444444;
+      --muted:      #777777;
+      --border:     #dddddd;
+      --bg-alt:     #f5f5f5;
+      --white:      #ffffff;
+      --font:       system-ui, Arial, sans-serif;
+      --sidebar-w:  340px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      font-size: 15px;
+      color: var(--dark);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    img { display: block; max-width: 100%; height: auto; }
+
+    /* ─── Top Bar ───────────────────────────────────────────────── */
+    .top-bar {
+      background: var(--dark);
+      color: #ccc;
+      font-size: 13px;
+      padding: 6px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .top-bar a { color: #ccc; }
+    .top-bar a:hover { color: var(--white); }
+    .top-bar .address { display: flex; align-items: center; gap: 6px; }
+    .top-bar .phone   { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--white); }
+    .top-bar .icon { font-style: normal; font-size: 14px; }
+
+    /* ─── Nav ───────────────────────────────────────────────────── */
+    .nav-bar {
+      background: var(--white);
+      border-bottom: 3px solid var(--red);
+      padding: 0 20px;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      min-height: 64px;
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.1;
+      padding: 10px 0;
+    }
+    .nav-logo .logo-main {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--red);
+      text-transform: uppercase;
+    }
+    .nav-logo .logo-sub {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--mid);
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: var(--dark);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+      transition: color .15s, border-color .15s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--red); border-bottom-color: var(--red); }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      align-self: center;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--dark);
+      margin: 5px 0;
+      transition: .2s;
+    }
+
+    /* ─── Breadcrumb ────────────────────────────────────────────── */
+    .breadcrumb {
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .breadcrumb a { color: var(--red); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 6px; }
+
+    /* ─── Page Container ────────────────────────────────────────── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ─── Vehicle Hero ──────────────────────────────────────────── */
+    .vehicle-hero {
+      padding: 20px 0 10px;
+    }
+    .vehicle-hero-title {
+      font-size: 26px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--dark);
+    }
+    .vehicle-hero-trim {
+      font-size: 15px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-top: 2px;
+    }
+
+    /* ─── Two-Column Layout ─────────────────────────────────────── */
+    .detail-layout {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      padding-bottom: 40px;
+    }
+
+    /* LEFT COLUMN */
+    .detail-main {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    /* ─── Gallery ───────────────────────────────────────────────── */
+    .gallery { margin-bottom: 16px; }
+
+    .gallery-main {
+      width: 100%;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: #111;
+      border-radius: 4px;
+      position: relative;
+    }
+    .gallery-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity .2s;
+    }
+
+    .gallery-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .gallery-thumbs img {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color .15s, opacity .15s;
+      opacity: .75;
+    }
+    .gallery-thumbs img:hover { opacity: 1; border-color: var(--red); }
+    .gallery-thumbs img.active { opacity: 1; border-color: var(--red); }
+
+    .gallery-more {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--red);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .gallery-more:hover { text-decoration: underline; }
+
+    /* ─── Description ───────────────────────────────────────────── */
+    .section { margin-top: 32px; }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--dark);
+      border-bottom: 3px solid var(--red);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .desc h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 20px 0 8px;
+    }
+    .desc h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--mid);
+      margin: 16px 0 6px;
+    }
+    .desc p {
+      margin-bottom: 12px;
+      color: #333;
+      line-height: 1.75;
+    }
+
+    /* ─── Specs Grid ────────────────────────────────────────────── */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 24px;
+    }
+    .specs-grid li {
+      font-size: 14px;
+      color: #333;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .specs-grid li::before {
+      content: "✓";
+      color: var(--red);
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* RIGHT COLUMN (SIDEBAR) */
+    .detail-sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: 16px;
+    }
+
+    .sidebar-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+
+    /* Price area */
+    .sidebar-price-wrap {
+      background: var(--dark);
+      padding: 20px;
+      text-align: center;
+    }
+    .sidebar-price-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #aaa;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .sidebar-price {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    /* CTA Buttons */
+    .sidebar-ctas {
+      padding: 16px 20px;
+      background: var(--bg-alt);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 13px 18px;
+      transition: background .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary {
+      background: var(--red);
+      color: var(--white);
+    }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-row { display: flex; gap: 10px; }
+    .btn-row .btn { flex: 1; }
+    .btn-secondary {
+      background: var(--white);
+      color: var(--dark);
+      border: 2px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--dark); }
+
+    /* Info tables */
+    .sidebar-info { padding: 0; }
+    .sidebar-table-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--mid);
+      padding: 8px 16px;
+    }
+    .sidebar-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .sidebar-table tr:nth-child(even) td { background: var(--bg-alt); }
+    .sidebar-table td {
+      padding: 9px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .sidebar-table td:first-child {
+      font-weight: 700;
+      color: var(--mid);
+      width: 46%;
+      white-space: nowrap;
+    }
+    .sidebar-table td:last-child { color: var(--dark); word-break: break-word; }
+
+    /* ─── Similar Vehicles ──────────────────────────────────────── */
+    .similar { padding: 32px 0; background: var(--bg-alt); border-top: 1px solid var(--border); }
+    .similar .section-title { margin-bottom: 20px; }
+
+    .similar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .car-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .car-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); transform: translateY(-2px); }
+
+    .car-card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      background: #ccc;
+    }
+
+    .car-card-body { padding: 14px; }
+    .car-card-year { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+    .car-card-title {
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--dark);
+      margin-bottom: 2px;
+    }
+    .car-card-trim {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .car-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .car-card-stock { font-size: 12px; color: var(--muted); }
+    .car-card-price { font-size: 18px; font-weight: 800; color: var(--red); }
+    .car-card-price.call { font-size: 14px; color: var(--mid); font-weight: 700; }
+
+    .car-card-btn {
+      display: block;
+      margin: 12px 14px 14px;
+      padding: 9px;
+      background: var(--red);
+      color: var(--white);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-radius: 4px;
+      transition: background .15s;
+    }
+    .car-card-btn:hover { background: var(--red-dark); }
+
+    /* ─── Footer ────────────────────────────────────────────────── */
+    footer {
+      background: var(--dark);
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .footer-top {
+      padding: 40px 20px 30px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      border-bottom: 1px solid #383838;
+    }
+
+    .footer-col h4 {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+    .footer-col ul li { margin-bottom: 8px; }
+    .footer-col ul li a { color: #aaa; transition: color .15s; }
+    .footer-col ul li a:hover { color: var(--white); }
+
+    .footer-bottom {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+    .footer-address { font-size: 13px; color: #aaa; }
+    .footer-phone { font-size: 15px; font-weight: 700; color: var(--red); }
+    .footer-copy { font-size: 12px; color: #666; margin-top: 6px; }
+
+    /* ─── Mobile Nav Menu ───────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: var(--white);
+        border-top: 1px solid var(--border);
+        border-bottom: 3px solid var(--red);
+        flex-direction: column;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0,0,0,.1);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .nav-bar { position: relative; flex-wrap: wrap; }
+      .nav-toggle { display: flex; flex-direction: column; }
+    }
+
+    /* ─── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .detail-layout { flex-direction: column; }
+      .detail-sidebar {
+        width: 100%;
+        position: static;
+      }
+      .similar-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .vehicle-hero-title { font-size: 20px; }
+      .similar-grid { grid-template-columns: 1fr; }
+      .specs-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 20px; }
+      .top-bar { flex-direction: column; gap: 2px; font-size: 12px; }
+      .gallery-thumbs img { width: 64px; height: 48px; }
+      .sidebar-price { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════════════ -->
+<header>
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="address">
+      <i class="icon">📍</i>
+      <span>2940 EAST 8 MILE &nbsp;|&nbsp; DETROIT, MI 48234</span>
+    </div>
+    <div class="phone">
+      <i class="icon">📞</i>
+      <a href="tel:3132517447">(313) 251-7447</a>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <a href="/" class="nav-logo">
+      <span class="logo-main">Empire Auto</span>
+      <span class="logo-sub">Sales&nbsp;&nbsp;Detroit, MI</span>
+    </a>
+
+    <button class="nav-toggle" aria-label="Toggle menu" onclick="this.closest('nav').querySelector('.nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#" class="active">Inventory</a>
+      <a href="#">Financing</a>
+      <a href="#">Sell / Trade</a>
+      <a href="#">Service</a>
+      <a href="#">Contact Us</a>
+      <a href="#">Reviews</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══════════════════════ BREADCRUMB ═══════════════════════════ -->
+<div class="breadcrumb">
+  <div class="container">
+    <a href="#">Home</a>
+    <span>›</span>
+    <a href="#">Used Cars</a>
+    <span>›</span>
+    2020 Kia Soul
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN CONTENT ════════════════════════ -->
+<div class="container">
+
+  <!-- Vehicle title row -->
+  <div class="vehicle-hero">
+    <h1 class="vehicle-hero-title">2020 KIA SOUL</h1>
+    <p class="vehicle-hero-trim">LX Wagon 4D</p>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="detail-layout">
+
+    <!-- ─── LEFT: Gallery + Description + Specs ──────────────── -->
+    <div class="detail-main">
+
+      <!-- Gallery -->
+      <div class="gallery">
+        <div class="gallery-main">
+          <img
+            id="main-photo"
+            src="https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf278c4_1_qzmjAnOB.jpg"
+            alt="2020 Kia Soul – main photo"
+          />
+        </div>
+
+        <div class="gallery-thumbs">
+          <img class="active" src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf278c4_1_qzmjAnOB.jpg" alt="Photo 1" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf278c4_1_qzmjAnOB.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf27a42_2.jpg"  alt="Photo 2" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf27a42_2.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf27b6d_3.jpg"  alt="Photo 3" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf27b6d_3.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf27c80_4.jpg"  alt="Photo 4" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf27c80_4.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf27d8d_5.jpg"  alt="Photo 5" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf27d8d_5.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf27e94_6.jpg"  alt="Photo 6" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf27e94_6.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf27fc1_7.jpg"  alt="Photo 7" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf27fc1_7.jpg')" />
+          <img src="https://cdn.gma.to/fit-in/160x120/filters:quality(70)/data/nzM/i/rykwa/6a0742cf280cd_8.jpg"  alt="Photo 8" onclick="swapPhoto(this,'https://cdn.gma.to/fit-in/720x540/filters:quality(85):no_upscale()/data/nzM/i/rykwa/6a0742cf280cd_8.jpg')" />
+        </div>
+
+        <span class="gallery-more">📷 View all photos &rsaquo;</span>
+      </div>
+
+      <!-- ─── Description ─────────────────────────────────────── -->
+      <div class="section">
+        <h2 class="section-title">About This Vehicle</h2>
+        <div class="desc">
+
+          <h2>2020 Kia Soul LX — A Practical Urban Companion</h2>
+          <p>
+            Welcome to Empire Auto Sales, where we're proud to present this clean, one-owner
+            2020 Kia Soul LX Wagon. With its distinctive boxy silhouette, generous cargo space,
+            and class-above interior, the Soul has been one of the best-selling urban crossovers
+            in America — and this example in striking <strong>Orange</strong> shows exactly why.
+            At just <strong>$8,799</strong>, it represents outstanding value in today's market.
+          </p>
+          <p>
+            This Soul carries <strong>133,672 miles</strong> and is priced accordingly to give
+            you maximum bang for your budget. A thorough inspection confirms it drives as smooth
+            as it looks — brakes are solid, tires have good tread, and the interior is clean
+            with no major wear.
+          </p>
+
+          <h2>Performance &amp; Engine</h2>
+          <p>
+            Under the hood sits Kia's proven <strong>2.0-liter inline-4 engine</strong> paired
+            to a smooth <strong>Intelligent Variable Transmission (I-VT)</strong>. This
+            combination delivers a responsive, efficient driving experience well-suited to city
+            commuting and highway cruising alike. With an EPA-estimated
+            <strong>27 MPG city / 33 MPG highway</strong>, fuel costs stay low — a genuine
+            advantage when gas prices stay elevated.
+          </p>
+          <p>
+            Front-wheel drive (FWD) keeps the handling predictable and maintenance costs
+            manageable. Whether navigating downtown Detroit or heading out on I-94, the Soul LX
+            offers a composed, confidence-inspiring ride.
+          </p>
+
+          <h2>Features &amp; Interior</h2>
+          <p>
+            Don't let the "LX" base trim fool you — the 2020 Soul LX ships with a genuinely
+            impressive feature set for its price point. You'll enjoy:
+          </p>
+          <p>
+            <strong>Technology:</strong> Bluetooth hands-free calling and audio streaming,
+            AM/FM/CD audio system, power windows, power door locks, and keyless entry make
+            everyday commuting a connected experience.
+          </p>
+          <p>
+            <strong>Safety:</strong> Kia equips the Soul LX with 4-wheel ABS, electronic
+            stability control, traction control, front and rear side-curtain air bags, dual
+            front air bags, side-impact air bags, hill start assist control, and a backup
+            camera. These aren't optional extras — they're standard, giving you real peace of
+            mind.
+          </p>
+          <p>
+            <strong>Comfort:</strong> Air conditioning, tilt-and-telescoping steering wheel,
+            and power steering ensure the cabin stays pleasant on even the longest drives. The
+            Soul's tall roofline means excellent headroom for all passengers, and the rear seat
+            folds flat to open up substantial cargo capacity.
+          </p>
+
+          <h2>Reliability &amp; Ownership</h2>
+          <p>
+            The 2020 Kia Soul consistently earns strong marks from consumer reliability surveys.
+            The I-VT transmission is simpler than a traditional automatic, which translates to
+            fewer long-term maintenance concerns. Kia's reputation for build quality has
+            improved dramatically over the past decade, and this generation Soul reflects that
+            progress with tight panel gaps and a cabin that holds up well over time.
+          </p>
+          <p>
+            Routine maintenance items — oil changes, filters, brakes — are inexpensive and
+            parts are widely available at any auto parts store or Kia dealer in the metro
+            Detroit area.
+          </p>
+
+          <h2>Why Buy From Empire Auto Sales?</h2>
+          <p>
+            At <strong>Empire Auto Sales</strong> on East 8 Mile, we've been serving Detroit
+            and the surrounding communities for years. Here's what sets us apart:
+          </p>
+          <p>
+            <strong>No-pressure sales:</strong> Our team is here to answer questions, not push
+            you into a decision. Take your time, ask for a test drive, and walk away if it
+            isn't right — we'll still be here.
+          </p>
+          <p>
+            <strong>Transparent pricing:</strong> The advertised price is the price. No hidden
+            fees added at the finance table. We show you every number upfront so there are no
+            surprises.
+          </p>
+          <p>
+            <strong>Quality inspections:</strong> Every vehicle we put on our lot goes through
+            a multi-point inspection before it's listed. If something needs attention, we either
+            fix it or disclose it — period.
+          </p>
+          <p>
+            <strong>Community roots:</strong> We're a local, independent dealership. When you
+            buy from Empire, you're supporting a Detroit business and getting a team that
+            genuinely cares about your satisfaction long after you drive off the lot.
+          </p>
+
+          <h2>Financing</h2>
+          <p>
+            We work with multiple lenders to find you competitive financing regardless of your
+            credit history. First-time buyers, recent graduates, past credit challenges — we've
+            helped customers in every situation. Down payments start as low as possible, and
+            monthly payments can be structured to fit your budget. Use the
+            <strong>GET FINANCING</strong> button to submit a quick, no-obligation application
+            and get a decision fast.
+          </p>
+          <p>
+            Prefer to pay cash or bring your own financing? No problem — we accept all forms of
+            payment and can have you in and out in under an hour.
+          </p>
+
+          <h3>Frequently Asked Questions</h3>
+
+          <h3>Q: Is this vehicle still available?</h3>
+          <p>
+            A: Inventory moves quickly at Empire Auto Sales. The best way to confirm
+            availability is to call us at <strong>(313) 251-7447</strong> or send us a text
+            using the button above. We'll respond immediately during business hours.
+          </p>
+
+          <h3>Q: Can I take it for a test drive?</h3>
+          <p>
+            A: Absolutely — test drives are always welcome. Just bring a valid driver's license
+            and stop by our lot at 2940 East 8 Mile, Detroit, MI 48234. No appointment needed,
+            though calling ahead ensures the vehicle is ready and waiting for you.
+          </p>
+
+          <h3>Q: Do you accept trade-ins?</h3>
+          <p>
+            A: Yes, we accept trade-ins on all makes and models. Our appraisers will evaluate
+            your vehicle and give you a fair offer that can be applied directly toward the
+            purchase of this Soul — reducing the amount you need to finance.
+          </p>
+
+          <h3>Q: What is the actual condition of the vehicle?</h3>
+          <p>
+            A: Used vehicles have history and we never claim otherwise. This Soul shows normal
+            wear consistent with its mileage. The exterior paint is in good condition with
+            minor surface imperfections typical of a vehicle this age. The interior is clean.
+            We encourage every buyer to schedule an independent pre-purchase inspection —
+            we'll happily accommodate a visit to any licensed mechanic of your choice.
+          </p>
+
+          <h3>Q: Does it come with a warranty?</h3>
+          <p>
+            A: This vehicle is sold as-is per Michigan law, as is customary for independent
+            used car dealers. However, extended service contracts (warranties) are available for
+            purchase and can be rolled into your financing. Ask our team for details on coverage
+            options and pricing at the time of your visit.
+          </p>
+
+        </div>
+      </div>
+
+      <!-- ─── Specifications ──────────────────────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Features &amp; Equipment</h2>
+        <ul class="specs-grid">
+          <li>ABS (4-Wheel)</li>
+          <li>AM/FM Stereo</li>
+          <li>Air Conditioning</li>
+          <li>Backup Camera</li>
+          <li>Bluetooth Wireless</li>
+          <li>CD/MP3 (Single Disc)</li>
+          <li>Dual Air Bags</li>
+          <li>Electronic Stability Control</li>
+          <li>F&amp;R Head Curtain Air Bags</li>
+          <li>Hill Start Assist Control</li>
+          <li>Keyless Entry</li>
+          <li>Power Door Locks</li>
+          <li>Power Steering</li>
+          <li>Power Windows</li>
+          <li>Side Air Bags</li>
+          <li>Steel Wheels</li>
+          <li>Tilt &amp; Telescoping Wheel</li>
+          <li>Traction Control</li>
+        </ul>
+      </div>
+
+    </div><!-- /detail-main -->
+
+    <!-- ─── RIGHT: Sidebar ──────────────────────────────────────── -->
+    <aside class="detail-sidebar">
+      <div class="sidebar-card">
+
+        <!-- Price -->
+        <div class="sidebar-price-wrap">
+          <p class="sidebar-price-label">Advertised Price</p>
+          <p class="sidebar-price">$8,799</p>
+        </div>
+
+        <!-- CTAs -->
+        <div class="sidebar-ctas">
+          <button class="btn btn-primary">🚗&nbsp; Get Financing</button>
+          <div class="btn-row">
+            <button class="btn btn-secondary">💬&nbsp; Text Us</button>
+            <button class="btn btn-secondary">📞&nbsp; Call Us</button>
+          </div>
+        </div>
+
+        <!-- Basics -->
+        <div class="sidebar-info">
+          <div class="sidebar-table-title">Basics</div>
+          <table class="sidebar-table">
+            <tbody>
+              <tr><td>VIN</td><td>KNDJ23AU9L7118674</td></tr>
+              <tr><td>Stock #</td><td>6425</td></tr>
+              <tr><td>Odometer</td><td>133,672 miles</td></tr>
+              <tr><td>Paint Color</td><td>Orange</td></tr>
+              <tr><td>Type</td><td>Wagon</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Performance -->
+          <div class="sidebar-table-title" style="margin-top:1px;">Performance</div>
+          <table class="sidebar-table">
+            <tbody>
+              <tr><td>Transmission</td><td>Automatic, I-VT</td></tr>
+              <tr><td>Engine</td><td>4-Cyl, 2.0 Liter</td></tr>
+              <tr><td>Drive</td><td>FWD</td></tr>
+              <tr><td>Fuel</td><td>Gas</td></tr>
+              <tr><td>Fuel Economy</td><td>27 City / 33 Hwy</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /sidebar-card -->
+    </aside>
+
+  </div><!-- /detail-layout -->
+</div><!-- /container -->
+
+<!-- ═══════════════════════ SIMILAR VEHICLES ════════════════════ -->
+<section class="similar">
+  <div class="container">
+    <h2 class="section-title">Similar Vehicles You May Like</h2>
+
+    <div class="similar-grid">
+
+      <!-- Card 1 -->
+      <div class="car-card">
+        <img class="car-card-img"
+          src="https://cdn.gma.to/fit-in/360x270/filters:quality(80):no_upscale()/data/nzM/i/rykwa/6a0742cf278c4_1_qzmjAnOB.jpg"
+          alt="2020 GMC Terrain"
+        />
+        <div class="car-card-body">
+          <p class="car-card-year">2020</p>
+          <p class="car-card-title">GMC TERRAIN</p>
+          <p class="car-card-trim">SLE Sport Utility 4D</p>
+          <div class="car-card-meta">
+            <span class="car-card-stock">Stock #231959</span>
+            <span class="car-card-price">$15,295</span>
+          </div>
+        </div>
+        <a href="#" class="car-card-btn">View Details</a>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="car-card">
+        <img class="car-card-img"
+          src="https://cdn.gma.to/fit-in/360x270/filters:quality(80):no_upscale()/data/nzM/i/rykwa/6a0742cf278c4_1_qzmjAnOB.jpg"
+          alt="2020 Chevrolet Traverse"
+        />
+        <div class="car-card-body">
+          <p class="car-card-year">2020</p>
+          <p class="car-card-title">CHEVROLET TRAVERSE</p>
+          <p class="car-card-trim">LT Sport Utility 4D</p>
+          <div class="car-card-meta">
+            <span class="car-card-stock">Stock #6079</span>
+            <span class="car-card-price">$17,990</span>
+          </div>
+        </div>
+        <a href="#" class="car-card-btn">View Details</a>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="car-card">
+        <img class="car-card-img"
+          src="https://cdn.gma.to/fit-in/360x270/filters:quality(80):no_upscale()/data/nzM/i/rykwa/6a0742cf278c4_1_qzmjAnOB.jpg"
+          alt="2020 Chevrolet Malibu"
+        />
+        <div class="car-card-body">
+          <p class="car-card-year">2020</p>
+          <p class="car-card-title">CHEVROLET MALIBU</p>
+          <p class="car-card-trim">LT Sedan 4D</p>
+          <div class="car-card-meta">
+            <span class="car-card-stock">Stock #6289</span>
+            <span class="car-card-price call">Call for Price</span>
+          </div>
+        </div>
+        <a href="#" class="car-card-btn">View Details</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ══════════════════════════════ -->
+<footer>
+  <div class="footer-top container">
+
+    <div class="footer-col">
+      <h4>Shop by Body Style</h4>
+      <ul>
+        <li><a href="#">Sedans</a></li>
+        <li><a href="#">SUVs &amp; Crossovers</a></li>
+        <li><a href="#">Trucks</a></li>
+        <li><a href="#">Wagons</a></li>
+        <li><a href="#">Coupes</a></li>
+        <li><a href="#">Minivans</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Popular Used Makes</h4>
+      <ul>
+        <li><a href="#">Chevrolet</a></li>
+        <li><a href="#">Ford</a></li>
+        <li><a href="#">GMC</a></li>
+        <li><a href="#">Honda</a></li>
+        <li><a href="#">Kia</a></li>
+        <li><a href="#">Toyota</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Specials &amp; Finance</h4>
+      <ul>
+        <li><a href="#">Apply for Financing</a></li>
+        <li><a href="#">Current Specials</a></li>
+        <li><a href="#">Sell / Trade-In</a></li>
+        <li><a href="#">Service Department</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Customer Reviews</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-logo">Empire Auto Sales</div>
+    <div class="footer-address">2940 East 8 Mile &nbsp;|&nbsp; Detroit, MI 48234</div>
+    <div class="footer-phone">(313) 251-7447</div>
+    <div class="footer-copy">&copy; 2026 EMPIRE AUTO SALES. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════ INLINE JS ════════════════════════════ -->
+<script>
+  function swapPhoto(thumb, fullSrc) {
+    // Update main image
+    document.getElementById('main-photo').src = fullSrc;
+
+    // Update active state on thumbnails
+    document.querySelectorAll('.gallery-thumbs img').forEach(function(img) {
+      img.classList.remove('active');
+    });
+    thumb.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

@@ -8,6 +8,7 @@ import HeroSection from '@/components/HeroSection';
 import CarFinder from '@/components/CarFinder';
 import * as api from '@/lib/api';
 import type { VehicleListItem, VehicleFilters } from '@/lib/types';
+import InstagramShowcase from '@/components/InstagramShowcase';
 
 function toDisplayCar(v: VehicleListItem): DisplayCar {
   return {
@@ -200,6 +201,7 @@ export default function HomePage() {
 
         </div>
       </main>
+      <InstagramShowcase />
 
       <footer className="mt-12 bg-slate-950 text-white py-10">
         <div className="text-center">
