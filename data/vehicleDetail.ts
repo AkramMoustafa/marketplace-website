@@ -29,7 +29,7 @@ export const kiaSoul2020: Vehicle = {
   engine: '4-Cyl, 2.0 Liter',
   drive: 'FWD',
   fuel: 'Gas',
-  fuelEconomy: { city: 27, highway: 33 },
+  fuelEconomy: '27 city / 33 highway',
 
   specs: [
     'ABS (4-Wheel)',

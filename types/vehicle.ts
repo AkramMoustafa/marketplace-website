@@ -2,12 +2,15 @@
    Vehicle type definitions — used by VehicleDetail component.
    All fields except `id` and `title` are optional so the component
    stays stable when the backend omits them.
-   ───────────────────────────────────────────────────────────────── */
 
-export interface FuelEconomy {
-  city: number;
-  highway: number;
-}
+   Field alignment with lib/types.ts (backend DTO):
+     stockNumber  ← stock_number
+     odometer     ← mileage
+     type         ← body_type
+     fuel         ← fuel_type  (formatted)
+     fuelEconomy  ← fuel_economy  (free-form string, e.g. "16 city / 23 hwy")
+     specs        ← features  (string[])
+   ───────────────────────────────────────────────────────────────── */
 
 export interface VehicleImage {
   full: string;
@@ -57,7 +60,8 @@ export interface Vehicle {
   engine?: string;
   drive?: string;
   fuel?: string;
-  fuelEconomy?: FuelEconomy;
+  /** Free-form string as entered by admin, e.g. "16 city / 23 highway". */
+  fuelEconomy?: string;
   specs?: string[];
   images?: VehicleImage[];
   descriptionSections?: DescriptionSection[];

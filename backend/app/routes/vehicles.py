@@ -72,7 +72,30 @@ async def featured_vehicles(limit: int = Query(6, le=12), db: AsyncSession = Dep
 
 @router.get("/{vehicle_id}", response_model=VehicleOut)
 async def get_vehicle(vehicle_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    print("🔥 DETAIL ROUTE ENTERED 🔥")
+
+    
+
     t0 = time.perf_counter()
+
     vehicle = await vehicle_service.get_vehicle(db, vehicle_id)
+
+    print("====== VEHICLE API DEBUG ======")
+    print("id:", vehicle.id)
+    print("title:", vehicle.title)
+    print("stock_number:", vehicle.stock_number)
+    print("engine:", vehicle.engine)
+    print("drive:", vehicle.drive)
+    print("fuel_economy:", vehicle.fuel_economy)
+    print("features:", vehicle.features)
+    print("===============================")
+
     print(f"/api/vehicles/{vehicle_id}: {(time.perf_counter()-t0)*1000:.1f}ms")
-    return VehicleOut.model_validate(vehicle)
+
+    response = VehicleOut.model_validate(vehicle)
+
+    print("====== SERIALIZED RESPONSE ======")
+    print(response.model_dump())
+    print("=================================")
+
+    return response

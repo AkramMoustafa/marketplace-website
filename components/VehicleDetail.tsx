@@ -2,35 +2,13 @@
 
 import { useState } from 'react';
 import styles from './VehicleDetail.module.css';
+import SiteHeader from '@/components/layout/SiteHeader';
 import type {
   Vehicle,
   VehicleImage,
   DescriptionSection,
   SimilarVehicle,
 } from '@/types/vehicle';
-
-/* ─── Shared icons ──────────────────────────────────────────────── */
-const PhoneIcon = (): JSX.Element => (
-  <svg width="14" height="14" viewBox="0 0 17 17" fill="none"
-    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 3h2.5L7 7 5.25 8.06A9 9 0 0 0 8.94 11.75L10 10l4 1.5V14A1 1 0 0 1 13 15C6.37 15 2 10.63 2 4a1 1 0 0 1 1-1z"/>
-  </svg>
-);
-
-const PinIcon = (): JSX.Element => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-    <circle cx="12" cy="9" r="2.5"/>
-  </svg>
-);
-
-const ChatIcon = (): JSX.Element => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-    stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 1H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2v3l4-3h6a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
-  </svg>
-);
 
 /* ─── Gallery ───────────────────────────────────────────────────── */
 interface GalleryProps {
@@ -41,6 +19,16 @@ interface GalleryProps {
 function Gallery({ images: imagesProp, vehicleTitle }: GalleryProps) {
   const images = imagesProp ?? [];
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const imageUrl = (path: string) => {
+    if (!path) return '';
+
+    if (path.startsWith('http')) return path;
+
+    return `${API_URL}${path}`;
+  };
 
   const goNext = (): void => {
     if (!images.length) return;
@@ -55,8 +43,8 @@ function Gallery({ images: imagesProp, vehicleTitle }: GalleryProps) {
   if (!images.length) {
     return (
       <div className={styles.gallery}>
-        <div className={styles.galleryMain} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ color: '#888', fontSize: 14 }}>No photos available</span>
+        <div className={styles.galleryMain}>
+          No photos available
         </div>
       </div>
     );
@@ -64,23 +52,50 @@ function Gallery({ images: imagesProp, vehicleTitle }: GalleryProps) {
 
   return (
     <div className={styles.gallery}>
+
+      {/* MAIN IMAGE */}
       <div className={styles.galleryMain}>
-        <img src={images[currentIndex].full} alt={`${vehicleTitle} – photo ${currentIndex + 1}`} />
-        <div className={styles.galleryCounter}>📷 {currentIndex + 1} / {images.length}</div>
-        <button className={`${styles.galleryArrow} ${styles.galleryArrowLeft}`} onClick={goPrev} aria-label="Previous photo">‹</button>
-        <button className={`${styles.galleryArrow} ${styles.galleryArrowRight}`} onClick={goNext} aria-label="Next photo">›</button>
+        <img
+          src={imageUrl(images[currentIndex].full)}
+          alt={`${vehicleTitle} – photo ${currentIndex + 1}`}
+        />
+
+        <div className={styles.galleryCounter}>
+          📷 {currentIndex + 1} / {images.length}
+        </div>
+
+        <button
+          className={`${styles.galleryArrow} ${styles.galleryArrowLeft}`}
+          onClick={goPrev}
+        >
+          ‹
+        </button>
+
+        <button
+          className={`${styles.galleryArrow} ${styles.galleryArrowRight}`}
+          onClick={goNext}
+        >
+          ›
+        </button>
       </div>
+
+      {/* THUMBNAILS */}
       <div className={styles.galleryThumbs}>
         {images.map((img, i) => (
           <img
             key={img.thumb}
-            src={img.thumb}
+            src={imageUrl(img.thumb)}
             alt={img.alt}
-            className={`${styles.galleryThumb} ${i === currentIndex ? styles.galleryThumbActive : ''}`}
+            className={`${styles.galleryThumb} ${
+              i === currentIndex
+                ? styles.galleryThumbActive
+                : ''
+            }`}
             onClick={() => setCurrentIndex(i)}
           />
         ))}
       </div>
+
     </div>
   );
 }
@@ -137,7 +152,6 @@ const CarIcon = () => (
 interface SidebarProps {
   vehicle: Vehicle;
 }
-
 function Sidebar({ vehicle }: SidebarProps) {
   const formattedPrice = vehicle.price != null
     ? `$${vehicle.price.toLocaleString()}`
@@ -145,71 +159,119 @@ function Sidebar({ vehicle }: SidebarProps) {
 
   return (
     <aside className={styles.detailSidebar}>
-      <div className="bg-white rounded-[24px] overflow-hidden border border-[#d9e0e6] shadow-[0_14px_40px_rgba(0,0,0,.08)]">
+      <div className="bg-white rounded-[24px] overflow-hidden border border-[#e4e8ec] shadow-[0_10px_28px_rgba(0,0,0,.05)]">
 
         {/* VEHICLE TITLE */}
         <div className="px-8 pt-8 pb-7 border-b border-[#edf0f3] text-center">
-          <p className="text-[20px] font-black uppercase tracking-tight leading-snug">
-     
+          <p className="text-[28px] font-black uppercase leading-[0.95] tracking-[-0.03em] text-[#111]">
+            {vehicle.title}
           </p>
-          <p className="mt-1 text-sm text-[#555] uppercase font-medium">{vehicle.trim ?? ''}</p>
-          <p className="mt-1 text-sm text-[#888]">{(vehicle.odometer ?? 0).toLocaleString()} miles</p>
+
+          <p className="mt-2 text-sm text-[#666] uppercase font-semibold">
+            {vehicle.trim ?? ''}
+          </p>
+
+          <p className="mt-2 text-[15px] text-[#8d939a]">
+            {(vehicle.odometer ?? 0).toLocaleString()} miles
+          </p>
         </div>
 
         {/* PRICE */}
         <div className="px-8 py-6 border-b border-[#edf0f3] flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase text-[#9aa4ae] leading-tight">Advertised</p>
-            <p className="text-[11px] font-bold uppercase text-[#9aa4ae] leading-tight">Price</p>
+            <p className="text-[11px] font-bold uppercase text-[#a2aab3] leading-tight">
+              Advertised
+            </p>
+            <p className="text-[11px] font-bold uppercase text-[#a2aab3] leading-tight">
+              Price
+            </p>
           </div>
-          <p className="text-[28px] font-black tracking-tight">{formattedPrice}</p>
+
+          <p className="text-[32px] font-black tracking-[-0.03em] text-[#111]">
+            {formattedPrice}
+          </p>
         </div>
 
         {/* CTA BUTTONS */}
         <div className="p-6 space-y-3">
-          <button className="w-full bg-black text-white rounded-xl py-5 px-6 font-black uppercase text-[15px] flex items-center justify-center gap-5">
-            <div className="w-[44px] h-[44px] rounded-full border-2 border-white flex items-center justify-center">
+
+          {/* PRIMARY */}
+          <button className="w-full bg-black text-white rounded-[18px] py-4 px-6 font-black uppercase text-[15px] flex items-center justify-center gap-5">
+            <div className="w-[44px] h-[44px] rounded-full border border-white flex items-center justify-center">
               <HeartIcon />
             </div>
+
             I WANT THIS CAR
           </button>
 
-          <button className="w-full border-2 border-black rounded-xl py-5 px-6 flex items-center justify-center gap-5 font-black uppercase text-[15px]">
-            <div className="w-[44px] h-[44px] rounded-full border-2 border-black flex items-center justify-center">
+          {/* SECONDARY */}
+          <button className="w-full border border-[#d8d8d8] rounded-[18px] py-4 px-6 flex items-center justify-center gap-5 font-extrabold uppercase text-[15px] text-[#222]">
+
+            <div className="w-[44px] h-[44px] rounded-full border border-[#d8d8d8] flex items-center justify-center">
               <ApprovalIcon />
             </div>
+
             GET ME PRE-APPROVED
           </button>
 
-          <button className="w-full border-2 border-black rounded-xl py-5 px-6 flex items-center justify-center gap-5 font-black uppercase text-[15px]">
-            <div className="w-[44px] h-[44px] rounded-full border-2 border-black flex items-center justify-center">
+          <button className="w-full border border-[#d8d8d8] rounded-[18px] py-4 px-6 flex items-center justify-center gap-5 font-extrabold uppercase text-[15px] text-[#222]">
+
+            <div className="w-[44px] h-[44px] rounded-full border border-[#d8d8d8] flex items-center justify-center">
               <CarIcon />
             </div>
+
             CHECK AVAILABILITY
           </button>
+
         </div>
 
         {/* ESTIMATE PAYMENT */}
-        <div className="mx-6 mb-6 p-6 rounded-2xl bg-[#2d678f] text-white flex items-center justify-between">
+        <div className="mx-6 mb-6 p-6 rounded-[20px] bg-[#356f98] text-white flex items-center justify-between">
+
           <div>
-            <p className="text-[20px] font-bold">Estimate payment</p>
-            <p className="mt-1 text-sm opacity-90">No impact to your credit score</p>
+            <p className="text-[18px] font-bold">
+              Estimate payment
+            </p>
+
+            <p className="mt-1 text-sm opacity-90">
+              No impact to your credit score
+            </p>
           </div>
+
           <div className="w-[52px] h-[52px] rounded-full bg-white flex items-center justify-center flex-shrink-0">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <path d="M14 4 C8 4 4 9 4 14 C4 20 9 24 14 24" stroke="#e32" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M14 4 C20 4 24 9 24 14" stroke="#e32" strokeWidth="3" strokeLinecap="round"/>
-              <path d="M18 10 L24 14 L18 18" fill="#e32"/>
+              <path
+                d="M14 4 C8 4 4 9 4 14 C4 20 9 24 14 24"
+                stroke="#e32"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              <path
+                d="M14 4 C20 4 24 9 24 14"
+                stroke="#e32"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              <path d="M18 10 L24 14 L18 18" fill="#e32" />
             </svg>
           </div>
+
         </div>
 
         {/* CALL OR TEXT */}
         <div className="border-t border-[#edf0f3] p-8 text-center">
-          <p className="text-[20px] font-semibold">Call or Text</p>
-          <a href="tel:3132517447" className="block mt-4 text-[32px] font-black">
+
+          <p className="text-[20px] font-semibold text-[#222]">
+            Call or Text
+          </p>
+
+          <a
+            href="tel:3132517447"
+            className="block mt-4 text-[30px] font-black tracking-tight text-[#111]"
+          >
             (313) 251-7447
           </a>
+
         </div>
 
       </div>
@@ -256,15 +318,6 @@ function SimilarVehicles({ vehicles }: SimilarVehiclesProps) {
 }
 
 /* ─── Constants ─────────────────────────────────────────────────── */
-const NAV_LINKS: { label: string; active?: true }[] = [
-  { label: 'Home' },
-  { label: 'Inventory', active: true },
-  { label: 'Financing' },
-  { label: 'Sell / Trade' },
-  { label: 'Service' },
-  { label: 'Contact Us' },
-  { label: 'Reviews' },
-];
 
 const FOOTER_COLUMNS: { heading: string; links: string[] }[] = [
   {
@@ -287,8 +340,6 @@ interface VehicleDetailProps {
 }
 
 export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-
   const leftSpecs: { label: string; value: string; mono?: boolean }[] = [
     { label: 'VIN',            value: vehicle.vin            ?? '—', mono: true },
     { label: 'Stock #',        value: vehicle.stockNumber    ? `#${vehicle.stockNumber}` : '—' },
@@ -302,96 +353,14 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
     { label: 'Engine',       value: vehicle.engine       ?? '—'                                                              },
     { label: 'Drive',        value: vehicle.drive        ?? '—'                                                              },
     { label: 'Fuel',         value: vehicle.fuel         ?? '—'                                                              },
-    { label: 'Fuel Economy', value: vehicle.fuelEconomy
-        ? `${vehicle.fuelEconomy.city} / ${vehicle.fuelEconomy.highway} MPG`
-        : '—'
-    },
+    { label: 'Fuel Economy', value: vehicle.fuelEconomy ?? '—' },
   ];
 
   return (
     <div className={styles.root}>
 
-{/* ── HEADER ────────────────────────────────────────────────── */}
-<header>
-
-  {/* ── TRUST BAR ── */}
-  <div style={{ background: '#111', borderBottom: '1px solid #1e1e1e' }}>
-    <div
-      className="flex items-center justify-between px-5 h-10"
-      style={{ maxWidth: 1200, margin: '0 auto' }}
-    >
-      {/* Left — open status + trust signals */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-          <span className="text-[11px] font-semibold text-gray-400">Open Today · 9AM – 7PM</span>
-        </div>
-        <span className="hidden sm:block w-px h-3 bg-gray-800" />
-        <span className="hidden sm:block text-[11px] text-gray-600">
-          No-Pressure Sales &nbsp;·&nbsp; Transparent Pricing &nbsp;·&nbsp; Financing Available
-        </span>
-      </div>
-
-      {/* Right — location + phone */}
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-gray-600">
-          <PinIcon />
-          Detroit, MI 48234
-        </div>
-        <span className="hidden sm:block w-px h-3 bg-gray-800" />
-        <a
-          href="tel:3132517447"
-          className="flex items-center gap-1.5 text-[11px] font-bold transition-colors"
-          style={{ color: '#f97316' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#fb923c')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#f97316')}
-        >
-          <PhoneIcon />
-          (313) 251-7447
-        </a>
-      </div>
-    </div>
-  </div>
-
-  {/* ── MAIN HEADER ── */}
-  <div className={styles.headerMain}>
-
-    {/* Logo */}
-    <div className={styles.headerLogo}>
-      <img src="/logo.png" alt="Empire Auto" />
-    </div>
-
-    {/* Search */}
-    <div className={styles.headerRight}>
-      <div className={styles.searchBox}>
-        <input
-          type="text"
-          placeholder="Search by year, make, model, VIN, stock..."
-        />
-        <button type="button">
-          🔍
-        </button>
-      </div>
-    </div>
-
-  </div>
-
-  {/* ── NAVIGATION ── */}
-  <nav className={styles.navBar}>
-    <div className={styles.navLinks}>
-      {NAV_LINKS.map(({ label, active }) => (
-        <a
-          key={label}
-          href="#"
-          className={active ? styles.active : ""}
-        >
-          {label}
-        </a>
-      ))}
-    </div>
-  </nav>
-
-</header>
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <SiteHeader />
 
       {/* ── MAIN CONTENT ──────────────────────────────────────────── */}
       <div style={{ background: '#eef3f7', paddingTop: '40px', paddingBottom: '60px' }}>

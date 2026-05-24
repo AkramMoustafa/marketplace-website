@@ -32,8 +32,18 @@ export default function CarCard({ car }: { car: DisplayCar }) {
   const [slide, setSlide] = useState(0);
 
   const images = car.images.length > 0 ? car.images : [PLACEHOLDER];
-  const prev = () => setSlide(i => (i - 1 + images.length) % images.length);
-  const next = () => setSlide(i => (i + 1) % images.length);
+  const detailHref = `/vehicle-detail?id=${car.id}`;
+
+  const prev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSlide(i => (i - 1 + images.length) % images.length);
+  };
+  const next = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSlide(i => (i + 1) % images.length);
+  };
 
   const priceDisplay =
     car.price === 'Call' || car.price === 0
@@ -49,6 +59,7 @@ export default function CarCard({ car }: { car: DisplayCar }) {
     ">
 
       {/* ── IMAGE ──────────────────────────────────────────────────── */}
+      <Link href={detailHref} className="block">
       <div className="relative aspect-[4/2.85] overflow-hidden bg-slate-100">
 
         {images.map((src, i) => (
@@ -97,7 +108,7 @@ export default function CarCard({ car }: { car: DisplayCar }) {
 
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
               {images.map((_, i) => (
-                <button key={i} onClick={() => setSlide(i)}
+                <button key={i} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSlide(i); }}
                   className={`rounded-full transition-all duration-200 ${
                     i === slide ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/60'
                   }`}
@@ -112,6 +123,7 @@ export default function CarCard({ car }: { car: DisplayCar }) {
           </>
         )}
       </div>
+      </Link>
 
       {/* ── CONTENT ─────────────────────────────────────────────────── */}
       <div className="p-3.5">
@@ -121,10 +133,12 @@ export default function CarCard({ car }: { car: DisplayCar }) {
           {car.make}
         </span>
 
-        <h3 className="text-[13px] font-black uppercase tracking-wide leading-snug
-          text-slate-900 min-h-[38px]">
-          {car.title}
-        </h3>
+        <Link href={detailHref}>
+          <h3 className="text-[13px] font-black uppercase tracking-wide leading-snug
+            text-slate-900 min-h-[38px] hover:text-[#FF5500] transition-colors duration-200">
+            {car.title}
+          </h3>
+        </Link>
 
         {car.stockNumber && (
           <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
@@ -144,7 +158,7 @@ export default function CarCard({ car }: { car: DisplayCar }) {
         </div>
 
         <Link
-          href={`/inventory/${car.id}`}
+          href={detailHref}
           className="mt-3 flex items-center justify-center w-full py-2.5 rounded-lg
             bg-slate-900 text-white text-[10.5px] font-black uppercase tracking-[1.5px]
             hover:bg-[#FF5500] hover:text-black

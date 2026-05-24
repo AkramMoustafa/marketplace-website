@@ -3,6 +3,8 @@ import type {
   FinancingRequest, TradeIn, ServiceAppointment, Review,
   VehicleFilters, CreateVehiclePayload, FinancingStatus, ReviewStatus,
   TradeInStatus, AppointmentStatus,
+  VehicleAIPreviewRequest, VehicleAIPreviewResponse,
+  VehicleAIImageAnalysisResponse,
 } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -14,6 +16,7 @@ export function setAuthToken(token: string | null) {
 }
 
 async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
+  console.log("FETCH URL =", `${BASE}${path}`);
   const headers: Record<string, string> = {
     ...(init.headers as Record<string, string>),
   };
@@ -26,7 +29,13 @@ async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
     if (adminAuth) headers['x-admin-auth'] = adminAuth;
   }
 
-  const res = await fetch(`${BASE}${path}`, { ...init, headers });
+  const res = await fetch(`${BASE}${path}`, {
+    ...init,
+    headers,
+    // Disable Next.js Data Cache so every server-component render reaches
+    // FastAPI instead of being served from the in-memory fetch cache.
+    cache: 'no-store',
+  });
 
   if (!res.ok) {
     let detail = res.statusText;
@@ -82,11 +91,14 @@ export function getFeaturedVehicles(limit = 6): Promise<VehicleListItem[]> {
   return req(`/api/vehicles/featured?limit=${limit}`);
 }
 
-export function getVehicle(id: string): Promise<Vehicle> {
-  return req(`/api/vehicles/${id}`);
-}
+export async function getVehicle(id: string): Promise<Vehicle> {
+  console.log("GET VEHICLE CALLED", id);
 
-// ── Financing ─────────────────────────────────────────────────────────────────
+  const result = await req<Vehicle>(`/api/vehicles/${id}`);
+
+  console.log("API RESULT", result);
+  return result;
+}
 
 export function applyFinancing(data: {
   vehicle_id?: string; phone: string; address: string; annual_income: string;
@@ -244,6 +256,25 @@ export function adminUpdateReview(
 
 export function adminDeleteReview(id: string): Promise<void> {
   return req(`/api/admin/reviews/${id}`, { method: 'DELETE' });
+}
+
+// ── AI content generation ─────────────────────────────────────────────────────
+
+export function adminGenerateAIContent(
+  data: VehicleAIPreviewRequest,
+): Promise<VehicleAIPreviewResponse> {
+  return req('/api/admin/vehicles/ai-preview', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function adminAnalyzeVehicleImage(
+  file: File,
+): Promise<VehicleAIImageAnalysisResponse> {
+  const form = new FormData();
+  form.append('file', file);
+  return req('/api/admin/vehicles/ai-image-analyze', { method: 'POST', body: form });
 }
 
 export function getImageUrl(path: string | null | undefined): string {

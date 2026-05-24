@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "app/uploads"
     MAX_UPLOAD_SIZE_MB: int = 10
 
+    # AI
+    OPENAI_API_KEY: str = ""
+
     # Seed
     ADMIN_EMAIL: str = "admin@marketplace.com"
     ADMIN_PASSWORD: str = "Admin123!"

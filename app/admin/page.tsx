@@ -8,8 +8,9 @@ import * as api from '@/lib/api';
 import type {
   DashboardStats, Vehicle, VehicleListItem, FinancingRequest, Review, TradeIn, ServiceAppointment,
   FinancingStatus, ReviewStatus, TransmissionType, FuelType, VehicleStatus,
+  VehicleAIPreviewResponse, VehicleAIImageAnalysisResponse,
 } from '@/lib/types';
-import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone } from 'lucide-react';
+import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone, Sparkles } from 'lucide-react';
 
 // ── Admin Setup screen ─────────────────────────────────────────────────────────
 function AdminSetup({ onCreated }: { onCreated: () => void }) {
@@ -111,6 +112,431 @@ function AdminLogin({ onLoggedIn }: { onLoggedIn: () => void }) {
         </button>
       </form>
       <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}`}</style>
+    </div>
+  );
+}
+
+// ── AI content generation ──────────────────────────────────────────────────────
+
+type AIContentType = 'description' | 'highlights' | 'seo';
+
+/** Fields the AI banner and modal need from the vehicle form. */
+interface AIVehicleFormSnapshot {
+  title: string; make: string; model: string; year: number;
+  engine: string; drive: string; fuel_economy: string;
+  mileage: number; color: string; body_type: string;
+  transmission: string; features: string;
+}
+
+/** Returns true when the minimum set of fields required for AI generation are filled. */
+function aiReadyToGenerate(f: AIVehicleFormSnapshot): boolean {
+  return (
+    f.title.trim() !== '' && f.make.trim() !== '' && f.model.trim() !== '' &&
+    f.year > 0 && f.engine.trim() !== '' && f.drive.trim() !== '' && f.mileage > 0
+  );
+}
+
+// ── AI Assist Banner ────────────────────────────────────────────────────────────
+function AIAssistBanner({ onGenerate }: { onGenerate: (t: AIContentType) => void }) {
+  return (
+    <div className="rounded-xl border border-[#C9A84C]/30 bg-[#C9A84C]/[0.04] px-4 py-3.5">
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles size={13} className="text-[#C9A84C]" />
+        <span className="text-[10px] font-black uppercase tracking-[2px] text-[#C9A84C]">
+          AI Suggestions Available
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {(['description', 'highlights', 'seo'] as AIContentType[]).map(t => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => onGenerate(t)}
+            className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wide bg-[#C9A84C]/10 border border-[#C9A84C]/40 text-[#C9A84C] rounded-lg hover:bg-[#C9A84C]/20 transition"
+          >
+            Generate {t === 'description' ? 'Description' : t === 'highlights' ? 'Highlights' : 'SEO Copy'}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── AI Content Modal ────────────────────────────────────────────────────────────
+function AIContentModal({
+  type, snapshot, onAccept, onClose,
+}: {
+  type: AIContentType;
+  snapshot: AIVehicleFormSnapshot;
+  onAccept: (type: AIContentType, result: VehicleAIPreviewResponse) => void;
+  onClose: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [genError, setGenError] = useState('');
+  const [result, setResult] = useState<VehicleAIPreviewResponse | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [editDesc, setEditDesc] = useState('');
+  const [editHighlights, setEditHighlights] = useState('');
+  const [editSeoTitle, setEditSeoTitle] = useState('');
+  const [editMetaDesc, setEditMetaDesc] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const label = type === 'description' ? 'Description' : type === 'highlights' ? 'Highlights' : 'SEO Copy';
+
+  const generate = useCallback(async () => {
+    setLoading(true); setGenError(''); setEditing(false);
+    try {
+      const res = await api.adminGenerateAIContent({
+        title:        snapshot.title,
+        make:         snapshot.make,
+        model:        snapshot.model,
+        year:         snapshot.year,
+        engine:       snapshot.engine,
+        drive:        snapshot.drive,
+        fuel_economy: snapshot.fuel_economy,
+        mileage:      snapshot.mileage,
+        color:        snapshot.color,
+        body_type:    snapshot.body_type,
+        transmission: snapshot.transmission,
+        features:     snapshot.features.split('\n').map(x => x.trim()).filter(Boolean),
+      });
+      setResult(res);
+      setEditDesc(res.description);
+      setEditHighlights(res.highlights.join('\n'));
+      setEditSeoTitle(res.seo_title);
+      setEditMetaDesc(res.meta_description);
+    } catch (e) {
+      setGenError(e instanceof Error ? e.message : 'Generation failed. Check that ANTHROPIC_API_KEY is set.');
+    } finally {
+      setLoading(false);
+    }
+  }, [snapshot]);
+
+  useEffect(() => { generate(); }, [generate]);
+
+  const handleAccept = () => {
+    if (!result) return;
+    onAccept(type, {
+      ...result,
+      description:      editDesc,
+      highlights:       editHighlights.split('\n').map(x => x.trim()).filter(Boolean),
+      seo_title:        editSeoTitle,
+      meta_description: editMetaDesc,
+    });
+    onClose();
+  };
+
+  const copyAll = async () => {
+    if (!result) return;
+    await navigator.clipboard.writeText(`SEO Title: ${editSeoTitle}\n\nMeta Description: ${editMetaDesc}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+      <div className="w-full max-w-lg bg-[#111] border border-white/[0.08] rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] shrink-0">
+          <div className="flex items-center gap-2">
+            <Sparkles size={13} className="text-[#C9A84C]" />
+            <h2 className="text-xs font-black uppercase tracking-[2px] text-white">
+              AI Generated {label}
+            </h2>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition">
+            <X size={15} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 min-h-[160px]">
+
+          {loading && (
+            <div className="flex flex-col items-center justify-center h-36 gap-3">
+              <div className="w-5 h-5 border-2 border-slate-700 border-t-[#C9A84C] rounded-full animate-spin" />
+              <p className="text-xs text-slate-500">Generating AI content…</p>
+            </div>
+          )}
+
+          {!loading && genError && (
+            <div className="flex flex-col items-center justify-center h-36 gap-3">
+              <p className="text-red-400 text-sm text-center">{genError}</p>
+              <button onClick={generate}
+                className="px-4 py-1.5 text-xs font-bold border border-slate-700 text-slate-400 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {!loading && result && !editing && (
+            <div className="space-y-2.5">
+              {type === 'description' && (
+                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{result.description}</p>
+              )}
+              {type === 'highlights' && (
+                <ul className="space-y-2.5">
+                  {result.highlights.map((h, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300">
+                      <span className="text-[#C9A84C] shrink-0 mt-0.5">✦</span>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {type === 'seo' && (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">SEO Title</p>
+                    <p className="text-sm text-white font-bold">{result.seo_title}</p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">{result.seo_title.length} / 60 chars</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">Meta Description</p>
+                    <p className="text-sm text-slate-300 leading-relaxed">{result.meta_description}</p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">{result.meta_description.length} / 160 chars</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!loading && result && editing && (
+            <div className="space-y-3">
+              {type === 'description' && (
+                <>
+                  <p className="text-[10px] uppercase tracking-[2px] text-slate-500">Edit Description</p>
+                  <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={7}
+                    className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+                </>
+              )}
+              {type === 'highlights' && (
+                <>
+                  <p className="text-[10px] uppercase tracking-[2px] text-slate-500">Edit Highlights — one per line</p>
+                  <textarea value={editHighlights} onChange={e => setEditHighlights(e.target.value)} rows={7}
+                    className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+                </>
+              )}
+              {type === 'seo' && (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">SEO Title</p>
+                    <input type="text" value={editSeoTitle} onChange={e => setEditSeoTitle(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]" />
+                    <p className="text-[10px] text-slate-600 mt-0.5">{editSeoTitle.length} / 60 chars</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">Meta Description</p>
+                    <textarea value={editMetaDesc} onChange={e => setEditMetaDesc(e.target.value)} rows={3}
+                      className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+                    <p className="text-[10px] text-slate-600 mt-0.5">{editMetaDesc.length} / 160 chars</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {(result && !loading) && (
+          <div className="flex items-center gap-2 px-6 py-4 border-t border-white/[0.06] shrink-0 flex-wrap">
+            {type === 'seo' && !editing ? (
+              <button onClick={copyAll}
+                className="flex items-center gap-1.5 px-4 py-2 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] transition">
+                {copied && <Check size={11} />}
+                {copied ? 'Copied!' : 'Copy to Clipboard'}
+              </button>
+            ) : (
+              <button onClick={handleAccept}
+                className="px-4 py-2 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] transition">
+                Accept
+              </button>
+            )}
+            <button onClick={generate}
+              className="px-4 py-2 text-xs font-bold border border-slate-700 text-slate-400 rounded-xl hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+              Regenerate
+            </button>
+            <button onClick={() => setEditing(e => !e)}
+              className="px-4 py-2 text-xs font-bold border border-slate-700 text-slate-400 rounded-xl hover:border-white hover:text-white transition">
+              {editing ? 'Preview' : 'Edit'}
+            </button>
+            <button onClick={onClose} className="ml-auto px-3 py-2 text-xs text-slate-500 hover:text-white transition">
+              Cancel
+            </button>
+          </div>
+        )}
+        {(!result && !loading) && (
+          <div className="flex justify-end px-6 py-4 border-t border-white/[0.06] shrink-0">
+            <button onClick={onClose} className="px-4 py-2 text-xs text-slate-500 hover:text-white transition">
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── AI image analyse panel ─────────────────────────────────────────────────────
+function AIImageAnalyzePanel({
+  image,
+  onApply,
+}: {
+  image: File;
+  onApply: (field: string, value: unknown) => void;
+}) {
+  const [phase, setPhase] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [result, setResult] = useState<VehicleAIImageAnalysisResponse | null>(null);
+  const [errMsg, setErrMsg] = useState('');
+  const [applied, setApplied] = useState<Set<string>>(new Set());
+
+  const analyze = useCallback(async () => {
+    setPhase('loading'); setErrMsg(''); setResult(null); setApplied(new Set());
+    try {
+      const res = await api.adminAnalyzeVehicleImage(image);
+      setResult(res);
+      setPhase('done');
+    } catch (e) {
+      setErrMsg(e instanceof Error ? e.message : 'Analysis failed');
+      setPhase('error');
+    }
+  }, [image]);
+
+  const applyOne = (field: string, value: unknown) => {
+    onApply(field, value);
+    setApplied(prev => { const s = new Set(Array.from(prev)); s.add(field); return s; });
+  };
+
+  const applyAll = () => {
+    if (!result) return;
+    const pairs: [string, unknown][] = [
+      ['title',     result.title],
+      ['make',      result.make],
+      ['model',     result.model],
+      ['year',      result.year],
+      ['color',     result.color],
+      ['body_type', result.body_type],
+    ];
+    const next = new Set(Array.from(applied));
+    pairs.forEach(([field, value]) => {
+      if (value !== null && value !== undefined) { onApply(field, value); next.add(field); }
+    });
+    setApplied(next);
+  };
+
+  // Build flat list of non-null suggestions
+  const suggestions: { field: string; label: string; value: string | number }[] = result
+    ? ([
+        result.title     && { field: 'title',     label: 'Title',     value: result.title },
+        result.make      && { field: 'make',       label: 'Make',      value: result.make },
+        result.model     && { field: 'model',      label: 'Model',     value: result.model },
+        result.year      && { field: 'year',       label: 'Year',      value: result.year },
+        result.color     && { field: 'color',      label: 'Color',     value: result.color },
+        result.body_type && { field: 'body_type',  label: 'Body Type', value: result.body_type },
+      ] as const).filter(Boolean) as { field: string; label: string; value: string | number }[]
+    : [];
+
+  const allApplied = suggestions.length > 0 && suggestions.every(s => applied.has(s.field));
+
+  /* ── idle ── */
+  if (phase === 'idle') return (
+    <button type="button" onClick={analyze}
+      className="flex items-center gap-1.5 text-xs font-bold text-[#C9A84C]/60 hover:text-[#C9A84C] transition mt-2">
+      <Sparkles size={11} />
+      Analyze image with AI
+    </button>
+  );
+
+  /* ── loading ── */
+  if (phase === 'loading') return (
+    <div className="flex items-center gap-2 text-xs text-slate-500 mt-2">
+      <div className="w-3.5 h-3.5 border-2 border-slate-700 border-t-[#C9A84C] rounded-full animate-spin" />
+      Analyzing image…
+    </div>
+  );
+
+  /* ── error ── */
+  if (phase === 'error') return (
+    <div className="flex items-center gap-3 text-xs mt-2">
+      <span className="text-red-400">{errMsg}</span>
+      <button type="button" onClick={analyze}
+        className="text-slate-400 hover:text-white transition underline underline-offset-2">Retry</button>
+    </div>
+  );
+
+  /* ── done: no detectable fields ── */
+  if (!result || suggestions.length === 0) return (
+    <div className="flex items-center gap-3 text-xs text-slate-500 mt-2">
+      <span>AI could not identify vehicle details from this image.</span>
+      <button type="button" onClick={analyze}
+        className="text-slate-400 hover:text-white transition underline underline-offset-2">Re-analyze</button>
+    </div>
+  );
+
+  /* ── done: suggestions panel ── */
+  return (
+    <div className="mt-2 rounded-xl border border-[#C9A84C]/20 bg-[#C9A84C]/[0.03] px-4 py-3.5 space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Sparkles size={12} className="text-[#C9A84C]" />
+          <span className="text-[10px] font-black uppercase tracking-[2px] text-[#C9A84C]">
+            AI Detected Details
+          </span>
+        </div>
+        {!allApplied && (
+          <button type="button" onClick={applyAll}
+            className="text-[10px] font-black uppercase tracking-wide text-[#C9A84C] hover:text-[#D4B96A] transition">
+            Apply All
+          </button>
+        )}
+        {allApplied && (
+          <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold">
+            <Check size={10} /> All applied
+          </span>
+        )}
+      </div>
+
+      {/* Field rows */}
+      <div className="space-y-2">
+        {suggestions.map(({ field, label, value }) => {
+          const isApplied = applied.has(field);
+          return (
+            <div key={field} className="flex items-center gap-3">
+              <span className="text-[10px] text-slate-500 w-16 shrink-0">{label}</span>
+              <span className="text-xs text-white flex-1 truncate">{String(value)}</span>
+              <button type="button" onClick={() => !isApplied && applyOne(field, value)}
+                className={`shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-lg border transition ${
+                  isApplied
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 cursor-default'
+                    : 'border-[#C9A84C]/40 text-[#C9A84C] hover:bg-[#C9A84C]/10'
+                }`}>
+                {isApplied ? <><Check size={9} /> Applied</> : 'Apply'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Confidence note */}
+      {result.confidence_note && (
+        <p className="text-[10px] text-slate-600 border-t border-white/[0.04] pt-2.5 leading-relaxed">
+          {result.confidence_note}
+        </p>
+      )}
+
+      {/* Footer actions */}
+      <div className="flex items-center gap-4 pt-0.5">
+        <button type="button" onClick={analyze}
+          className="text-[10px] text-slate-500 hover:text-[#C9A84C] transition">
+          Re-analyze
+        </button>
+        <button type="button" onClick={() => { setPhase('idle'); setResult(null); }}
+          className="text-[10px] text-slate-500 hover:text-slate-400 transition">
+          Dismiss
+        </button>
+      </div>
     </div>
   );
 }
@@ -480,6 +906,7 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [aiModal, setAiModal] = useState<AIContentType | null>(null);
 
   const [form, setForm] = useState({
     title: '', make: '', model: '', year: new Date().getFullYear(),
@@ -488,6 +915,7 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
     fuel_type: 'gasoline' as FuelType,
     vin: '', description: '', color: '', body_type: '',
     featured: false, status: 'available' as VehicleStatus,
+    stock_number: '', engine: '', drive: '', fuel_economy: '', features: '',
   });
 
   useEffect(() => {
@@ -510,6 +938,11 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
         body_type: v.body_type ?? '',
         featured: v.featured,
         status: v.status,
+        stock_number: v.stock_number ?? '',
+        engine: v.engine ?? '',
+        drive: v.drive ?? '',
+        fuel_economy: v.fuel_economy ?? '',
+        features: (v.features ?? []).join('\n'),
       });
       setLoading(false);
     }).catch(() => {
@@ -522,6 +955,20 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
     setForm(f => ({ ...f, [k]: v }));
   }, []);
 
+  const handleAIAccept = useCallback((type: AIContentType, result: VehicleAIPreviewResponse) => {
+    if (type === 'description') {
+      set('description', result.description);
+    } else if (type === 'highlights') {
+      setForm(f => ({
+        ...f,
+        features: f.features.trim()
+          ? f.features.trim() + '\n' + result.highlights.join('\n')
+          : result.highlights.join('\n'),
+      }));
+    }
+    // 'seo' is clipboard-only — no form field to write
+  }, [set]);
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -532,6 +979,7 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
         description: form.description || undefined,
         color: form.color || undefined,
         body_type: form.body_type || undefined,
+        features: form.features.split('\n').map(x => x.trim()).filter(Boolean),
       });
       setSaved(true);
       setTimeout(onDone, 900);
@@ -576,6 +1024,15 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
 
   return (
     <div>
+      {aiModal && (
+        <AIContentModal
+          type={aiModal}
+          snapshot={form}
+          onAccept={handleAIAccept}
+          onClose={() => setAiModal(null)}
+        />
+      )}
+
       <div className="flex items-center gap-4 mb-6">
         <button onClick={onDone} className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition">
           <ChevronLeft size={14} /> Back
@@ -631,6 +1088,14 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
               <option value="hybrid">Hybrid</option>
               <option value="plug_in_hybrid">Plug-In Hybrid</option>
             </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {field('Stock Number', 'stock_number', 'text', 'BMW-M3-001')}
+            {field('Engine', 'engine', 'text', '3.0L Twin Turbo I6')}
+          </div>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {field('Drive', 'drive', 'text', 'AWD')}
+            {field('Fuel Economy', 'fuel_economy', 'text', '16 city / 23 highway')}
           </div>
         </div>
 
@@ -691,6 +1156,11 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
 
         <div className="border-t border-white/[0.04]" />
 
+        {/* AI suggestions (shown once minimum required fields are filled) */}
+        {aiReadyToGenerate(form) && (
+          <AIAssistBanner onGenerate={t => setAiModal(t)} />
+        )}
+
         {/* Description */}
         <div>
           <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Description</p>
@@ -701,6 +1171,19 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
             placeholder="Optional description shown to customers on the vehicle detail page…"
             className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none placeholder-slate-600"
           />
+        </div>
+
+        {/* Features */}
+        <div>
+          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Features</p>
+          <textarea
+            value={form.features}
+            onChange={e => set('features', e.target.value)}
+            rows={4}
+            placeholder={"Carbon Fiber Trim\nHeads-Up Display\nApple CarPlay\nHarman Kardon Audio"}
+            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none placeholder-slate-600"
+          />
+          <p className="mt-1 text-[10px] text-slate-600">One feature per line</p>
         </div>
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -884,12 +1367,14 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
     fuel_type: 'gasoline' as FuelType, vin: '', description: '',
     color: '', body_type: '', featured: false, price_on_call: false,
     status: 'available' as VehicleStatus,
+    stock_number: '', engine: '', drive: '', fuel_economy: '', features: '',
   });
   const [imgEntries, setImgEntries] = useState<ImgEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [phase, setPhase] = useState<'idle' | 'creating' | 'uploading' | 'done'>('idle');
+  const [aiModal, setAiModal] = useState<AIContentType | null>(null);
   const imgEntriesRef = useRef(imgEntries);
   imgEntriesRef.current = imgEntries;
 
@@ -913,6 +1398,20 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
     });
   };
 
+  const handleAIAccept = (type: AIContentType, result: VehicleAIPreviewResponse) => {
+    if (type === 'description') {
+      set('description', result.description);
+    } else if (type === 'highlights') {
+      setForm(f => ({
+        ...f,
+        features: f.features.trim()
+          ? f.features.trim() + '\n' + result.highlights.join('\n')
+          : result.highlights.join('\n'),
+      }));
+    }
+    // 'seo' is clipboard-only — no form field to write
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -921,7 +1420,11 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
 
     let vehicleId: string;
     try {
-      const vehicle = await api.adminCreateVehicle({ ...form, price: form.price });
+      const vehicle = await api.adminCreateVehicle({
+        ...form,
+        price: form.price,
+        features: form.features.split('\n').map(x => x.trim()).filter(Boolean),
+      });
       vehicleId = vehicle.id;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create vehicle');
@@ -954,6 +1457,7 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
       mileage: 0, price: '', transmission: 'automatic',
       fuel_type: 'gasoline', vin: '', description: '',
       color: '', body_type: '', featured: false, price_on_call: false, status: 'available',
+      stock_number: '', engine: '', drive: '', fuel_economy: '', features: '',
     });
     imgEntriesRef.current.forEach(e => URL.revokeObjectURL(e.preview));
     setImgEntries([]);
@@ -975,6 +1479,15 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
 
   return (
     <div>
+      {aiModal && (
+        <AIContentModal
+          type={aiModal}
+          snapshot={form}
+          onAccept={handleAIAccept}
+          onClose={() => setAiModal(null)}
+        />
+      )}
+
       <h1 className="text-2xl font-black text-white mb-6">Add Vehicle</h1>
       <form onSubmit={submit} className="bg-[#111] border border-white/[0.06] rounded-xl p-6 max-w-2xl space-y-4">
         {input('Title', 'title', 'text', '2023 BMW M3 Competition')}
@@ -1035,10 +1548,30 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
           {input('Color', 'color', 'text', 'Midnight Black')}
           {input('Body Type', 'body_type', 'text', 'Sedan')}
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          {input('Stock Number', 'stock_number', 'text', 'BMW-M3-001')}
+          {input('Engine', 'engine', 'text', '3.0L Twin Turbo I6')}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {input('Drive', 'drive', 'text', 'AWD')}
+          {input('Fuel Economy', 'fuel_economy', 'text', '16 city / 23 highway')}
+        </div>
+        {/* AI suggestions (shown once minimum required fields are filled) */}
+        {aiReadyToGenerate(form) && (
+          <AIAssistBanner onGenerate={t => setAiModal(t)} />
+        )}
+
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Description</label>
           <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3}
             className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+        </div>
+        <div>
+          <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Features</label>
+          <textarea value={form.features} onChange={e => set('features', e.target.value)} rows={4}
+            placeholder={"Carbon Fiber Trim\nHeads-Up Display\nApple CarPlay\nHarman Kardon Audio"}
+            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none placeholder-slate-600" />
+          <p className="mt-1 text-[10px] text-slate-600">One feature per line</p>
         </div>
 
         {/* ── Image upload section ─────────────────────────────────────── */}
@@ -1046,6 +1579,14 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
           <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Vehicle Images</label>
           <ImageDropZone onFiles={handleImages} />
           <ImageEntryGrid entries={imgEntries} onRemove={removeImg} />
+          {/* AI image analysis — appears as soon as the first image is dropped */}
+          {imgEntries.length > 0 && phase === 'idle' && (
+            <AIImageAnalyzePanel
+              key={imgEntries[0].preview}
+              image={imgEntries[0].file}
+              onApply={set}
+            />
+          )}
           {uploading && (
             <p className="text-xs text-[#C9A84C] mt-2">
               Uploading {doneCount} / {imgEntries.length} images…

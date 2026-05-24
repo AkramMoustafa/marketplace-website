@@ -27,23 +27,51 @@ export interface Token {
 
 export interface Vehicle {
   id: string;
+
   title: string;
+
   make: string;
+
   model: string;
+
   year: number;
+
   mileage: number;
+
   price: string;
+
   transmission: TransmissionType;
+
   fuel_type: FuelType;
+
   vin: string;
+
   images: string[];
+
   status: VehicleStatus;
+
   featured: boolean;
+
   price_on_call: boolean;
+
   description: string | null;
+
   color: string | null;
+
   body_type: string | null;
+
+  stock_number: string | null;
+
+  engine: string | null;
+
+  drive: string | null;
+
+  fuel_economy: string | null;
+
+  features: string[] | null;
+
   created_at: string;
+
   updated_at: string;
 }
 
@@ -62,6 +90,11 @@ export interface VehicleListItem {
   featured: boolean;
   price_on_call: boolean;
   color: string | null;
+  stock_number?: string | null;
+  engine?: string | null;
+  drive?: string | null;
+  fuel_economy?: string | null;
+  features?: string[] | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -165,20 +198,79 @@ export interface VehicleFilters {
   page_size?: number;
 }
 
-export interface CreateVehiclePayload {
+// ── AI content generation ─────────────────────────────────────────────────────
+
+export interface VehicleAIPreviewRequest {
   title: string;
   make: string;
   model: string;
   year: number;
+  engine: string;
+  drive: string;
+  fuel_economy: string;
   mileage: number;
-  price: string;
-  transmission: TransmissionType;
-  fuel_type: FuelType;
-  vin: string;
-  description?: string;
   color?: string;
   body_type?: string;
+  transmission?: string;
+  features: string[];
+}
+
+export interface VehicleAIPreviewResponse {
+  description: string;
+  highlights: string[];
+  seo_title: string;
+  meta_description: string;
+}
+
+export interface VehicleAIImageAnalysisResponse {
+  make:            string | null;
+  model:           string | null;
+  year:            number | null;
+  color:           string | null;
+  body_type:       string | null;
+  title:           string | null;
+  confidence_note: string | null;
+}
+
+export interface CreateVehiclePayload {
+
+  title: string;
+
+  make: string;
+
+  model: string;
+
+  year: number;
+
+  mileage: number;
+
+  price: string;
+
+  transmission: TransmissionType;
+
+  fuel_type: FuelType;
+
+  vin: string;
+
+  description?: string;
+
+  color?: string;
+
+  body_type?: string;
+
+  stock_number?: string;
+
+  engine?: string;
+
+  drive?: string;
+
+  fuel_economy?: string;
+
+  features?: string[];
+
   featured: boolean;
+
   price_on_call?: boolean;
+
   status: VehicleStatus;
 }

@@ -13,7 +13,11 @@ from app.models.financing import FinancingRequest, FinancingStatus
 from app.models.tradein import TradeIn, TradeInStatus
 from app.models.appointment import ServiceAppointment, AppointmentStatus
 from app.models.review import Review, ReviewStatus
-from app.schemas.vehicle import VehicleCreate, VehicleUpdate, VehicleOut
+from app.schemas.vehicle import (
+    VehicleCreate, VehicleUpdate, VehicleOut,
+    VehicleAIPreviewRequest, VehicleAIPreviewResponse,
+    VehicleAIImageAnalysisResponse,
+)
 from app.schemas.user import UserOut, UserAdminUpdate
 from app.schemas.financing import FinancingRequestOut, FinancingRequestUpdate
 from app.schemas.tradein import TradeInOut, TradeInUpdate
@@ -198,6 +202,58 @@ async def dashboard_stats(_: None = Depends(verify_admin_header)):
     _dashboard_cache["data"] = result
     _dashboard_cache["expires"] = now + _DASHBOARD_TTL
     return result
+
+
+# ── AI vehicle content preview ─────────────────────────────────────────────────
+# NOTE: This route MUST be declared before /vehicles/{vehicle_id} so FastAPI
+# does not try to parse "ai-preview" as a UUID path parameter.
+
+@router.post("/vehicles/ai-preview", response_model=VehicleAIPreviewResponse)
+async def ai_vehicle_preview(
+    data: VehicleAIPreviewRequest,
+    _: None = Depends(verify_admin_header),
+) -> VehicleAIPreviewResponse:
+    """Generate AI marketing content for a vehicle without persisting anything."""
+    from app.services.ai_vehicle_service import generate_vehicle_content
+    try:
+        result = await generate_vehicle_content(data.model_dump())
+        return VehicleAIPreviewResponse(**result)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"AI generation failed: {exc}")
+
+
+@router.post("/vehicles/ai-image-analyze", response_model=VehicleAIImageAnalysisResponse)
+async def ai_image_analyze(
+    file: UploadFile = File(...),
+    _: None = Depends(verify_admin_header),
+) -> VehicleAIImageAnalysisResponse:
+    """
+    Analyse a vehicle photograph with vision AI and return detected field values
+    (make, model, year, colour, body type, suggested title).
+    Nothing is persisted — the admin decides what to apply to the form.
+    """
+    from app.services.ai_vehicle_service import analyze_vehicle_image
+
+    # Basic guard: images only, max 10 MB
+    content_type = file.content_type or "image/jpeg"
+    if not content_type.startswith("image/"):
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                            detail="Only image files are accepted.")
+
+    image_bytes = await file.read()
+    if len(image_bytes) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                            detail="Image must be under 10 MB.")
+
+    try:
+        result = await analyze_vehicle_image(image_bytes, content_type)
+        return VehicleAIImageAnalysisResponse(**result)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"AI analysis failed: {exc}")
 
 
 # ── Vehicles ───────────────────────────────────────────────────────────────────

@@ -18,6 +18,11 @@ class VehicleCreate(BaseModel):
     description: str | None = None
     color: str | None = None
     body_type: str | None = None
+    stock_number: str | None = None
+    engine: str | None = None
+    drive: str | None = None
+    fuel_economy: str | None = None
+    features: list[str] | None = None
     featured: bool = False
     price_on_call: bool = False
     status: VehicleStatus = VehicleStatus.available
@@ -56,6 +61,11 @@ class VehicleUpdate(BaseModel):
     description: str | None = None
     color: str | None = None
     body_type: str | None = None
+    stock_number: str | None = None
+    engine: str | None = None
+    drive: str | None = None
+    fuel_economy: str | None = None
+    features: list[str] | None = None
     featured: bool | None = None
     price_on_call: bool | None = None
     status: VehicleStatus | None = None
@@ -81,6 +91,11 @@ class VehicleOut(BaseModel):
     description: str | None
     color: str | None
     body_type: str | None
+    stock_number: str | None
+    engine: str | None
+    drive: str | None
+    fuel_economy: str | None
+    features: list[str] | None
     created_at: datetime
     updated_at: datetime
 
@@ -102,6 +117,46 @@ class VehicleListOut(BaseModel):
     featured: bool
     price_on_call: bool
     color: str | None
+    stock_number: str | None = None
+    engine: str | None = None
+    drive: str | None = None
+    fuel_economy: str | None = None
+    features: list[str] | None = None
+
+
+class VehicleAIPreviewRequest(BaseModel):
+    """Payload sent to the AI content-preview endpoint."""
+    title: str = ""
+    make: str = ""
+    model: str = ""
+    year: int = 0
+    engine: str = ""
+    drive: str = ""
+    fuel_economy: str = ""
+    mileage: int = 0
+    color: str = ""
+    body_type: str = ""
+    transmission: str = ""
+    features: list[str] = []
+
+
+class VehicleAIPreviewResponse(BaseModel):
+    """AI-generated marketing content returned to the admin UI."""
+    description: str
+    highlights: list[str]
+    seo_title: str
+    meta_description: str
+
+
+class VehicleAIImageAnalysisResponse(BaseModel):
+    """Vehicle details detected from a photograph by the vision AI."""
+    make:            str | None = None
+    model:           str | None = None
+    year:            int | None = None
+    color:           str | None = None
+    body_type:       str | None = None
+    title:           str | None = None
+    confidence_note: str | None = None
 
 
 class VehicleFilters(BaseModel):

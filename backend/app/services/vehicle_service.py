@@ -19,10 +19,25 @@ async def create_vehicle(db: AsyncSession, data: VehicleCreate, created_by: uuid
 
 
 async def get_vehicle(db: AsyncSession, vehicle_id: uuid.UUID) -> Vehicle:
-    result = await db.execute(select(Vehicle).where(Vehicle.id == vehicle_id))
+    result = await db.execute(
+        select(Vehicle).where(Vehicle.id == vehicle_id)
+    )
+
     vehicle = result.scalar_one_or_none()
+
     if not vehicle:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vehicle not found"
+        )
+
+    print("=== VEHICLE DEBUG ===")
+    print("stock_number:", vehicle.stock_number)
+    print("engine:", vehicle.engine)
+    print("drive:", vehicle.drive)
+    print("fuel_economy:", vehicle.fuel_economy)
+    print("features:", vehicle.features)
+
     return vehicle
 
 

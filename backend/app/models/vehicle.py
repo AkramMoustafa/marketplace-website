@@ -50,6 +50,15 @@ class Vehicle(Base, UUIDMixin, TimestampMixin):
     color: Mapped[str | None] = mapped_column(String(50), nullable=True)
     body_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
+    # ── Fields added by migration 0ac7127ea41c ────────────────────────
+    stock_number: Mapped[str | None] = mapped_column(String(50),  nullable=True)
+    engine:       Mapped[str | None] = mapped_column(String(100), nullable=True)
+    drive:        Mapped[str | None] = mapped_column(String(50),  nullable=True)
+    fuel_economy: Mapped[str | None] = mapped_column(String(50),  nullable=True)
+
+    # ── Field added by migration e43af5f77663 ─────────────────────────
+    features: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+
     created_by: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
