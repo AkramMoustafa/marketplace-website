@@ -1,5 +1,7 @@
 /* ─────────────────────────────────────────────────────────────────
-   Vehicle type definitions — used by VehicleDetail component
+   Vehicle type definitions — used by VehicleDetail component.
+   All fields except `id` and `title` are optional so the component
+   stays stable when the backend omits them.
    ───────────────────────────────────────────────────────────────── */
 
 export interface FuelEconomy {
@@ -39,22 +41,25 @@ export interface SimilarVehicle {
 }
 
 export interface Vehicle {
+  /* Required — always present */
   id: string;
   title: string;
-  trim: string;
-  price: number;
-  vin: string;
-  stockNumber: string;
-  odometer: number;
-  color: string;
-  type: string;
-  transmission: string;
-  engine: string;
-  drive: string;
-  fuel: string;
-  fuelEconomy: FuelEconomy;
-  specs: string[];
-  images: VehicleImage[];
-  descriptionSections: DescriptionSection[];
-  similarVehicles: SimilarVehicle[];
+
+  /* Optional — backend may omit any of these */
+  trim?: string;
+  price?: number;
+  vin?: string;
+  stockNumber?: string;
+  odometer?: number;
+  color?: string;
+  type?: string;
+  transmission?: string;
+  engine?: string;
+  drive?: string;
+  fuel?: string;
+  fuelEconomy?: FuelEconomy;
+  specs?: string[];
+  images?: VehicleImage[];
+  descriptionSections?: DescriptionSection[];
+  similarVehicles?: SimilarVehicle[];
 }
