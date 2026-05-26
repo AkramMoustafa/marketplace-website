@@ -9,8 +9,9 @@ import type {
   DashboardStats, Vehicle, VehicleListItem, FinancingRequest, Review, TradeIn, ServiceAppointment,
   FinancingStatus, ReviewStatus, TransmissionType, FuelType, VehicleStatus,
   VehicleAIPreviewResponse, VehicleAIImageAnalysisResponse, ContactMessageOut,
+  AgentResult, AgentStepId,
 } from '@/lib/types';
-import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone, Sparkles } from 'lucide-react';
+import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone, Sparkles, Bot, Copy } from 'lucide-react';
 
 // ── Admin Setup screen ─────────────────────────────────────────────────────────
 function AdminSetup({ onCreated }: { onCreated: () => void }) {
@@ -2066,6 +2067,287 @@ const Pagination = memo(function Pagination({ page, pages, onChange }: { page: n
   );
 });
 
+// ── AI Sales Agent view ────────────────────────────────────────────────────────
+
+type StepStatus = 'pending' | 'active' | 'done' | 'error';
+
+interface PipelineStep { id: AgentStepId; label: string; status: StepStatus; }
+
+const AGENT_STEPS: { id: AgentStepId; label: string }[] = [
+  { id: 'lookup_nhtsa',           label: 'VIN Lookup via NHTSA'       },
+  { id: 'web_search_market',      label: 'Market Research'             },
+  { id: 'generate_listing',       label: 'Generate AI Listing'         },
+  { id: 'publish_ebay',           label: 'Publish to eBay Motors'      },
+  { id: 'generate_facebook_copy', label: 'Create Facebook Copy'        },
+];
+
+function StepIcon({ status }: { status: StepStatus }) {
+  if (status === 'active')
+    return <div className="w-5 h-5 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin shrink-0" />;
+  if (status === 'done')
+    return <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0"><Check size={11} className="text-emerald-400" /></div>;
+  if (status === 'error')
+    return <div className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center shrink-0"><X size={11} className="text-red-400" /></div>;
+  return <div className="w-5 h-5 rounded-full border border-slate-700 shrink-0" />;
+}
+
+function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button onClick={copy}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wide border border-slate-700 text-slate-400 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+      {copied ? <Check size={11} /> : <Copy size={11} />}
+      {copied ? 'Copied!' : label}
+    </button>
+  );
+}
+
+function AIAgentView() {
+  const [vin, setVin] = useState('');
+  const [price, setPrice] = useState('');
+  const [running, setRunning] = useState(false);
+  const [error, setError] = useState('');
+  const [steps, setSteps] = useState<PipelineStep[]>(
+    AGENT_STEPS.map(s => ({ ...s, status: 'pending' }))
+  );
+  const [result, setResult] = useState<AgentResult | null>(null);
+  const hasRun = steps.some(s => s.status !== 'pending') || result !== null;
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  const runAgent = async () => {
+    const trimmedVin = vin.trim().toUpperCase();
+    if (trimmedVin.length !== 17) { setError('VIN must be exactly 17 characters.'); return; }
+
+    setError('');
+    setResult(null);
+    setRunning(true);
+    setSteps(AGENT_STEPS.map(s => ({ ...s, status: 'pending' })));
+
+    try {
+      for await (const event of api.streamAgentPipeline(trimmedVin, price ? parseFloat(price) : undefined)) {
+        if (!mountedRef.current) break;
+        if (event.type === 'step_start') {
+          setSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
+        } else if (event.type === 'step_done') {
+          setSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
+        } else if (event.type === 'complete') {
+          setResult(event.result);
+          setSteps(prev => prev.map(s => ({
+            ...s,
+            status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
+          })));
+        } else if (event.type === 'error') {
+          setError(event.message);
+        }
+      }
+    } catch (e) {
+      if (mountedRef.current) setError(e instanceof Error ? e.message : 'Pipeline failed.');
+    } finally {
+      if (mountedRef.current) setRunning(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 flex items-center justify-center">
+          <Bot size={18} className="text-[#C9A84C]" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black text-white">AI Sales Agent</h1>
+          <p className="text-xs text-slate-500 mt-0.5">NHTSA · DuckDuckGo · GPT-4o-mini · eBay · Facebook</p>
+        </div>
+      </div>
+
+      {/* Input form */}
+      <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 mb-4">
+        <div className="space-y-4">
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">
+              Vehicle VIN <span className="text-slate-600">(17 characters)</span>
+            </label>
+            <input
+              value={vin}
+              onChange={e => { setVin(e.target.value.toUpperCase()); setError(''); }}
+              maxLength={17}
+              placeholder="e.g. WBAJR3C0XM7E12345"
+              disabled={running}
+              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/60 transition disabled:opacity-50"
+            />
+            <p className="text-[10px] text-slate-600 mt-1">{vin.length}/17 — found on windshield sticker or door jamb</p>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">
+              Asking Price <span className="text-slate-600">(optional — overrides AI suggestion)</span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+              <input
+                type="number"
+                value={price}
+                onChange={e => setPrice(e.target.value)}
+                placeholder="38500"
+                min={0}
+                disabled={running}
+                className="w-full pl-7 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/60 transition disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <X size={13} className="text-red-400 shrink-0" />
+              <p className="text-red-400 text-xs">{error}</p>
+            </div>
+          )}
+
+          <button
+            onClick={runAgent}
+            disabled={running || vin.trim().length !== 17}
+            className="w-full py-3 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-50 transition flex items-center justify-center gap-2"
+          >
+            {running ? (
+              <><div className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Running Pipeline…</>
+            ) : (
+              <><Sparkles size={13} /> Run AI Agent</>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Pipeline progress */}
+      {hasRun && (
+        <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 mb-4">
+          <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-4">Pipeline Progress</p>
+          <div className="space-y-3">
+            {steps.map((step, i) => (
+              <div key={step.id} className="flex items-center gap-3">
+                <StepIcon status={step.status} />
+                <span className={`text-sm font-medium transition-colors ${
+                  step.status === 'active'  ? 'text-[#C9A84C]' :
+                  step.status === 'done'    ? 'text-white' :
+                  step.status === 'error'   ? 'text-red-400' :
+                  'text-slate-600'
+                }`}>
+                  {i + 1}. {step.label}
+                </span>
+                {step.status === 'error' && result?.errors?.[step.id] && (
+                  <span className="text-[10px] text-red-400/70 truncate ml-1">— {result.errors[step.id]}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Results */}
+      {result && (
+        <div className="space-y-4">
+          {/* Vehicle identity */}
+          {result.make && (
+            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">Vehicle Identified</p>
+              <p className="text-xl font-black text-white">
+                {[result.year, result.make, result.model, result.trim].filter(Boolean).join(' ')}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {result.engine      && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.engine}</span>}
+                {result.fuel_type   && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.fuel_type}</span>}
+                {result.transmission && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.transmission}</span>}
+              </div>
+            </div>
+          )}
+
+          {/* Market research */}
+          {result.market_price_range && (
+            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">Market Research</p>
+              <p className="text-lg font-black text-[#C9A84C]">{result.market_price_range}</p>
+              {result.selling_points && result.selling_points.length > 0 && (
+                <ul className="mt-3 space-y-1.5">
+                  {result.selling_points.map((pt, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
+                      <Check size={11} className="text-[#C9A84C] shrink-0 mt-0.5" />
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* Generated listing */}
+          {result.listing_title && (
+            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Generated Listing</p>
+                <CopyButton
+                  text={`${result.listing_title}\n\nPrice: $${result.suggested_price?.toLocaleString()}\n\n${result.listing_description ?? ''}`}
+                  label="Copy Listing"
+                />
+              </div>
+              <p className="text-white font-bold text-base leading-snug">{result.listing_title}</p>
+              {result.suggested_price && result.suggested_price > 0 && (
+                <p className="text-[#C9A84C] font-black text-lg mt-1">${result.suggested_price.toLocaleString()}</p>
+              )}
+              {result.listing_description && (
+                <p className="text-slate-400 text-xs leading-relaxed mt-3 whitespace-pre-wrap">{result.listing_description}</p>
+              )}
+            </div>
+          )}
+
+          {/* eBay status */}
+          {result.ebay_status && (
+            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">eBay Motors</p>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${
+                  result.ebay_status === 'mock_published' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' :
+                  'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                }`}>
+                  {result.ebay_status.replace(/_/g, ' ')}
+                </span>
+                {result.ebay_listing_id && (
+                  <span className="text-xs font-mono text-slate-400">ID: {result.ebay_listing_id}</span>
+                )}
+              </div>
+              {result.ebay_message && (
+                <p className="text-xs text-slate-500">{result.ebay_message}</p>
+              )}
+            </div>
+          )}
+
+          {/* Facebook copy */}
+          {result.facebook_copy && (
+            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Facebook Marketplace Copy</p>
+                <CopyButton text={result.facebook_copy} label="Copy Post" />
+              </div>
+              <pre className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap font-sans bg-slate-800/50 rounded-lg px-4 py-3 overflow-auto max-h-64">
+                {result.facebook_copy}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main admin page ────────────────────────────────────────────────────────────
 type AdminState = 'checking' | 'setup' | 'login' | 'panel';
 
@@ -2081,6 +2363,7 @@ function renderView(view: AdminView, setView: (v: AdminView) => void) {
     case 'contact':      return <ContactView />;
     case 'reports':      return <div className="text-slate-400">Reports coming soon.</div>;
     case 'settings':     return <div className="text-slate-400">Settings coming soon.</div>;
+    case 'ai-agent':     return <AIAgentView />;
   }
 }
 

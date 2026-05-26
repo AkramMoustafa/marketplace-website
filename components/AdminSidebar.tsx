@@ -1,8 +1,8 @@
 "use client";
 
-import { LayoutDashboard, Car, PlusCircle, BarChart2, Settings, ChevronLeft, ChevronRight, DollarSign, Star, ArrowLeftRight, Calendar, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Car, PlusCircle, BarChart2, Settings, ChevronLeft, ChevronRight, DollarSign, Star, ArrowLeftRight, Calendar, MessageSquare, Bot } from "lucide-react";
 
-export type AdminView = "dashboard" | "cars" | "add-car" | "financing" | "tradeins" | "appointments" | "reviews" | "contact" | "reports" | "settings";
+export type AdminView = "dashboard" | "cars" | "add-car" | "financing" | "tradeins" | "appointments" | "reviews" | "contact" | "reports" | "settings" | "ai-agent";
 
 interface AdminSidebarProps {
   activeView: AdminView;
@@ -22,6 +22,7 @@ const navItems: { view: AdminView; label: string; icon: React.ReactNode }[] = [
   { view: "contact",      label: "Inquiries",    icon: <MessageSquare size={17} /> },
   { view: "reports",      label: "Reports",      icon: <BarChart2 size={17} /> },
   { view: "settings",     label: "Settings",     icon: <Settings size={17} /> },
+  { view: "ai-agent",     label: "AI Agent",     icon: <Bot size={17} /> },
 ];
 
 export default function AdminSidebar({ activeView, onViewChange, collapsed, onToggleCollapse }: AdminSidebarProps) {

@@ -297,6 +297,43 @@ export interface PublicReview {
   vehicle: ReviewVehicle | null;
 }
 
+// ── AI Sales Agent ────────────────────────────────────────────────────────────
+
+export type AgentStepId =
+  | 'lookup_nhtsa'
+  | 'web_search_market'
+  | 'generate_listing'
+  | 'publish_ebay'
+  | 'generate_facebook_copy';
+
+export interface AgentResult {
+  vin: string;
+  admin_price?: number | null;
+  make?: string;
+  model?: string;
+  year?: number;
+  trim?: string;
+  engine?: string;
+  fuel_type?: string;
+  transmission?: string;
+  market_price_range?: string;
+  selling_points?: string[];
+  listing_title?: string;
+  listing_description?: string;
+  suggested_price?: number;
+  ebay_status?: string;
+  ebay_listing_id?: string | null;
+  ebay_message?: string;
+  facebook_copy?: string;
+  errors?: Record<string, string>;
+}
+
+export type AgentEvent =
+  | { type: 'step_start'; step: AgentStepId; label: string }
+  | { type: 'step_done';  step: AgentStepId }
+  | { type: 'complete';   result: AgentResult }
+  | { type: 'error';      message: string };
+
 export interface CreateVehiclePayload {
 
   title: string;

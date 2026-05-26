@@ -8,6 +8,7 @@ import type {
   ContactMessagePayload, ContactMessageOut,
   PublicReview, PublicReviewCreate,
   VehicleSearchResult,
+  AgentEvent,
 } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -322,4 +323,52 @@ export function getImageUrl(path: string | null | undefined): string {
   if (!path) return '';
   if (path.startsWith('http')) return path;
   return `${BASE}${path}`;
+}
+
+// ── AI Sales Agent (SSE streaming) ────────────────────────────────────────────
+
+export async function* streamAgentPipeline(
+  vin: string,
+  adminPrice?: number,
+): AsyncGenerator<AgentEvent> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const adminAuth = localStorage.getItem('adminAuthenticated');
+    if (adminAuth) headers['x-admin-auth'] = adminAuth;
+  }
+
+  const res = await fetch(`${BASE}/api/agent/process-vehicle`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ vin, admin_price: adminPrice ?? null }),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    let detail = res.statusText;
+    try { detail = (await res.json()).detail ?? detail; } catch {}
+    throw new Error(detail);
+  }
+
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    // SSE events are separated by double newlines
+    const chunks = buffer.split('\n\n');
+    buffer = chunks.pop() ?? '';
+
+    for (const chunk of chunks) {
+      for (const line of chunk.split('\n')) {
+        if (line.startsWith('data: ')) {
+          try { yield JSON.parse(line.slice(6)) as AgentEvent; } catch { /* skip malformed */ }
+        }
+      }
+    }
+  }
 }
