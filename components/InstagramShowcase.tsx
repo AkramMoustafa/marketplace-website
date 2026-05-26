@@ -95,10 +95,12 @@ export default function InstagramShowcase() {
 
   return (
 
-    <section className="
-      bg-[#f3f3f3]
-      py-3
-    ">
+<section className="
+  bg-[#f3f3f3]
+  py-3
+  mt-12
+  lg:mt-16
+">
 
       <div className="
         w-full

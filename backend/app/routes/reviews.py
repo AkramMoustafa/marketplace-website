@@ -15,12 +15,10 @@ router = APIRouter(prefix="/api/reviews", tags=["Reviews"])
 @router.post("", response_model=ReviewOut, status_code=status.HTTP_201_CREATED)
 async def create_review(
     data: ReviewCreate,
-    current: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    review = await review_service.create_review(db, data, current.id)
+    review = await review_service.create_review(db, data, None)
     return ReviewOut.model_validate(review)
-
 
 @router.get("", response_model=PaginatedResponse)
 async def list_approved_reviews(

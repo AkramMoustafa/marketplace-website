@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import CarCard, { type DisplayCar } from '@/components/CarCard';
+import SiteHeader from '@/components/layout/SiteHeader';
+import HomeFooter from '@/components/HomeFooter';
 import * as api from '@/lib/api';
 import type { VehicleListItem, TransmissionType, FuelType, VehicleStatus } from '@/lib/types';
 import { SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -149,23 +151,7 @@ export default function InventoryPage() {
   return (
     <div className="min-h-screen bg-[#EEF2F7]">
 
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-4 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-stretch gap-3 shrink-0">
-            <div className="w-[3px] self-stretch bg-[#FF5500] rounded-full" />
-            <div>
-              <div className="text-2xl font-black tracking-[4px] text-slate-900 leading-none">NOVA</div>
-              <div className="text-[8px] font-black tracking-[8px] text-[#FF5500] mt-1">MOTORS</div>
-            </div>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6 text-xs font-bold uppercase tracking-wide text-slate-500">
-            <Link href="/" className="hover:text-[#FF5500] transition">Home</Link>
-            <Link href="/inventory" className="text-[#FF5500]">Inventory</Link>
-            <Link href="/login" className="hover:text-[#FF5500] transition">Login</Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       <div className="max-w-7xl mx-auto px-5 py-8 flex gap-6 items-start">
 
@@ -271,6 +257,8 @@ export default function InventoryPage() {
           </div>
         </div>
       )}
+
+      <HomeFooter />
     </div>
   );
 }

@@ -222,6 +222,27 @@ export interface VehicleAIPreviewResponse {
   meta_description: string;
 }
 
+// ── Contact ───────────────────────────────────────────────────────────────────
+
+export interface ContactMessagePayload {
+  name:    string;
+  email:   string;
+  phone?:  string;
+  subject: string;
+  message: string;
+}
+
+export interface ContactMessageOut {
+  id:         string;
+  name:       string;
+  email:      string;
+  phone:      string | null;
+  subject:    string;
+  message:    string;
+  read:       boolean;
+  created_at: string;
+}
+
 export interface VehicleAIImageAnalysisResponse {
   make:            string | null;
   model:           string | null;
@@ -232,6 +253,28 @@ export interface VehicleAIImageAnalysisResponse {
   confidence_note: string | null;
 }
 
+// ── Public Reviews (no-auth submission system) ────────────────────────────
+export interface PublicReviewCreate {
+  customer_id?: string | null;
+  vehicle_id?: string | null;
+  rating: number;
+  title: string;
+  body: string;
+}
+
+export interface PublicReview {
+  id: string;
+  customer_id: string | null;
+  vehicle_id: string | null;
+  rating: number;
+  title: string;
+  body: string;
+  status: ReviewStatus;
+  created_at: string;
+  updated_at?: string;
+}
+
+Then in
 export interface CreateVehiclePayload {
 
   title: string;

@@ -57,3 +57,21 @@ body {
 ::-webkit-scrollbar       { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #e5e5e5; }
 ::-webkit-scrollbar-thumb { background: #FF5500; border-radius: 3px; }
+
+/* Footer scroll-entrance: elements start hidden, JS adds .in-view to play */
+.footer-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.footer-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger children automatically when parent gets .in-view */
+.footer-reveal.in-view > * { animation: none; }
+
+/* Scrollbar hide utility (used in InstagramShowcase) */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }

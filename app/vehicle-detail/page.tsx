@@ -63,14 +63,14 @@ export default async function VehicleDetailPage({
           </p>
 
           <a
-            href="/"
+            href="/inventory"
             style={{
               color: '#f97316',
               fontSize: 13,
               fontWeight: 600,
             }}
           >
-            ← Back to inventory
+            ← Back to Inventory
           </a>
         </div>
       </div>

@@ -11,24 +11,43 @@ class ReviewStatus(str, enum.Enum):
     approved = "approved"
     rejected = "rejected"
 
-
 class Review(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "reviews"
-    __table_args__ = (CheckConstraint("rating >= 1 AND rating <= 5", name="ck_reviews_rating"),)
-
-    customer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    __table_args__ = (
+        CheckConstraint(
+            "rating >= 1 AND rating <= 5",
+            name="ck_reviews_rating"
+        ),
     )
+
+    customer_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True
+    )
+
     vehicle_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=True
+        UUID(as_uuid=True),
+        ForeignKey("vehicles.id", ondelete="CASCADE"),
+        nullable=True
     )
 
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
+
     status: Mapped[ReviewStatus] = mapped_column(
-        SAEnum(ReviewStatus), default=ReviewStatus.pending, nullable=False
+        SAEnum(ReviewStatus),
+        default=ReviewStatus.pending,
+        nullable=False
     )
 
-    customer = relationship("User", back_populates="reviews")
-    vehicle = relationship("Vehicle", back_populates="reviews")
+    customer = relationship(
+        "User",
+        back_populates="reviews"
+    )
+
+    vehicle = relationship(
+        "Vehicle",
+        back_populates="reviews"
+    )

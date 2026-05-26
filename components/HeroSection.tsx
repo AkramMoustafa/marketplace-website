@@ -79,7 +79,7 @@ export default function HeroSection({ onOpenFinder }: HeroSectionProps) {
             style={{ animationDelay: '350ms' }}
           >
             <a
-              href="#inventory"
+              href="/inventory"
               className="inline-flex items-center
                 px-8 py-4
                 bg-[#FF5500] text-black

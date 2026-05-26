@@ -26,8 +26,8 @@ class ReviewOut(BaseModel):
     model_config = {"from_attributes": True}
 
     id: uuid.UUID
-    customer_id: uuid.UUID
-    vehicle_id: uuid.UUID | None
+    customer_id: uuid.UUID | None = None
+    vehicle_id: uuid.UUID | None = None
     rating: int
     title: str
     body: str

@@ -500,3 +500,37 @@ async def delete_review(
 ):
     review = await review_service.get_review(db, review_id)
     await review_service.delete_review(db, review)
+
+
+# ── Contact messages ───────────────────────────────────────────────────────────
+
+@router.get("/contact", response_model=PaginatedResponse)
+async def list_contact_messages(
+    _: None = Depends(verify_admin_header),
+    pagination: PaginationParams = Depends(pagination_params),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.services.contact_service import list_contact_messages
+    from app.schemas.contact import ContactMessageOut
+    items, total = await list_contact_messages(db, skip=pagination.offset, limit=pagination.page_size)
+    return PaginatedResponse.build(
+        items=[ContactMessageOut.model_validate(i) for i in items],
+        total=total, page=pagination.page, page_size=pagination.page_size,
+    )
+
+
+@router.patch("/contact/{msg_id}/read", response_model=dict)
+async def mark_contact_read(
+    msg_id: uuid.UUID,
+    _: None = Depends(verify_admin_header),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.services.contact_service import mark_read
+    from app.models.contact import ContactMessage
+    from sqlalchemy import select
+    result = await db.execute(select(ContactMessage).where(ContactMessage.id == msg_id))
+    msg = result.scalar_one_or_none()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    await mark_read(db, msg)
+    return {"ok": True}

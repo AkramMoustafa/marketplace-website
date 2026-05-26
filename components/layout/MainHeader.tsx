@@ -68,7 +68,7 @@ export default function MainHeader({ query = '', onQueryChange }: MainHeaderProp
 
           {/* View Inventory CTA */}
           <a
-            href="/"
+            href="/inventory"
             className="
               shrink-0 px-5 py-2.5 rounded-full
               bg-[#FF5500] text-black

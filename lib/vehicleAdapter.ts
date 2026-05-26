@@ -61,58 +61,49 @@ function toDescriptionSections(
 /**
  * Map backend API Vehicle → DetailVehicle
  */
-export function mapBackendVehicleToDetailVehicle(
-  v: ApiVehicle
-): DetailVehicle {
-  return {
-    /* ── Core ───────────────────────────────────────────── */
-    id: v.id,
-    title: v.title ?? 'Vehicle',
+export function mapBackendVehicleToDetailVehicle(v: ApiVehicle): DetailVehicle {
 
-    /* ── Identity / listing ─────────────────────────────── */
+  console.log("ADAPTER INPUT:", {
+    stock_number: v.stock_number,
+    engine: v.engine,
+    drive: v.drive,
+    fuel_economy: v.fuel_economy
+  });
+
+  const result = {
+    id: v.id,
+    title: v.title ?? "Vehicle",
+
     trim: undefined,
     stockNumber: v.stock_number ?? undefined,
     vin: v.vin ?? undefined,
 
-    /* ── Pricing ────────────────────────────────────────── */
     price: v.price_on_call
       ? undefined
-      : v.price
-        ? parseFloat(v.price)
-        : undefined,
+      : (v.price ? parseFloat(v.price) : undefined),
 
-    /* ── Vehicle info ───────────────────────────────────── */
     odometer: v.mileage ?? undefined,
-
     color: v.color ?? undefined,
-
     type: v.body_type ?? undefined,
 
     transmission: v.transmission
-      ? v.transmission.charAt(0).toUpperCase() +
-        v.transmission.slice(1)
+      ? v.transmission.charAt(0).toUpperCase() + v.transmission.slice(1)
       : undefined,
 
     engine: v.engine ?? undefined,
-
     drive: v.drive ?? undefined,
 
     fuel: fmtFuelType(v.fuel_type) || undefined,
 
-    fuelEconomy: v.fuel_economy ?? undefined,
+    fuelEconomy: undefined, // ignore for now
 
-    /* ── Rich content ───────────────────────────────────── */
-    specs: v.features ?? [],
-
-    images: toVehicleImages(
-      v.images,
-      v.title ?? 'Vehicle'
-    ),
-
-    descriptionSections: toDescriptionSections(
-      v.description
-    ),
-
+    specs: [],
+    images: toVehicleImages(v.images, v.title ?? "Vehicle"),
+    descriptionSections: toDescriptionSections(v.description),
     similarVehicles: [],
   };
+
+  console.log("ADAPTER OUTPUT:", result);
+
+  return result;
 }

@@ -5,6 +5,8 @@ import type {
   TradeInStatus, AppointmentStatus,
   VehicleAIPreviewRequest, VehicleAIPreviewResponse,
   VehicleAIImageAnalysisResponse,
+  ContactMessagePayload, ContactMessageOut,
+  PublicReview, PublicReviewCreate,
 } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -152,6 +154,24 @@ export function submitReview(data: {
   return req('/api/reviews', { method: 'POST', body: JSON.stringify(data) });
 }
 
+// ── Public Reviews (no-auth) ──────────────────────────────────────────────────
+export function getPublicReviews(
+  page = 1,
+  page_size = 50
+): Promise<PaginatedResponse<PublicReview>> {
+  return req(`/api/reviews${toQuery({ page, page_size })}`);
+}
+
+export function submitPublicReview(
+  data: PublicReviewCreate
+): Promise<PublicReview> {
+  return req('/api/reviews', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+
 // ── User profile ──────────────────────────────────────────────────────────────
 
 export function updateMe(data: { name?: string; email?: string }): Promise<User> {
@@ -267,6 +287,20 @@ export function adminGenerateAIContent(
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+// ── Contact ───────────────────────────────────────────────────────────────────
+
+export function submitContact(data: ContactMessagePayload): Promise<ContactMessageOut> {
+  return req('/api/contact', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function adminListContactMessages(page = 1): Promise<PaginatedResponse<ContactMessageOut>> {
+  return req(`/api/admin/contact?page=${page}`);
+}
+
+export function adminMarkContactRead(id: string): Promise<{ ok: boolean }> {
+  return req(`/api/admin/contact/${id}/read`, { method: 'PATCH' });
 }
 
 export function adminAnalyzeVehicleImage(

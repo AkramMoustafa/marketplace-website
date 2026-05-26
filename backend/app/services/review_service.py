@@ -7,14 +7,23 @@ from app.schemas.review import ReviewCreate, ReviewUpdate
 
 
 async def create_review(
-    db: AsyncSession, data: ReviewCreate, customer_id: uuid.UUID
+    db: AsyncSession,
+    data: ReviewCreate,
+    customer_id: uuid.UUID | None = None,
 ) -> Review:
-    review = Review(**data.model_dump(), customer_id=customer_id)
+    review = Review(
+        customer_id=customer_id,
+        vehicle_id=data.vehicle_id,
+        rating=data.rating,
+        title=data.title,
+        body=data.body,
+        status=ReviewStatus.pending,
+    )
+
     db.add(review)
     await db.flush()
     await db.refresh(review)
     return review
-
 
 async def get_review(db: AsyncSession, review_id: uuid.UUID) -> Review:
     result = await db.execute(select(Review).where(Review.id == review_id))

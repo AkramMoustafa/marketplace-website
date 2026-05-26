@@ -6,8 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getVehicle, getReviews, bookAppointment, getImageUrl } from '@/lib/api';
 import type { Vehicle, Review } from '@/lib/types';
-import { useAuth } from '@/lib/auth-context';
-import { Star, Calendar, DollarSign, ArrowLeft, Fuel, Gauge, Zap, Palette } from 'lucide-react';
+import SiteHeader from '@/components/layout/SiteHeader';
+import HomeFooter from '@/components/HomeFooter';
+import { Star, Calendar, DollarSign, Fuel, Gauge, Zap, Palette } from 'lucide-react';
 
 const PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjU2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjU2MCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjQwMCIgeT0iMjkwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMiIgZmlsbD0iI2NiZDVlMSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
 
@@ -107,7 +108,6 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
 
 export default function VehicleDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +141,7 @@ export default function VehicleDetailPage() {
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex flex-col items-center justify-center gap-4 text-slate-300">
         <p className="text-lg">{error || 'Vehicle not found'}</p>
-        <Link href="/" className="text-[#FF5500] hover:underline">← Back to Inventory</Link>
+        <Link href="/inventory" className="text-[#FF5500] hover:underline">← Back to Inventory</Link>
       </div>
     );
   }
@@ -163,16 +163,7 @@ export default function VehicleDetailPage() {
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-slate-200" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
 
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-[#0a0f1e]/92 backdrop-blur-md border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-baseline gap-2 no-underline">
-          <span className="text-white font-black text-base tracking-[4px]">NOVA</span>
-          <span className="text-[#FF5500] text-[9px] font-black tracking-[5px] uppercase">MOTORS</span>
-        </Link>
-        <Link href="/" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition">
-          <ArrowLeft size={14} /> Back to Inventory
-        </Link>
-      </nav>
+      <SiteHeader />
 
       <div className="max-w-6xl mx-auto px-5 py-10">
 
@@ -231,28 +222,14 @@ export default function VehicleDetailPage() {
             )}
 
             <div className="flex flex-col gap-3">
-              {user ? (
-                <button onClick={() => setApptOpen(true)}
-                  className="flex items-center justify-center gap-2 py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#FF7733] transition">
-                  <Calendar size={16} /> Schedule Test Drive
-                </button>
-              ) : (
-                <Link href="/login"
-                  className="flex items-center justify-center gap-2 py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#FF7733] transition">
-                  <Calendar size={16} /> Login to Schedule
-                </Link>
-              )}
-              {user ? (
-                <Link href={`/financing?vehicle=${vehicle.id}`}
-                  className="flex items-center justify-center gap-2 py-3.5 border border-slate-600 text-slate-200 font-black text-sm uppercase tracking-wide rounded-xl hover:border-[#FF5500] hover:text-[#FF5500] transition">
-                  <DollarSign size={16} /> Apply for Financing
-                </Link>
-              ) : (
-                <Link href="/login"
-                  className="flex items-center justify-center gap-2 py-3.5 border border-slate-600 text-slate-400 font-black text-sm uppercase tracking-wide rounded-xl hover:border-slate-400 transition">
-                  <DollarSign size={16} /> Login to Apply for Financing
-                </Link>
-              )}
+              <button onClick={() => setApptOpen(true)}
+                className="flex items-center justify-center gap-2 py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#FF7733] transition">
+                <Calendar size={16} /> Schedule Test Drive
+              </button>
+              <Link href={`/financing?vehicle=${vehicle.id}`}
+                className="flex items-center justify-center gap-2 py-3.5 border border-slate-600 text-slate-200 font-black text-sm uppercase tracking-wide rounded-xl hover:border-[#FF5500] hover:text-[#FF5500] transition">
+                <DollarSign size={16} /> Apply for Financing
+              </Link>
             </div>
           </div>
         </div>
@@ -294,10 +271,7 @@ export default function VehicleDetailPage() {
 
       </div>
 
-      <footer className="mt-12 border-t border-white/[0.05] py-10 text-center bg-[#020817]">
-        <p className="text-xl font-black tracking-[5px] text-white">NOVA</p>
-        <p className="text-[9px] font-black tracking-[7px] text-[#FF5500] uppercase mt-1">MOTORS</p>
-      </footer>
+      <HomeFooter />
 
       {apptOpen && <AppointmentModal vehicleId={vehicle.id} onClose={() => setApptOpen(false)} />}
     </div>

@@ -6,6 +6,8 @@ import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import CarFinder from '@/components/CarFinder';
+import InstagramShowcase from '@/components/InstagramShowcase';
+import HomeFooter from '@/components/HomeFooter';
 import * as api from '@/lib/api';
 import type { VehicleListItem, VehicleFilters } from '@/lib/types';
 
@@ -202,12 +204,10 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="mt-12 bg-slate-950 text-white py-10">
-        <div className="text-center">
-          <h3 className="text-3xl font-black tracking-[5px]">NOVA</h3>
-          <p className="mt-1 text-xs uppercase tracking-[7px] text-[#FF5500]">MOTORS</p>
-        </div>
-      </footer>
+      <InstagramShowcase />
+
+
+      <HomeFooter />
 
     </div>
   );
