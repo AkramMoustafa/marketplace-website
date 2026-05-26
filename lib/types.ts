@@ -254,6 +254,27 @@ export interface VehicleAIImageAnalysisResponse {
 }
 
 // ── Public Reviews (no-auth submission system) ────────────────────────────
+
+/** Vehicle snapshot embedded inside a ReviewOut response. */
+export interface ReviewVehicle {
+  id: string;
+  title: string;
+  make: string;
+  model: string;
+  year: number;
+  featured_image: string | null;
+}
+
+/** Lightweight vehicle shape returned by GET /api/vehicles/search */
+export interface VehicleSearchResult {
+  id: string;
+  title: string;
+  make: string;
+  model: string;
+  year: number;
+  featured_image: string | null;
+}
+
 export interface PublicReviewCreate {
   customer_id?: string | null;
   vehicle_id?: string | null;
@@ -272,9 +293,10 @@ export interface PublicReview {
   status: ReviewStatus;
   created_at: string;
   updated_at?: string;
+  /** Null for reviews submitted before vehicle linking was introduced. */
+  vehicle: ReviewVehicle | null;
 }
 
-Then in
 export interface CreateVehiclePayload {
 
   title: string;

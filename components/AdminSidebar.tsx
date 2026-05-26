@@ -1,8 +1,8 @@
 "use client";
 
-import { LayoutDashboard, Car, PlusCircle, BarChart2, Settings, ChevronLeft, ChevronRight, DollarSign, Star, ArrowLeftRight, Calendar } from "lucide-react";
+import { LayoutDashboard, Car, PlusCircle, BarChart2, Settings, ChevronLeft, ChevronRight, DollarSign, Star, ArrowLeftRight, Calendar, MessageSquare } from "lucide-react";
 
-export type AdminView = "dashboard" | "cars" | "add-car" | "financing" | "tradeins" | "appointments" | "reviews" | "reports" | "settings";
+export type AdminView = "dashboard" | "cars" | "add-car" | "financing" | "tradeins" | "appointments" | "reviews" | "contact" | "reports" | "settings";
 
 interface AdminSidebarProps {
   activeView: AdminView;
@@ -19,6 +19,7 @@ const navItems: { view: AdminView; label: string; icon: React.ReactNode }[] = [
   { view: "tradeins",     label: "Trade-Ins",    icon: <ArrowLeftRight size={17} /> },
   { view: "appointments", label: "Appointments", icon: <Calendar size={17} /> },
   { view: "reviews",      label: "Reviews",      icon: <Star size={17} /> },
+  { view: "contact",      label: "Inquiries",    icon: <MessageSquare size={17} /> },
   { view: "reports",      label: "Reports",      icon: <BarChart2 size={17} /> },
   { view: "settings",     label: "Settings",     icon: <Settings size={17} /> },
 ];

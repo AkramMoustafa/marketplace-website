@@ -1,12 +1,14 @@
+import re
 import time
 import uuid
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.schemas.vehicle import VehicleOut, VehicleListOut, VehicleFilters
+from app.models.vehicle import Vehicle, TransmissionType, FuelType, VehicleStatus
+from app.schemas.vehicle import VehicleOut, VehicleListOut, VehicleSearchOut, VehicleFilters
 from app.services import vehicle_service
 from app.utils.pagination import PaginationParams, PaginatedResponse, pagination_params
-from app.models.vehicle import TransmissionType, FuelType, VehicleStatus
 from decimal import Decimal
 
 router = APIRouter(prefix="/api/vehicles", tags=["Vehicles"])
@@ -70,32 +72,47 @@ async def featured_vehicles(limit: int = Query(6, le=12), db: AsyncSession = Dep
     return result
 
 
+@router.get("/search", response_model=list[VehicleSearchOut])
+async def search_vehicles(
+    q: str = Query(""),
+    limit: int = Query(10, le=20),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Typeahead search across make / model / title.
+    Also matches by year when the query contains a 4-digit year (e.g. "2022 BMW").
+    Returns only non-sold vehicles, newest first.
+    """
+    q = q.strip()
+    if not q:
+        return []
+
+    term = f"%{q}%"
+    conditions = [
+        Vehicle.make.ilike(term),
+        Vehicle.model.ilike(term),
+        Vehicle.title.ilike(term),
+    ]
+
+    # Optional year match when query contains a 4-digit year
+    year_match = re.search(r"\b(19|20)\d{2}\b", q)
+    if year_match:
+        conditions.append(Vehicle.year == int(year_match.group()))
+
+    result = await db.execute(
+        select(Vehicle)
+        .where(or_(*conditions))
+        .where(Vehicle.status != VehicleStatus.sold)
+        .order_by(Vehicle.year.desc(), Vehicle.make.asc())
+        .limit(limit)
+    )
+    vehicles = result.scalars().all()
+    return [VehicleSearchOut.model_validate(v) for v in vehicles]
+
+
 @router.get("/{vehicle_id}", response_model=VehicleOut)
 async def get_vehicle(vehicle_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    print("🔥 DETAIL ROUTE ENTERED 🔥")
-
-    
-
     t0 = time.perf_counter()
-
     vehicle = await vehicle_service.get_vehicle(db, vehicle_id)
-
-    print("====== VEHICLE API DEBUG ======")
-    print("id:", vehicle.id)
-    print("title:", vehicle.title)
-    print("stock_number:", vehicle.stock_number)
-    print("engine:", vehicle.engine)
-    print("drive:", vehicle.drive)
-    print("fuel_economy:", vehicle.fuel_economy)
-    print("features:", vehicle.features)
-    print("===============================")
-
     print(f"/api/vehicles/{vehicle_id}: {(time.perf_counter()-t0)*1000:.1f}ms")
-
-    response = VehicleOut.model_validate(vehicle)
-
-    print("====== SERIALIZED RESPONSE ======")
-    print(response.model_dump())
-    print("=================================")
-
-    return response
+    return VehicleOut.model_validate(vehicle)

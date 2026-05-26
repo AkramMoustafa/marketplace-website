@@ -159,6 +159,18 @@ class VehicleAIImageAnalysisResponse(BaseModel):
     confidence_note: str | None = None
 
 
+class VehicleSearchOut(BaseModel):
+    """Lightweight vehicle shape returned by the /search endpoint."""
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    title: str
+    make: str
+    model: str
+    year: int
+    featured_image: str | None = None
+
+
 class VehicleFilters(BaseModel):
     make: str | None = None
     model: str | None = None

@@ -67,3 +67,8 @@ class Vehicle(Base, UUIDMixin, TimestampMixin):
     financing_requests = relationship("FinancingRequest", back_populates="vehicle")
     appointments = relationship("ServiceAppointment", back_populates="vehicle")
     reviews = relationship("Review", back_populates="vehicle", cascade="all, delete-orphan")
+
+    @property
+    def featured_image(self) -> str | None:
+        """First image URL, used in review cards and search results."""
+        return self.images[0] if self.images else None

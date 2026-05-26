@@ -4,6 +4,18 @@ from pydantic import BaseModel, field_validator
 from app.models.review import ReviewStatus
 
 
+class VehicleInReview(BaseModel):
+    """Embedded vehicle snapshot returned inside ReviewOut."""
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    title: str
+    make: str
+    model: str
+    year: int
+    featured_image: str | None = None
+
+
 class ReviewCreate(BaseModel):
     vehicle_id: uuid.UUID | None = None
     rating: int
@@ -34,3 +46,4 @@ class ReviewOut(BaseModel):
     status: ReviewStatus
     created_at: datetime
     updated_at: datetime
+    vehicle: VehicleInReview | None = None

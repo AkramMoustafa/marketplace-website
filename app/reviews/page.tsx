@@ -1,22 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import SiteHeader from '@/components/layout/SiteHeader';
+import HomeFooter from '@/components/HomeFooter';
 import * as api from '@/lib/api';
-import type { PublicReview } from '@/lib/types';
+import type { PublicReview, VehicleSearchResult } from '@/lib/types';
 
-/* ─── Car images pool (Unsplash, cycles per card index) ─────────────── */
-const CAR_IMAGES = [
-  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80&auto=format&fit=crop', // BMW dark
-  'https://images.unsplash.com/photo-1617469767408-d6f2bfc21d77?w=600&q=80&auto=format&fit=crop', // Mercedes white
-  'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=600&q=80&auto=format&fit=crop', // Audi grey
-  'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80&auto=format&fit=crop', // Porsche
-  'https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&q=80&auto=format&fit=crop', // Lexus
-  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80&auto=format&fit=crop', // Supercar
+/* ─── Fallback image pool (used when review has no linked vehicle) ───── */
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1617469767408-d6f2bfc21d77?w=600&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=600&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1563720223185-11003d516935?w=600&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80&auto=format&fit=crop',
 ];
 
-function getCarImage(index: number) {
-  return CAR_IMAGES[index % CAR_IMAGES.length];
+function getCardImage(review: PublicReview, index: number): string {
+  if (review.vehicle?.featured_image) {
+    return api.getImageUrl(review.vehicle.featured_image);
+  }
+  return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
 }
 
 function formatDate(iso: string) {
@@ -25,6 +29,7 @@ function formatDate(iso: string) {
   });
 }
 
+/* ─── Types ─────────────────────────────────────────────────────────── */
 type FormState = {
   name: string;
   email: string;
@@ -33,6 +38,15 @@ type FormState = {
   review_text: string;
 };
 const EMPTY: FormState = { name: '', email: '', rating: 0, title: '', review_text: '' };
+
+type SelectedVehicle = {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  title: string;
+  featured_image: string | null;
+};
 
 /* ─── Star display (read-only) ─────────────────────────────────────── */
 function StarDisplay({ rating, size = 16 }: { rating: number; size?: number }) {
@@ -96,57 +110,267 @@ function Avatar({ name, size = 40 }: { name: string; size?: number }) {
   );
 }
 
+/* ─── Vehicle Selector ─────────────────────────────────────────────── */
+function VehicleSelector({
+  value,
+  onChange,
+  error,
+}: {
+  value: SelectedVehicle | null;
+  onChange: (v: SelectedVehicle | null) => void;
+  error?: string;
+}) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<VehicleSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* Close on click-outside */
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, []);
+
+  function handleInput(q: string) {
+    setQuery(q);
+    setOpen(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (!q.trim()) { setResults([]); setSearching(false); return; }
+    setSearching(true);
+    timerRef.current = setTimeout(async () => {
+      try {
+        const res = await api.searchVehicles(q);
+        setResults(res);
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+  }
+
+  function select(v: VehicleSearchResult) {
+    onChange({
+      id: String(v.id),
+      make: v.make,
+      model: v.model,
+      year: v.year,
+      title: v.title,
+      featured_image: v.featured_image,
+    });
+    setOpen(false);
+    setQuery('');
+    setResults([]);
+  }
+
+  function clear() {
+    onChange(null);
+    setQuery('');
+    setResults([]);
+  }
+
+  const borderBase = error
+    ? 'border-red-300 focus-within:border-red-400 focus-within:ring-red-100'
+    : 'border-slate-200 focus-within:border-[#FF5500] focus-within:ring-[#FF5500]/10';
+
+  return (
+    <div ref={containerRef} className="relative">
+      <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+        Vehicle Purchased <span className="text-[#FF5500]">*</span>
+      </label>
+
+      {/* ── Selected state: show pill ── */}
+      {value ? (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#FF5500]/40 bg-[#FF5500]/5">
+          {value.featured_image ? (
+            <img
+              src={api.getImageUrl(value.featured_image)}
+              alt={value.title}
+              className="w-12 h-9 object-cover rounded-lg flex-shrink-0 bg-slate-100"
+            />
+          ) : (
+            <div className="w-12 h-9 rounded-lg bg-slate-100 flex-shrink-0 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
+                <rect x="1" y="3" width="15" height="13" rx="2" />
+                <path d="M16 8h4l3 4v3h-7V8z" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+              </svg>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-800 truncate">
+              {value.year} {value.make} {value.model}
+            </p>
+            <p className="text-xs text-slate-400 truncate">{value.title}</p>
+          </div>
+          <button
+            type="button"
+            onClick={clear}
+            className="shrink-0 w-6 h-6 rounded-full bg-slate-200 hover:bg-red-100 hover:text-red-500 flex items-center justify-center text-slate-400 transition-colors"
+            aria-label="Clear selection"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        /* ── Search input ── */
+        <div className={`flex items-center rounded-xl border bg-white transition focus-within:ring-2 ${borderBase}`}>
+          <svg className="ml-3.5 text-slate-400 shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            value={query}
+            onChange={e => handleInput(e.target.value)}
+            onFocus={() => { if (query) setOpen(true); }}
+            placeholder="Type make or model — e.g. BMW X5, Camry…"
+            className="flex-1 px-3 py-3 text-sm text-slate-900 bg-transparent placeholder:text-slate-400 focus:outline-none"
+          />
+          {searching && (
+            <svg className="mr-3.5 animate-spin text-slate-400 shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" strokeLinecap="round" />
+            </svg>
+          )}
+        </div>
+      )}
+
+      {/* ── Dropdown ── */}
+      {open && !value && (
+        <div className="absolute z-50 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+          {searching ? (
+            <div className="px-4 py-3 text-sm text-slate-400">Searching…</div>
+          ) : results.length > 0 ? (
+            <ul>
+              {results.map(v => (
+                <li key={String(v.id)}>
+                  <button
+                    type="button"
+                    onClick={() => select(v)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#FF5500]/5 text-left transition-colors"
+                  >
+                    {v.featured_image ? (
+                      <img
+                        src={api.getImageUrl(v.featured_image)}
+                        alt={v.title}
+                        className="w-12 h-9 object-cover rounded-md flex-shrink-0 bg-slate-100"
+                      />
+                    ) : (
+                      <div className="w-12 h-9 rounded-md bg-slate-100 flex-shrink-0 flex items-center justify-center">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
+                          <rect x="1" y="3" width="15" height="13" rx="2" />
+                          <path d="M16 8h4l3 4v3h-7V8z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">
+                        {v.year} {v.make} {v.model}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate">{v.title}</p>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : query.trim() ? (
+            <div className="px-4 py-3 text-sm text-slate-400">
+              No vehicles found for &ldquo;{query}&rdquo;
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
 /* ─── Review card ───────────────────────────────────────────────────── */
 function ReviewCard({ review, index }: { review: PublicReview; index: number }) {
   const [imgError, setImgError] = useState(false);
+  const vehicle = review.vehicle;
+  const imgSrc = getCardImage(review, index);
 
   return (
-    <div className="
-      bg-white rounded-3xl border border-slate-200 overflow-hidden
-      flex flex-col h-full shadow-sm
-      hover:shadow-2xl transition-all duration-300 hover:-translate-y-1
-    ">
-      {/* Card image */}
+    <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden flex flex-col h-full shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+
+      {/* ── Card image ── */}
       <div className="w-full h-52 bg-slate-100 overflow-hidden relative flex-shrink-0">
         {!imgError ? (
           <img
-            src={getCarImage(index)}
-            alt="Nova Motors customer vehicle"
+            src={imgSrc}
+            alt={vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Nova Motors vehicle'}
             className="w-full h-full object-cover transition duration-500 hover:scale-105"
             onError={() => setImgError(true)}
           />
         ) : (
-          /* Fallback gradient if image fails */
           <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900" />
         )}
 
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-        {/* Nova Motors badge */}
+        {/* Top-left badge: vehicle name OR dealership name */}
         <div className="absolute top-4 left-4">
-          <div className="bg-black/70 backdrop-blur-sm px-3 py-2 rounded-xl">
-            <div className="text-white font-black text-base leading-none">NOVA</div>
-            <div className="text-white/60 text-[9px] tracking-[3px] mt-0.5">MOTORS</div>
-          </div>
+          {vehicle ? (
+            <div className="bg-black/70 backdrop-blur-sm px-3 py-2 rounded-xl max-w-[168px]">
+              <div className="text-white font-black text-sm leading-tight truncate">
+                {vehicle.make} {vehicle.model}
+              </div>
+              <div className="text-[#FF5500] text-[9px] tracking-[2px] mt-0.5 font-bold uppercase">
+                Purchased Vehicle
+              </div>
+            </div>
+          ) : (
+            <div className="bg-black/70 backdrop-blur-sm px-3 py-2 rounded-xl">
+              <div className="text-white font-black text-base leading-none">NOVA</div>
+              <div className="text-white/60 text-[9px] tracking-[3px] mt-0.5">MOTORS</div>
+            </div>
+          )}
         </div>
+
+        {/* Bottom-right year chip */}
+        {vehicle && (
+          <div className="absolute bottom-3 right-3">
+            <span className="bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full">
+              {vehicle.year}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Card content */}
+      {/* ── Card content ── */}
       <div className="p-5 flex flex-col gap-3 flex-1">
+        {/* Vehicle label (only when linked) */}
+        {vehicle && (
+          <p className="text-[11px] font-bold text-[#FF5500] uppercase tracking-wider -mb-1">
+            {vehicle.year} {vehicle.make} {vehicle.model}
+          </p>
+        )}
+
         {/* Reviewer row */}
         <div className="flex items-center gap-3">
           <Avatar name={review.title} size={40} />
           <div className="min-w-0">
             <p className="text-slate-900 font-bold text-sm truncate">{review.title}</p>
-            <p className="text-[#FF5500] text-xs font-bold uppercase tracking-wide">Verified Buyer</p>
+            <p className="text-[#FF5500] text-xs font-bold tracking-wide">✓ Verified Buyer</p>
           </div>
           <div className="ml-auto flex-shrink-0">
             <StarDisplay rating={review.rating} size={13} />
           </div>
         </div>
 
-        {/* Review body */}
+        {/* Body */}
         <p className="text-slate-600 text-sm leading-7 flex-1 min-h-[80px] line-clamp-4">
           {review.body}
         </p>
@@ -183,7 +407,8 @@ function RatingBar({ label, pct }: { label: string; pct: number }) {
 /* ─── Review form ───────────────────────────────────────────────────── */
 function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
   const [form, setForm] = useState<FormState>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [selectedVehicle, setSelectedVehicle] = useState<SelectedVehicle | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'vehicle', string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [serverErr, setServerErr] = useState('');
@@ -192,7 +417,8 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
     setForm(f => ({ ...f, [k]: v }));
 
   function validate(): boolean {
-    const e: Partial<Record<keyof FormState, string>> = {};
+    const e: Partial<Record<keyof FormState | 'vehicle', string>> = {};
+    if (!selectedVehicle) e.vehicle = 'Please select the vehicle you purchased.';
     if (!form.name.trim()) e.name = 'Name is required.';
     if (form.rating === 0) e.rating = 'Please select a rating.';
     if (!form.title.trim()) e.title = 'Title is required.';
@@ -210,13 +436,14 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
     try {
       await api.submitPublicReview({
         customer_id: null,
-        vehicle_id: null,
+        vehicle_id: selectedVehicle?.id ?? null,
         rating: form.rating,
         title: form.name.trim(),
         body: form.review_text.trim(),
       });
       setSubmitted(true);
       setForm(EMPTY);
+      setSelectedVehicle(null);
       onSuccess();
     } catch (err) {
       setServerErr(err instanceof Error ? err.message : 'Submission failed. Please try again.');
@@ -244,7 +471,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
         <h3 className="text-slate-900 font-black text-2xl mb-2">Thank You!</h3>
         <p className="text-slate-500 text-sm max-w-xs leading-relaxed">
-          Your review has been submitted and is pending approval.
+          Your review has been submitted and is pending approval. We appreciate your feedback!
         </p>
         <button onClick={() => setSubmitted(false)}
           className="mt-6 text-sm font-bold text-[#FF5500] hover:underline">
@@ -256,7 +483,18 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
-      {/* Row 1 */}
+
+      {/* ── Vehicle selector ── */}
+      <VehicleSelector
+        value={selectedVehicle}
+        onChange={v => {
+          setSelectedVehicle(v);
+          if (v) setErrors(prev => { const n = { ...prev }; delete n.vehicle; return n; });
+        }}
+        error={errors.vehicle}
+      />
+
+      {/* ── Row: Name + Email ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">
@@ -289,7 +527,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
       </div>
 
-      {/* Row 2 */}
+      {/* ── Row: Rating + Title ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">
@@ -315,7 +553,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
       </div>
 
-      {/* Row 3 */}
+      {/* ── Review body ── */}
       <div>
         <label className="block text-sm font-semibold text-slate-700 mb-1.5">
           Your Review <span className="text-[#FF5500]">*</span>
@@ -326,7 +564,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
           </svg>
           <textarea rows={5} value={form.review_text}
             onChange={e => set('review_text', e.target.value)}
-            placeholder="Tell us about your experience with Nova Motors..."
+            placeholder="Tell us about your experience with Nova Motors and your vehicle…"
             className={`${inputCls(errors.review_text)} pl-10 resize-none`} />
         </div>
         {errors.review_text && <p className="mt-1 text-xs text-red-500">{errors.review_text}</p>}
@@ -395,7 +633,6 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
 
   return (
     <div className="relative px-6">
-      {/* Prev arrow */}
       {current > 0 && (
         <button onClick={prev}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:border-[#FF5500] hover:text-[#FF5500] transition-colors">
@@ -404,8 +641,6 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
           </svg>
         </button>
       )}
-
-      {/* Next arrow */}
       {current < total - 1 && (
         <button onClick={next}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:border-[#FF5500] hover:text-[#FF5500] transition-colors">
@@ -415,14 +650,12 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
         </button>
       )}
 
-      {/* Cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {visible.map((r, i) => (
           <ReviewCard key={r.id} review={r} index={startIndex + i} />
         ))}
       </div>
 
-      {/* Dot pagination */}
       {total > 1 && (
         <div className="flex items-center justify-center gap-2 mt-8">
           {Array.from({ length: total }).map((_, i) => (
@@ -501,14 +734,11 @@ export default function ReviewsPage() {
         {/* ── STATS ROW ────────────────────────────────────────────────── */}
         {!loading && reviews.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-10 border-b border-slate-100">
-            {/* Average rating */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-start gap-2">
               <p className="text-5xl font-black text-slate-900">{avgRating.toFixed(1)}</p>
               <StarDisplay rating={Math.round(avgRating)} size={18} />
               <p className="text-xs text-slate-400 mt-1">Average Rating</p>
             </div>
-
-            {/* Verified reviews */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-start justify-center gap-2">
               <div className="flex items-center gap-2">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5500" strokeWidth="2">
@@ -519,8 +749,6 @@ export default function ReviewsPage() {
               </div>
               <p className="text-xs text-slate-400">Verified Reviews</p>
             </div>
-
-            {/* Recommend */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-start justify-center gap-2">
               <div className="flex items-center gap-2">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5500" strokeWidth="2">
@@ -531,8 +759,6 @@ export default function ReviewsPage() {
               </div>
               <p className="text-xs text-slate-400">Recommend Us</p>
             </div>
-
-            {/* Star breakdown */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-center gap-2">
               {starCounts.map(({ label, pct }) => (
                 <RatingBar key={label} label={label} pct={pct} />
@@ -560,13 +786,17 @@ export default function ReviewsPage() {
             <div className="h-[3px] w-10 bg-[#FF5500] rounded-full mx-auto mb-4" />
             <h2 className="text-3xl font-black text-slate-900">Share Your Experience</h2>
             <p className="text-slate-400 text-sm mt-2">
-              Your feedback helps us improve and helps others make the right choice.
+              Select the vehicle you purchased and tell us about your Nova Motors experience.
             </p>
           </div>
-          <ReviewForm onSuccess={loadReviews} />
+          <div className="max-w-2xl mx-auto">
+            <ReviewForm onSuccess={loadReviews} />
+          </div>
         </div>
 
       </div>
+
+      <HomeFooter />
     </div>
   );
 }

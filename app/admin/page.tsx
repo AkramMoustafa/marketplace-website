@@ -8,7 +8,7 @@ import * as api from '@/lib/api';
 import type {
   DashboardStats, Vehicle, VehicleListItem, FinancingRequest, Review, TradeIn, ServiceAppointment,
   FinancingStatus, ReviewStatus, TransmissionType, FuelType, VehicleStatus,
-  VehicleAIPreviewResponse, VehicleAIImageAnalysisResponse,
+  VehicleAIPreviewResponse, VehicleAIImageAnalysisResponse, ContactMessageOut,
 } from '@/lib/types';
 import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone, Sparkles } from 'lucide-react';
 
@@ -1796,6 +1796,127 @@ function ReviewsView() {
   );
 }
 
+// ── Contact / Inquiries view ───────────────────────────────────────────────────
+function ContactView() {
+  const [items, setItems]   = useState<ContactMessageOut[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage]     = useState(1);
+  const [pages, setPages]   = useState(1);
+  const [marking, setMarking] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.adminListContactMessages(page);
+      setItems(data.items as ContactMessageOut[]);
+      setPages(data.pages);
+    } finally { setLoading(false); }
+  }, [page]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const markRead = useCallback(async (id: string) => {
+    setMarking(id);
+    try {
+      await api.adminMarkContactRead(id);
+      setItems(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
+    } catch (e) { alert(e instanceof Error ? e.message : 'Failed'); }
+    finally { setMarking(null); }
+  }, []);
+
+  if (loading) return (
+    <div>
+      <div className="h-8 w-40 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <CardListSkeleton count={5} />
+    </div>
+  );
+
+  const unread = items.filter(m => !m.read).length;
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-2xl font-black text-white">Inquiries</h1>
+        {unread > 0 && (
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#C9A84C]/20 text-[#C9A84C] border border-[#C9A84C]/30">
+            {unread} unread
+          </span>
+        )}
+      </div>
+
+      {items.length === 0 ? (
+        <p className="text-slate-400 text-sm">No inquiries yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {items.map(m => {
+            const isOpen = expanded === m.id;
+            return (
+              <div key={m.id}
+                className={`bg-[#111] rounded-xl border transition-colors ${
+                  m.read ? 'border-white/[0.06]' : 'border-[#C9A84C]/25'
+                }`}>
+                {/* Header row — always visible */}
+                <button
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left"
+                  onClick={() => {
+                    setExpanded(isOpen ? null : m.id);
+                    if (!m.read) markRead(m.id);
+                  }}
+                >
+                  {/* Unread dot */}
+                  <span className={`w-2 h-2 rounded-full shrink-0 transition-colors ${m.read ? 'bg-transparent' : 'bg-[#C9A84C]'}`} />
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-white font-bold text-sm">{m.name}</span>
+                      <span className="text-slate-500 text-xs truncate">{m.email}</span>
+                      {m.phone && <span className="text-slate-600 text-xs">· {m.phone}</span>}
+                    </div>
+                    <p className="text-[#C9A84C] text-[10px] font-black uppercase tracking-wide mt-0.5">{m.subject}</p>
+                  </div>
+
+                  <span className="text-slate-600 text-xs shrink-0">
+                    {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+
+                  {/* Chevron */}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    strokeWidth="2.5" strokeLinecap="round"
+                    className={`text-slate-600 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+
+                {/* Expanded message body */}
+                {isOpen && (
+                  <div className="px-5 pb-5 border-t border-white/[0.05]">
+                    <p className="text-slate-300 text-sm leading-relaxed pt-4 whitespace-pre-wrap">{m.message}</p>
+                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-white/[0.05]">
+                      <a href={`mailto:${m.email}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C9A84C]/10 text-[#C9A84C] text-xs font-bold hover:bg-[#C9A84C]/20 transition">
+                        <Phone size={11} /> Reply via Email
+                      </a>
+                      {!m.read && (
+                        <button onClick={() => markRead(m.id)} disabled={marking === m.id}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] text-slate-400 text-xs font-bold hover:bg-white/[0.09] transition disabled:opacity-50">
+                          <Check size={11} /> Mark as read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <Pagination page={page} pages={pages} onChange={setPage} />
+    </div>
+  );
+}
+
 // ── Card skeleton (for list views) ────────────────────────────────────────────
 function CardListSkeleton({ count = 5 }: { count?: number }) {
   return (
@@ -1957,6 +2078,7 @@ function renderView(view: AdminView, setView: (v: AdminView) => void) {
     case 'tradeins':     return <TradeInsView />;
     case 'appointments': return <AppointmentsView />;
     case 'reviews':      return <ReviewsView />;
+    case 'contact':      return <ContactView />;
     case 'reports':      return <div className="text-slate-400">Reports coming soon.</div>;
     case 'settings':     return <div className="text-slate-400">Settings coming soon.</div>;
   }

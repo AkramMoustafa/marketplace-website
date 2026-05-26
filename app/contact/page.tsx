@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import SiteHeader from '@/components/layout/SiteHeader';
+import HomeFooter from '@/components/HomeFooter';
 import * as api from '@/lib/api';
 import { MapPin, Phone, Clock, Mail, CheckCircle } from 'lucide-react';
 
@@ -287,6 +288,8 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+
+      <HomeFooter />
     </div>
   );
 }

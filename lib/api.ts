@@ -7,6 +7,7 @@ import type {
   VehicleAIImageAnalysisResponse,
   ContactMessagePayload, ContactMessageOut,
   PublicReview, PublicReviewCreate,
+  VehicleSearchResult,
 } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -152,6 +153,12 @@ export function submitReview(data: {
   vehicle_id?: string; rating: number; title: string; body: string;
 }): Promise<Review> {
   return req('/api/reviews', { method: 'POST', body: JSON.stringify(data) });
+}
+
+// ── Vehicle search (typeahead) ────────────────────────────────────────────────
+
+export function searchVehicles(q: string): Promise<VehicleSearchResult[]> {
+  return req(`/api/vehicles/search${toQuery({ q })}`);
 }
 
 // ── Public Reviews (no-auth) ──────────────────────────────────────────────────
