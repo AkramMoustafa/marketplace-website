@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.config.settings import get_settings
 from app.middleware.logging import LoggingMiddleware
-from app.routes import auth, vehicles, financing, tradein, appointments, reviews, users, admin, contact
+from app.routes import auth, vehicles, financing, tradein, appointments, reviews, users, admin, contact, marketplace, agent
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 

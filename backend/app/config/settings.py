@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     # AI
     OPENAI_API_KEY: str = ""
 
+    # eBay Marketplace
+    EBAY_MOCK_MODE: bool = True
+    EBAY_CLIENT_ID: str = ""
+    EBAY_CLIENT_SECRET: str = ""
+    EBAY_REDIRECT_URI: str = ""
+    EBAY_ENVIRONMENT: str = "sandbox"  # "sandbox" | "production"
+
     # Seed
     ADMIN_EMAIL: str = "admin@marketplace.com"
     ADMIN_PASSWORD: str = "Admin123!"
