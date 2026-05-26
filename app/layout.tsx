@@ -1,38 +1,30 @@
-import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
+import type { Metadata } from 'next';
+import { Inter, Playfair_Display } from 'next/font/google';
+import Providers from './providers';
+import './globals.css';
 
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Luxury Motors | Premium Car Dealership",
-  description:
-    "Discover the world's finest luxury automobiles. Mercedes-Benz, BMW, Rolls-Royce, Porsche, and more.",
+  title: 'Nova Motors | Detroit, MI',
+  description: 'Nova Motors — 2940 East 8 Mile Detroit, MI 48234. Call (313) 251-7447.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="bg-[#0A0A0A] text-white font-sans antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

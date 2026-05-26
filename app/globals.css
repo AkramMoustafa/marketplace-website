@@ -3,68 +3,75 @@
 @tailwind utilities;
 
 :root {
-  --background: #0A0A0A;
-  --foreground: #FFFFFF;
+  --background: #EEF2F7;
+  --foreground: #111111;
+
+  /* ── VehicleDetail component tokens ── */
+  --red:       #c0392b;
+  --red-dark:  #96281b;
+  --dark:      #222222;
+  --mid:       #444444;
+  --muted:     #777777;
+  --border:    #dddddd;
+  --bg-alt:    #f5f5f5;
+  --white:     #ffffff;
+  --font:      system-ui, Arial, sans-serif;
+  --sidebar-w: 340px;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Hero content: staggered fade-up entrance                               */
+/* fill-mode:both keeps opacity:0 during animationDelay (no flash)        */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.hero-animate {
+  opacity: 0;
+  animation: heroFadeUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hero image: slow auto-zoom plays once on load — adds life to still photo */
+@keyframes heroZoom {
+  from { transform: scale(1);    }
+  to   { transform: scale(1.06); }
+}
+
+.hero-zoom {
+  animation: heroZoom 9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: transform;
 }
 
 @layer utilities {
-  .text-balance { text-wrap: balance; }
-
-  .thin-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,168,76,.35), transparent);
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
-/* ── Scrollbar ─────────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #0A0A0A; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #e5e5e5; }
+::-webkit-scrollbar-thumb { background: #FF5500; border-radius: 3px; }
 
-/* ── Dual range slider ─────────────────────────────── */
-.dual-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
+/* Footer scroll-entrance: elements start hidden, JS adds .in-view to play */
+.footer-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.dual-thumb::-webkit-slider-runnable-track { background: transparent; }
-.dual-thumb::-moz-range-track             { background: transparent; }
+.footer-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger children automatically when parent gets .in-view */
+.footer-reveal.in-view > * { animation: none; }
 
-.dual-thumb::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #C9A84C;
-  border: 2.5px solid #0A0A0A;
-  cursor: pointer;
-  pointer-events: all;
-  box-shadow: 0 0 0 3px rgba(201,168,76,.18);
-  transition: box-shadow .2s;
-}
-.dual-thumb::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 5px rgba(201,168,76,.3);
-}
-.dual-thumb::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #C9A84C;
-  border: 2.5px solid #0A0A0A;
-  cursor: pointer;
-  pointer-events: all;
-  box-shadow: 0 0 0 3px rgba(201,168,76,.18);
-}
+/* Scrollbar hide utility (used in InstagramShowcase) */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }

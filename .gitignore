@@ -13,6 +13,13 @@
 /.next/
 /out/
 
+admin_config.json
+claude
+__pycache__/
+*.pyc
+venv/
+.env
+
 # production
 /build
 
@@ -27,6 +34,10 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.*
+backend/.env
+backend/.env.*
 
 # vercel
 .vercel

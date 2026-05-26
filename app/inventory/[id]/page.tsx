@@ -1,221 +1,288 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { use } from "react";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  ArrowLeft, Gauge, Settings2, Fuel, Palette,
-  MapPin, Phone, Check, ChevronRight
-} from "lucide-react";
-import { FacebookIcon } from "@/components/icons";
-import { cars, formatPrice, formatMileage } from "@/lib/data";
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { getVehicle, getReviews, bookAppointment, getImageUrl } from '@/lib/api';
+import type { Vehicle, Review } from '@/lib/types';
+import SiteHeader from '@/components/layout/SiteHeader';
+import HomeFooter from '@/components/HomeFooter';
+import { Star, Calendar, DollarSign, Fuel, Gauge, Zap, Palette } from 'lucide-react';
 
-export default function CarDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const car = cars.find((c) => c.id === id);
-  if (!car) notFound();
+const PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjU2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjU2MCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjQwMCIgeT0iMjkwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMiIgZmlsbD0iI2NiZDVlMSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
 
-  const [activeImage, setActiveImage] = useState(0);
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map(n => (
+        <Star key={n} size={14}
+          className={n <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'} />
+      ))}
+    </div>
+  );
+}
+
+function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
+  const [serviceType, setServiceType] = useState('test_drive');
+  const [date, setDate] = useState('');
+  const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await bookAppointment({ vehicle_id: vehicleId, service_type: serviceType, appointment_date: date, phone, notes });
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to book appointment');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="bg-[#0A0A0A] min-h-screen text-white pt-20 pb-20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        {success ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-3">✓</div>
+            <h3 className="text-lg font-black text-slate-900 mb-1">Appointment Booked!</h3>
+            <p className="text-slate-500 text-sm mb-4">We&apos;ll confirm your appointment shortly.</p>
+            <button onClick={onClose} className="px-6 py-2.5 bg-[#FF5500] text-black font-black text-sm rounded-lg">
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-black text-slate-900">Book Appointment</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            <form onSubmit={submit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Service Type</label>
+                <select value={serviceType} onChange={e => setServiceType(e.target.value)} required
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]">
+                  <option value="test_drive">Test Drive</option>
+                  <option value="general_inspection">General Inspection</option>
+                  <option value="oil_change">Oil Change</option>
+                  <option value="brake_service">Brake Service</option>
+                  <option value="engine_diagnostic">Engine Diagnostic</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Preferred Date & Time</label>
+                <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)} required
+                  min={new Date().toISOString().slice(0, 16)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Phone</label>
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required placeholder="(555) 000-0000"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Notes (optional)</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Any specific requests…"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500] resize-none" />
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              <button type="submit" disabled={loading}
+                className="w-full py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-[#FF5500] hover:text-black transition disabled:opacity-60">
+                {loading ? 'Booking…' : 'Confirm Appointment'}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-white/25 text-xs font-sans py-6 border-b border-white/[0.07] mb-8">
-          <Link href="/" className="hover:text-[#C9A84C] transition-colors">Home</Link>
-          <ChevronRight size={11} />
-          <Link href="/inventory" className="hover:text-[#C9A84C] transition-colors">Inventory</Link>
-          <ChevronRight size={11} />
-          <span className="text-white/50">{car.title}</span>
+export default function VehicleDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeImg, setActiveImg] = useState(0);
+  const [apptOpen, setApptOpen] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    Promise.all([
+      getVehicle(id),
+      getReviews(id),
+    ]).then(([v, r]) => {
+      setVehicle(v);
+      setReviews(r.items);
+    }).catch(e => {
+      setError(e instanceof Error ? e.message : 'Vehicle not found');
+    }).finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-slate-600 border-t-[#FF5500] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !vehicle) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1e] flex flex-col items-center justify-center gap-4 text-slate-300">
+        <p className="text-lg">{error || 'Vehicle not found'}</p>
+        <Link href="/inventory" className="text-[#FF5500] hover:underline">← Back to Inventory</Link>
+      </div>
+    );
+  }
+
+  const images = vehicle.images.length > 0 ? vehicle.images : [null];
+  const priceDisplay = vehicle.price_on_call
+    ? 'Call for Price'
+    : `$${parseFloat(vehicle.price).toLocaleString()}`;
+
+  const specItems = [
+    { label: 'Year', value: String(vehicle.year), Icon: Calendar },
+    { label: 'Mileage', value: `${vehicle.mileage.toLocaleString()} mi`, Icon: Gauge },
+    { label: 'Transmission', value: vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1), Icon: Zap },
+    { label: 'Fuel', value: vehicle.fuel_type.replace('_', ' '), Icon: Fuel },
+    ...(vehicle.color ? [{ label: 'Color', value: vehicle.color, Icon: Palette }] : []),
+    ...(vehicle.body_type ? [{ label: 'Body', value: vehicle.body_type, Icon: Calendar }] : []),
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0a0f1e] text-slate-200" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+
+      <SiteHeader />
+
+      <div className="max-w-6xl mx-auto px-5 py-10">
+
+        {/* Hero: gallery + details */}
+        <div className="flex flex-col lg:flex-row gap-10 mb-14">
+
+          {/* Gallery */}
+          <div className="lg:w-[55%] shrink-0">
+            <div className="rounded-xl overflow-hidden mb-3 bg-slate-800 border border-white/[0.06] aspect-[4/3] relative">
+              {images[activeImg] ? (
+                <Image
+                  src={getImageUrl(images[activeImg]!)}
+                  alt={`${vehicle.title} ${activeImg + 1}`}
+                  fill className="object-cover"
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={PLACEHOLDER} alt="No image" className="w-full h-full object-cover" />
+              )}
+            </div>
+            {images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {images.map((src, i) => (
+                  <button key={i} onClick={() => setActiveImg(i)}
+                    className={`relative shrink-0 w-20 h-14 rounded-md overflow-hidden border-2 transition ${
+                      i === activeImg ? 'border-[#FF5500]' : 'border-transparent opacity-60 hover:opacity-90'
+                    }`}>
+                    <Image src={getImageUrl(src!)} alt="" fill className="object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Details */}
+          <div className="flex-1">
+            <span className={`inline-block mb-3 px-3 py-1 text-[10px] font-black uppercase tracking-[2px] rounded-full ${
+              vehicle.status === 'available' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+              : vehicle.status === 'sold' ? 'bg-red-500/10 text-red-400 border border-red-500/30'
+              : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+            }`}>
+              {vehicle.status}
+            </span>
+
+            <h1 className="text-3xl font-black text-slate-100 leading-tight mb-2">{vehicle.title}</h1>
+            <p className="text-slate-400 text-sm mb-6 font-mono">VIN: {vehicle.vin}</p>
+
+            <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-[#FF5500]/8 border border-[#FF5500]/25">
+              <span className="text-slate-400 text-xs uppercase tracking-wide">Price</span>
+              <div className="w-px h-5 bg-white/10" />
+              <span className="text-3xl font-black text-[#FF5500]">{priceDisplay}</span>
+            </div>
+
+            {vehicle.description && (
+              <p className="text-slate-400 text-sm leading-relaxed mb-6">{vehicle.description}</p>
+            )}
+
+            <div className="flex flex-col gap-3">
+              <button onClick={() => setApptOpen(true)}
+                className="flex items-center justify-center gap-2 py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#FF7733] transition">
+                <Calendar size={16} /> Schedule Test Drive
+              </button>
+              <Link href={`/financing?vehicle=${vehicle.id}`}
+                className="flex items-center justify-center gap-2 py-3.5 border border-slate-600 text-slate-200 font-black text-sm uppercase tracking-wide rounded-xl hover:border-[#FF5500] hover:text-[#FF5500] transition">
+                <DollarSign size={16} /> Apply for Financing
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Back link */}
-        <motion.div
-          initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-8"
-        >
-          <Link
-            href="/inventory"
-            className="inline-flex items-center gap-2 text-white/40 hover:text-[#C9A84C] text-[11px] tracking-[0.18em] uppercase font-sans transition-colors duration-300"
-          >
-            <ArrowLeft size={13} /> Back to Inventory
-          </Link>
-        </motion.div>
-
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-
-          {/* LEFT — Images */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Main image */}
-            <div className="relative aspect-[4/3] overflow-hidden mb-3 border border-white/[0.07]">
-              <Image
-                src={car.images[activeImage]}
-                alt={car.title} fill priority
-                className="object-cover transition-all duration-500"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-              <div className="absolute top-4 left-4">
-                <span className={`text-[10px] font-sans font-semibold tracking-[0.15em] uppercase px-3 py-1.5 ${
-                  car.status === "available" ? "bg-[#C9A84C] text-black" : "bg-black/70 text-white/50 border border-white/15"
-                }`}>
-                  {car.status === "available" ? "Available" : "Sold"}
-                </span>
+        {/* Specs */}
+        <section className="mb-14">
+          <SectionTitle>Vehicle Specs</SectionTitle>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {specItems.map(({ label, value, Icon }) => (
+              <div key={label} className="p-4 rounded-xl bg-slate-800/60 border border-white/[0.06]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon size={13} className="text-[#FF5500]" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
+                </div>
+                <p className="font-bold text-slate-200">{value}</p>
               </div>
-            </div>
+            ))}
+          </div>
+        </section>
 
-            {/* Thumbnails */}
-            <div className="grid grid-cols-4 gap-2">
-              {car.images.slice(0, 4).map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(i)}
-                  className={`relative aspect-[4/3] overflow-hidden border-2 transition-all duration-300 ${
-                    activeImage === i ? "border-[#C9A84C]" : "border-white/10 hover:border-white/25"
-                  }`}
-                >
-                  <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" sizes="120px" />
-                  {activeImage !== i && <div className="absolute inset-0 bg-black/40" />}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* RIGHT — Details */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex flex-col"
-          >
-            {/* Stock badge */}
-            <div className="mb-5">
-              <span className="inline-flex items-center text-[#C9A84C] text-[10px] tracking-[0.22em] uppercase font-sans border border-[#C9A84C]/35 px-3.5 py-2">
-                Stock #{car.stockNumber}
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="font-serif text-4xl md:text-5xl text-white leading-tight mb-8">
-              {car.title}
-            </h1>
-
-            {/* Specs */}
-            <div className="grid grid-cols-2 gap-3 mb-7">
-              {[
-                { icon: <Gauge size={15} />,    label: "Mileage",      value: formatMileage(car.mileage) },
-                { icon: <Settings2 size={15} />, label: "Transmission", value: car.transmission },
-                { icon: <Fuel size={15} />,      label: "Fuel Type",    value: car.fuelType },
-                { icon: <Palette size={15} />,   label: "Color",        value: car.color },
-              ].map((s) => (
-                <div key={s.label} className="flex items-start gap-3 bg-[#111111] border border-white/[0.07] p-4">
-                  <span className="text-[#C9A84C] mt-0.5">{s.icon}</span>
-                  <div>
-                    <p className="text-white/30 text-[10px] font-sans uppercase tracking-widest mb-1">{s.label}</p>
-                    <p className="text-white text-sm font-sans">{s.value}</p>
+        {/* Reviews */}
+        {reviews.length > 0 && (
+          <section className="mb-14">
+            <SectionTitle>Customer Reviews</SectionTitle>
+            <div className="space-y-4">
+              {reviews.map(r => (
+                <div key={r.id} className="p-5 rounded-xl bg-slate-800/60 border border-white/[0.06]">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <StarRating rating={r.rating} />
+                    <span className="text-xs text-slate-500">{new Date(r.created_at).toLocaleDateString()}</span>
                   </div>
+                  <p className="font-bold text-slate-200 mb-1">{r.title}</p>
+                  <p className="text-sm text-slate-400 leading-relaxed">{r.body}</p>
                 </div>
               ))}
             </div>
+          </section>
+        )}
 
-            {/* Location */}
-            <div className="flex items-center gap-2.5 mb-7 text-white/45 text-sm font-sans">
-              <MapPin size={14} className="text-[#C9A84C]" />
-              {car.location}
-            </div>
-
-            <div className="thin-divider mb-7" />
-
-            {/* Price */}
-            <div className="mb-8">
-              <p className="text-white/25 text-[10px] font-sans uppercase tracking-widest mb-2">Asking Price</p>
-              <p className="font-serif text-5xl text-[#C9A84C]">{formatPrice(car.price)}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 mb-5">
-              <a
-                href="#"
-                className="flex items-center justify-center gap-2.5 flex-1 bg-[#1877F2] text-white text-[11px] tracking-[0.12em] uppercase px-5 py-3.5 font-sans hover:bg-[#1565D8] transition-colors duration-300"
-              >
-                <FacebookIcon size={14} /> Share
-              </a>
-              <a
-                href="tel:#"
-                className="flex items-center justify-center gap-2.5 flex-1 bg-[#C9A84C] text-black text-[11px] tracking-[0.12em] uppercase px-5 py-3.5 font-sans font-semibold hover:bg-[#D4B96A] transition-colors duration-300"
-              >
-                <Phone size={14} /> Call Dealer
-              </a>
-            </div>
-
-            {/* Location box */}
-            <div className="border border-white/[0.08] bg-[#111111] p-5 flex items-start gap-3">
-              <MapPin size={16} className="text-[#C9A84C] shrink-0 mt-0.5" />
-              <div>
-                <p className="text-white text-sm font-sans mb-1">{car.location}</p>
-                <a href="#" className="text-[#C9A84C] text-[10px] tracking-wider uppercase font-sans hover:underline">
-                  Get Directions →
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Bottom sections */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ duration: 0.6 }}
-          className="border-t border-white/[0.07] pt-12 grid grid-cols-1 lg:grid-cols-3 gap-10"
-        >
-          {/* Description + Features */}
-          <div className="lg:col-span-2 space-y-10">
-            <div>
-              <h2 className="font-serif text-2xl text-white mb-2">About This Vehicle</h2>
-              <div className="thin-divider mb-6" />
-              <p className="text-white/50 font-sans text-sm leading-relaxed">{car.description}</p>
-            </div>
-            <div>
-              <h2 className="font-serif text-2xl text-white mb-2">Features & Equipment</h2>
-              <div className="thin-divider mb-6" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {car.features.map((f) => (
-                  <div key={f} className="flex items-start gap-2.5 text-white/50 text-sm font-sans">
-                    <Check size={13} className="text-[#C9A84C] mt-0.5 shrink-0" />
-                    {f}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Financing */}
-          <div>
-            <h2 className="font-serif text-2xl text-white mb-2">Financing</h2>
-            <div className="thin-divider mb-6" />
-            <div className="border border-[#C9A84C]/25 bg-[#C9A84C]/[0.04] p-6">
-              <p className="text-[#C9A84C] text-[10px] tracking-[0.2em] uppercase font-sans mb-4">Financing Options</p>
-              <p className="text-white/60 font-sans text-sm leading-relaxed italic">{car.financing}</p>
-              <div className="thin-divider my-5" />
-              <p className="text-white/30 text-xs font-sans leading-relaxed">
-                Terms subject to credit approval. Contact our finance team for personalized solutions.
-              </p>
-              <a
-                href="tel:#"
-                className="mt-6 block text-center border border-[#C9A84C]/50 text-[#C9A84C] text-[10px] tracking-[0.18em] uppercase px-5 py-3 font-sans hover:bg-[#C9A84C] hover:text-black transition-all duration-300"
-              >
-                Speak with Finance Team
-              </a>
-            </div>
-          </div>
-        </motion.div>
       </div>
+
+      <HomeFooter />
+
+      {apptOpen && <AppointmentModal vehicleId={vehicle.id} onClose={() => setApptOpen(false)} />}
+    </div>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-4 mb-5">
+      <h2 className="text-xl font-black text-slate-100 whitespace-nowrap">{children}</h2>
+      <div className="flex-1 h-px bg-white/[0.06]" />
     </div>
   );
 }

@@ -1,226 +1,214 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Shield, CreditCard, Headphones, Truck } from "lucide-react";
-import CarCard from "@/components/CarCard";
-import InstagramShowcase from "@/components/InstagramShowcase";
-import { cars } from "@/lib/data";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import CarCard, { type DisplayCar } from '@/components/CarCard';
+import FilterSidebar from '@/components/FilterSidebar';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import CarFinder from '@/components/CarFinder';
+import InstagramShowcase from '@/components/InstagramShowcase';
+import HomeFooter from '@/components/HomeFooter';
+import * as api from '@/lib/api';
+import type { VehicleListItem, VehicleFilters } from '@/lib/types';
 
-const featured = cars.slice(0, 5);
+function toDisplayCar(v: VehicleListItem): DisplayCar {
+  return {
+    id: v.id,
+    title: v.title,
+    make: v.make,
+    year: v.year,
+    price: v.price_on_call ? 'Call' : v.price,
+    images: v.images,
+    mileage: v.mileage,
+    color: v.color,
+    stockNumber: v.stock_number ?? undefined,
+  };
+}
 
-const pillars = [
-  {
-    icon: <Shield size={26} className="text-[#C9A84C]" />,
-    title: "Certified Pre-Owned",
-    desc: "Every vehicle passes a rigorous 150-point inspection by factory-trained technicians before receiving our certified seal.",
-  },
-  {
-    icon: <CreditCard size={26} className="text-[#C9A84C]" />,
-    title: "Flexible Financing",
-    desc: "Tailored packages from our network of premier lenders, with rates from 0% APR for qualified buyers.",
-  },
-  {
-    icon: <Headphones size={26} className="text-[#C9A84C]" />,
-    title: "Concierge Service",
-    desc: "Your dedicated specialist handles every detail from test drives to delivery so you focus on the joy of ownership.",
-  },
-  {
-    icon: <Truck size={26} className="text-[#C9A84C]" />,
-    title: "Nationwide Delivery",
-    desc: "We deliver your vehicle anywhere in the continental United States, fully insured, at no additional cost.",
-  },
-];
+function inPriceRange(price: string, rangeId: string): boolean {
+  const p = parseFloat(price);
+  if (isNaN(p)) return false;
+  if (rangeId === 'under-15k') return p < 15000;
+  if (rangeId === '15k-20k') return p >= 15000 && p < 20000;
+  if (rangeId === '20k-25k') return p >= 20000 && p < 25000;
+  if (rangeId === '25k-plus') return p >= 25000;
+  return false;
+}
 
 export default function HomePage() {
+  const [query, setQuery] = useState('');
+  const [selectedMakes, setSelectedMakes] = useState<string[]>([]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
+  const [isFinderOpen, setIsFinderOpen] = useState(false);
+
+  const [vehicles, setVehicles] = useState<VehicleListItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [allMakes, setAllMakes] = useState<string[]>([]);
+  const [allYears, setAllYears] = useState<number[]>([]);
+  const allMakesPopulated = useRef(false);
+
+  const fetchVehicles = useCallback(async (opts: {
+    search?: string;
+    makes?: string[];
+    years?: number[];
+    priceRanges?: string[];
+  } = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const filters: VehicleFilters = { page_size: 50 };
+      if (opts.search) filters.search = opts.search;
+      if (opts.makes?.length === 1) filters.make = opts.makes[0];
+      if (opts.years?.length === 1) filters.year_min = opts.years[0];
+
+      const data = await api.getVehicles(filters);
+
+      // Populate sidebar options once from an unfiltered fetch
+      if (!allMakesPopulated.current && !opts.search && !opts.makes?.length && !opts.years?.length) {
+        const makes = Array.from(new Set(data.items.map(v => v.make))).sort();
+        const years = Array.from(new Set(data.items.map(v => v.year))).sort((a, b) => b - a);
+        setAllMakes(makes);
+        setAllYears(years);
+        allMakesPopulated.current = true;
+      }
+
+      // Client-side multi-select filtering (API handles search/single make/year)
+      let items = data.items;
+      if (opts.makes && opts.makes.length > 1) {
+        items = items.filter(v => opts.makes!.includes(v.make));
+      }
+      if (opts.years && opts.years.length > 1) {
+        items = items.filter(v => opts.years!.includes(v.year));
+      }
+      if (opts.priceRanges?.length) {
+        items = items.filter(v => opts.priceRanges!.some(r => inPriceRange(v.price, r)));
+      }
+
+      setVehicles(items);
+      setTotal(items.length);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load vehicles');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Debounce search, immediate for filter changes
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      fetchVehicles({ search: query, makes: selectedMakes, years: selectedYears, priceRanges: selectedPriceRanges });
+    }, query ? 350 : 0);
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
+  }, [query, selectedMakes, selectedYears, selectedPriceRanges, fetchVehicles]);
+
+  const toggleMake = (make: string) =>
+    setSelectedMakes(prev => prev.includes(make) ? prev.filter(m => m !== make) : [...prev, make]);
+  const toggleYear = (year: number) =>
+    setSelectedYears(prev => prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year]);
+  const togglePriceRange = (range: string) =>
+    setSelectedPriceRanges(prev => prev.includes(range) ? prev.filter(r => r !== range) : [...prev, range]);
+  const clearAll = () => {
+    setSelectedMakes([]);
+    setSelectedYears([]);
+    setSelectedPriceRanges([]);
+    setQuery('');
+  };
+
   return (
-    <div className="bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#EEF2F7]">
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <Image
-          src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1920&q=90"
-          alt="Luxury car hero"
-          fill priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#0A0A0A]" />
+      <Header query={query} onQueryChange={setQuery} />
 
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-[#C9A84C] text-[10px] tracking-[0.35em] uppercase font-sans mb-7"
-          >
-            Premium Luxury Automobiles
-          </motion.p>
+      <HeroSection onOpenFinder={() => setIsFinderOpen(true)} />
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="font-serif text-6xl sm:text-8xl lg:text-9xl text-white leading-none mb-8"
-          >
-            Drive the
-            <br />
-            <span className="text-[#C9A84C]">Extraordinary</span>
-          </motion.h1>
+      <CarFinder isOpen={isFinderOpen} onClose={() => setIsFinderOpen(false)} />
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.65 }}
-            className="text-white/50 text-base font-sans max-w-lg mx-auto mb-12 leading-relaxed"
-          >
-            Curating the world&apos;s most exceptional motorcars — where performance meets artistry, and every detail tells a story.
-          </motion.p>
+      <main className="w-full px-5 py-8 lg:py-10">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.85 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link
-              href="/inventory"
-              className="group flex items-center gap-2.5 bg-[#C9A84C] text-black text-[11px] tracking-[0.18em] uppercase px-8 py-4 font-sans font-semibold hover:bg-[#D4B96A] transition-colors duration-300"
-            >
-              Explore Inventory
-              <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              href="/about"
-              className="border border-white/30 text-white text-[11px] tracking-[0.18em] uppercase px-8 py-4 font-sans hover:border-[#C9A84C]/60 hover:text-[#C9A84C] transition-all duration-300"
-            >
-              Book a Test Drive
-            </Link>
-          </motion.div>
-        </div>
+          <FilterSidebar
+            makes={allMakes}
+            years={allYears}
+            filters={{ selectedMakes, selectedYears, selectedPriceRanges }}
+            onMakeChange={toggleMake}
+            onYearChange={toggleYear}
+            onPriceRangeChange={togglePriceRange}
+            onClearAll={clearAll}
+          />
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <span className="text-white/25 text-[9px] tracking-[0.3em] uppercase font-sans">Scroll</span>
-          <div className="w-px h-10 bg-gradient-to-b from-[#C9A84C]/60 to-transparent animate-pulse" />
-        </motion.div>
-      </section>
-
-      {/* ── FEATURED VEHICLES ────────────────────────────── */}
-      <section className="py-24 px-6 lg:px-10">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-5"
-          >
-            <div>
-              <p className="text-[#C9A84C] text-[10px] tracking-[0.3em] uppercase font-sans mb-3">Handpicked Selection</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-white">Featured Vehicles</h2>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+              <div>
+                <h2 className="font-sans font-black uppercase tracking-tight text-slate-900
+                  text-4xl lg:text-5xl leading-none">
+                  Featured Inventory
+                </h2>
+                <div className="mt-2.5 flex items-center gap-3">
+                  <div className="h-[3px] w-12 bg-[#FF5500] rounded-full" />
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+                    {loading ? 'Loading…' : `${total} vehicle${total !== 1 ? 's' : ''} available`}
+                    {query && !loading && <> · &ldquo;{query}&rdquo;</>}
+                  </span>
+                </div>
+              </div>
             </div>
-            <Link
-              href="/inventory"
-              className="flex items-center gap-2 text-[#C9A84C] text-[11px] tracking-[0.15em] uppercase font-sans hover:gap-3 transition-all duration-300"
-            >
-              View All Inventory <ArrowRight size={13} />
-            </Link>
-          </motion.div>
 
-          <div className="thin-divider mb-12" />
+            {error && (
+              <div className="py-8 text-center">
+                <p className="text-red-500 text-sm">{error}</p>
+                <p className="mt-1 text-slate-400 text-xs">Make sure the backend is running on port 8000.</p>
+              </div>
+            )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featured.map((car, i) => (
-              <CarCard key={car.id} car={car} index={i} />
-            ))}
+            {loading && !error && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="bg-white rounded-xl border border-slate-200 overflow-hidden animate-pulse">
+                    <div className="aspect-[4/2.85] bg-slate-200" />
+                    <div className="p-3.5 space-y-2">
+                      <div className="h-3 bg-slate-200 rounded w-1/3" />
+                      <div className="h-4 bg-slate-200 rounded w-4/5" />
+                      <div className="h-3 bg-slate-200 rounded w-1/2" />
+                      <div className="h-8 bg-slate-200 rounded mt-3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading && !error && vehicles.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                {vehicles.map(v => (
+                  <CarCard key={v.id} car={toDisplayCar(v)} />
+                ))}
+              </div>
+            )}
+
+            {!loading && !error && vehicles.length === 0 && (
+              <div className="py-24 text-center">
+                <p className="text-lg text-slate-400">No vehicles found</p>
+                <button onClick={clearAll} className="mt-4 text-[#FF5500] hover:underline">
+                  Clear filters
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
 
-      {/* ── INSTAGRAM ────────────────────────────────────── */}
+        </div>
+      </main>
+
       <InstagramShowcase />
 
-      {/* ── WHY CHOOSE US ────────────────────────────────── */}
-      <section className="py-24 px-6 lg:px-10 bg-[#0A0A0A]">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <p className="text-[#C9A84C] text-[10px] tracking-[0.3em] uppercase font-sans mb-4">The Luxury Motors Difference</p>
-            <h2 className="font-serif text-4xl md:text-5xl text-white">Why Choose Us</h2>
-          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {pillars.map((p, i) => (
-              <motion.div
-                key={p.title}
-                initial={{ opacity: 0, y: 26 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group bg-[#111111] border border-white/[0.07] hover:border-[#C9A84C]/30 p-8 hover:-translate-y-1 transition-all duration-400"
-              >
-                <div className="mb-6">{p.icon}</div>
-                <h3 className="font-serif text-xl text-white mb-4 group-hover:text-[#C9A84C] transition-colors duration-300">{p.title}</h3>
-                <p className="text-white/35 text-sm font-sans leading-relaxed">{p.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HomeFooter />
 
-      {/* ── CTA BANNER ───────────────────────────────────── */}
-      <section className="relative py-32 px-6 lg:px-10 overflow-hidden">
-        <Image
-          src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1920&q=80"
-          alt="CTA background"
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-black/75" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="relative z-10 text-center max-w-2xl mx-auto"
-        >
-          <p className="text-[#C9A84C] text-[10px] tracking-[0.35em] uppercase font-sans mb-6">Begin Your Journey</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-white mb-6 leading-tight">Your Dream Car Awaits</h2>
-          <p className="text-white/45 font-sans mb-12 leading-relaxed">
-            Browse our curated collection of the world&apos;s most extraordinary automobiles. Your next chapter starts here.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/inventory"
-              className="bg-[#C9A84C] text-black text-[11px] tracking-[0.18em] uppercase px-10 py-4 font-sans font-semibold hover:bg-[#D4B96A] transition-colors duration-300"
-            >
-              Browse Inventory
-            </Link>
-            <Link
-              href="/about"
-              className="border border-white/30 text-white text-[11px] tracking-[0.18em] uppercase px-10 py-4 font-sans hover:border-[#C9A84C]/60 hover:text-[#C9A84C] transition-all duration-300"
-            >
-              Contact Us
-            </Link>
-          </div>
-        </motion.div>
-      </section>
     </div>
   );
 }

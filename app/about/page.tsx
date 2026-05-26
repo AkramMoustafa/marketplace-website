@@ -200,15 +200,19 @@ export default function AboutPage() {
               className="space-y-4"
             >
               {[
-                { icon: <MapPin size={16} className="text-[#C9A84C]" />, label: "Address",  value: "425 Park Avenue, New York, NY 10022" },
-                { icon: <Phone  size={16} className="text-[#C9A84C]" />, label: "Phone",    value: "+1 (212) 555-0199" },
-                { icon: <Mail   size={16} className="text-[#C9A84C]" />, label: "Email",    value: "hello@luxurymotors.com" },
+                { icon: <MapPin size={16} className="text-[#C9A84C]" />, label: "Address",  value: "425 Park Avenue, New York, NY 10022", href: undefined },
+                { icon: <Phone  size={16} className="text-[#C9A84C]" />, label: "Phone",    value: "+1 (212) 555-0199",                  href: "tel:+12125550199" },
+                { icon: <Mail   size={16} className="text-[#C9A84C]" />, label: "Email",    value: "hello@luxurymotors.com",             href: "mailto:hello@luxurymotors.com" },
               ].map((item) => (
                 <div key={item.label} className="flex items-start gap-5 bg-[#111111] border border-white/[0.07] p-5">
                   <span className="mt-0.5 shrink-0">{item.icon}</span>
                   <div>
                     <p className="text-white/30 text-[10px] font-sans uppercase tracking-widest mb-1">{item.label}</p>
-                    <p className="text-white font-sans text-sm">{item.value}</p>
+                    {item.href ? (
+                      <a href={item.href} className="text-white font-sans text-sm hover:text-[#C9A84C] transition-colors duration-300">{item.value}</a>
+                    ) : (
+                      <p className="text-white font-sans text-sm">{item.value}</p>
+                    )}
                   </div>
                 </div>
               ))}

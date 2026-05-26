@@ -10,9 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         black: "#0A0A0A",
-        gold: "#C9A84C",
-        "gold-light": "#D4B96A",
-        "gold-dark": "#A8863C",
+        gold: "#FF5500",
+        "gold-light": "#FF7733",
+        "gold-dark": "#CC4400",
       },
       fontFamily: {
         serif: ["var(--font-playfair)", "Georgia", "serif"],
