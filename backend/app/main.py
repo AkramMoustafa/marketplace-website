@@ -45,7 +45,7 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 # Routers
 for router in [auth.router, vehicles.router, financing.router, tradein.router,
                appointments.router, reviews.router, users.router, admin.router,
-               contact.router]:
+               contact.router, marketplace.router, agent.router]:
     app.include_router(router)
 
 
