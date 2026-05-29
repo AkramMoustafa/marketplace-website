@@ -1,36 +1,3 @@
-import type { StaticImageData } from 'next/image';
-
-/* GMC Acadia */
-import acadia1 from '@/assets/acadia-1.jpg';
-import acadia2 from '@/assets/acadia-2.jpg';
-import acadia3 from '@/assets/acadia-3.jpg';
-import acadia4 from '@/assets/acadia-4.jpg';
-import acadia5 from '@/assets/acadia-4.jpg';
-
-/* Dodge Charger */
-import charger1 from '@/assets/charger-1.jpg';
-import charger2 from '@/assets/charger-2.jpg';
-import charger3 from '@/assets/charger-3.jpg';
-import charger4 from '@/assets/charger-4.jpg';
-
-/* Buick Encore */
-import encore1 from '@/assets/encore-1.jpg';
-import encore2 from '@/assets/encore-2.jpg';
-import encore3 from '@/assets/encore-3.jpg';
-import encore4 from '@/assets/encore-4.jpg';
-
-/* Chevy Malibu */
-import malibu1 from '@/assets/malibu-1.jpg';
-import malibu2 from '@/assets/malibu-2.jpg';
-import malibu3 from '@/assets/malibu-3.jpg';
-import malibu4 from '@/assets/malibu-4.jpg';
-
-/* Cadillac XT4 */
-import xt41 from '@/assets/xt4-1.jpg';
-import xt42 from '@/assets/xt4-2.jpg';
-import xt43 from '@/assets/xt4-3.jpg';
-import xt44 from '@/assets/xt4-4.jpg';
-
 export interface Car {
   id: string;
   stockNumber: string;
@@ -38,7 +5,7 @@ export interface Car {
   make: string;
   year: number;
   price: number | 'Call';
-  images: StaticImageData[];
+  images: string[];
 }
 
 export const cars: Car[] = [
@@ -49,7 +16,12 @@ export const cars: Car[] = [
     make: 'GMC',
     year: 2017,
     price: 'Call',
-    images: [acadia1, acadia2, acadia3, acadia4],
+    images: [
+      "/assets/acadia-1.jpg",
+      "/assets/acadia-2.jpg",
+      "/assets/acadia-3.jpg",
+      "/assets/acadia-4.jpg",
+    ],
   },
 
   {
@@ -59,7 +31,12 @@ export const cars: Car[] = [
     make: 'Dodge',
     year: 2020,
     price: 16690,
-    images: [charger1, charger2, charger3, charger4],
+    images: [
+      "/assets/charger-1.jpg",
+      "/assets/charger-2.jpg",
+      "/assets/charger-3.jpg",
+      "/assets/charger-4.jpg",
+    ],
   },
 
   {
@@ -69,7 +46,12 @@ export const cars: Car[] = [
     make: 'Buick',
     year: 2019,
     price: 'Call',
-    images: [encore1, encore2, encore3, encore4],
+    images: [
+      "/assets/encore-1.jpg",
+      "/assets/encore-2.jpg",
+      "/assets/encore-3.jpg",
+      "/assets/encore-4.jpg",
+    ],
   },
 
   {
@@ -79,7 +61,12 @@ export const cars: Car[] = [
     make: 'Chevrolet',
     year: 2023,
     price: 16990,
-    images: [malibu1, malibu2, malibu3, malibu4],
+    images: [
+      "/assets/malibu-1.jpg",
+      "/assets/malibu-2.jpg",
+      "/assets/malibu-3.jpg",
+      "/assets/malibu-4.jpg",
+    ],
   },
 
   {
@@ -89,6 +76,11 @@ export const cars: Car[] = [
     make: 'Cadillac',
     year: 2020,
     price: 17490,
-    images: [xt41, xt42, xt43, xt44],
+    images: [
+      "/assets/xt4-1.jpg",
+      "/assets/xt4-2.jpg",
+      "/assets/xt4-3.jpg",
+      "/assets/xt4-4.jpg",
+    ],
   },
 ];

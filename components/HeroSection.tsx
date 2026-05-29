@@ -1,11 +1,8 @@
 import Image from 'next/image';
 import { MapPin } from 'lucide-react';
 
-import heroImage from '@/assets/charger-2.jpg';
-
 const STATS = [
-  { value: '500+',    label: 'Vehicles'       },
-  { value: '24hr',    label: 'Financing'      },
+  { value: '500+', label: 'Vehicles' },
   { value: 'Detroit', label: 'Trusted Dealer' },
 ] as const;
 
@@ -15,8 +12,8 @@ export default function HeroSection() {
 
       <div className="absolute inset-0">
         <Image
-          src={heroImage}
-          alt="Premium vehicles at Nova Motors Detroit"
+          src="/assets/charger-2.jpg"
+          alt="Premium vehicles at RPM Motors Detroit"
           fill
           priority
           sizes="100vw"
@@ -35,46 +32,45 @@ export default function HeroSection() {
         w-[300px] h-[160px] rounded-full
         bg-[#FF5500]/[0.1] blur-[70px]" />
 
-      <div className="relative z-10 h-full max-w-7xl mx-auto
-        px-6 lg:px-12 flex items-center py-12 lg:py-0">
 
-        <div className="max-w-[580px]">
 
-          <div
-            className="hero-animate inline-flex items-center gap-1.5
+      <div className="max-w-[580px]">
+
+        <div
+          className="hero-animate inline-flex items-center gap-1.5
               px-3 py-1.5 rounded bg-[#FF5500] text-black mb-4"
-            style={{ animationDelay: '40ms' }}
-          >
-            <MapPin size={10} strokeWidth={3} className="shrink-0" />
-            <span className="text-[9px] font-black uppercase tracking-[2.5px]">
-              Detroit, MI · Trusted Dealer
-            </span>
-          </div>
+          style={{ animationDelay: '40ms' }}
+        >
+          <MapPin size={10} strokeWidth={3} className="shrink-0" />
+          <span className="text-[9px] font-black uppercase tracking-[2.5px]">
+            Detroit, MI · Trusted Dealer
+          </span>
+        </div>
 
-          <h1
-            className="hero-animate font-sans font-black text-white
+        <h1
+          className="hero-animate font-sans font-black text-white
               uppercase tracking-tight leading-[0.88]
               text-[3.8rem] lg:text-[5.6rem]"
-            style={{ animationDelay: '140ms' }}
-          >
-            FIND YOUR<br />DREAM RIDE
-          </h1>
+          style={{ animationDelay: '140ms' }}
+        >
+          FIND YOUR<br />DREAM RIDE
+        </h1>
 
-          <p
-            className="hero-animate mt-4 text-slate-300 text-base max-w-[340px] leading-snug"
-            style={{ animationDelay: '250ms' }}
-          >
-            Browse our inventory and drive home today.
-          </p>
+        <p
+          className="hero-animate mt-4 text-slate-300 text-base max-w-[340px] leading-snug"
+          style={{ animationDelay: '250ms' }}
+        >
+          Browse our inventory and drive home today.
+        </p>
 
-          {/* CTAs */}
-          <div
-            className="hero-animate mt-6 flex flex-wrap gap-3"
-            style={{ animationDelay: '350ms' }}
-          >
-            <a
-              href="#inventory"
-              className="inline-flex items-center
+        {/* CTAs */}
+        <div
+          className="hero-animate mt-6 flex flex-wrap gap-3"
+          style={{ animationDelay: '350ms' }}
+        >
+          <a
+            href="#inventory"
+            className="inline-flex items-center
                 px-8 py-4
                 bg-[#FF5500] text-black
                 text-sm font-black uppercase tracking-[1.5px]
@@ -82,24 +78,11 @@ export default function HeroSection() {
                 hover:bg-black hover:text-[#FF5500]
                 active:scale-95
                 transition-all duration-150"
-            >
-              SHOP INVENTORY
-            </a>
+          >
+            SHOP INVENTORY
+          </a>
 
-            <a
-              href="#pre-approval"
-              className="inline-flex items-center
-                px-8 py-4
-                bg-transparent text-white
-                text-sm font-black uppercase tracking-[1.5px]
-                border-4 border-white
-                hover:bg-white hover:text-black
-                active:scale-95
-                transition-all duration-150"
-            >
-              GET APPROVED
-            </a>
-          </div>
+
 
           <div
             className="hero-animate mt-7 pt-5 border-t border-white/[0.12]"

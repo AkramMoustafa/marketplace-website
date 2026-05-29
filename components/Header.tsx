@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Phone, MapPin } from 'lucide-react';
+import { Search, Phone, MapPin, Shield } from 'lucide-react';
 
 interface HeaderProps {
   query: string;
@@ -8,8 +8,8 @@ interface HeaderProps {
 }
 
 const NAV_LINKS = [
-  'HOME', 'INVENTORY', 'FINANCING', 'PRE-APPROVAL',
-  'TRADE-IN', 'SERVICE', 'CONTACT', 'REVIEWS', 'ESPAÑOL',
+  'HOME', 'INVENTORY', 'INSPECTION', 'ABOUT US',
+  'Full Car Service', 'CONTACT', 'REVIEWS', 'ESPAÑOL',
 ];
 
 /* ─── Brand SVG icons ──────────────────────────────────────────────────── */
@@ -39,9 +39,9 @@ function XIcon() {
 }
 
 const SOCIALS = [
-  { label: 'Facebook',  Icon: FacebookIcon  },
+  { label: 'Facebook', Icon: FacebookIcon },
   { label: 'Instagram', Icon: InstagramIcon },
-  { label: 'X',         Icon: XIcon         },
+  { label: 'X', Icon: XIcon },
 ] as const;
 
 /* ─── Component ────────────────────────────────────────────────────────── */
@@ -59,7 +59,7 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
             <div className="hidden sm:flex items-center gap-1.5">
               <MapPin size={10} className="text-[#FF5500] shrink-0" />
               <span className="text-[10px] text-slate-400 tracking-wide">
-                2940 East 8 Mile, Detroit MI 48234
+                //, Detroit MI 48234
               </span>
             </div>
 
@@ -72,7 +72,21 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
                 href="tel:3132517447"
                 className="text-[10px] text-slate-400 hover:text-white transition-colors duration-200"
               >
-                (313) 251-7447
+                (313) 000-0000
+              </a>
+            </div>
+
+            {/* Divider */}
+            <span className="hidden sm:block h-3 w-px bg-white/[0.12]" />
+
+            {/* Admin Portal */}
+            <div className="flex items-center gap-1">
+              <Shield size={10} className="text-[#FF5500] shrink-0" />
+              <a
+                href="/admin"
+                className="text-[10px] text-slate-400 hover:text-[#FF5500] uppercase font-semibold transition-colors duration-200 tracking-wider"
+              >
+                Admin Portal
               </a>
             </div>
           </div>
@@ -108,7 +122,7 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
             <div className="w-[4px] self-stretch bg-[#FF5500] rounded-full" />
             <div>
               <div className="text-[3.5rem] font-black tracking-[5px] text-slate-900 leading-none">
-                NOVA
+                RPM
               </div>
               <div className="text-[9px] font-black tracking-[10px] text-[#FF5500] mt-1.5 ml-[1px]">
                 MOTORS
@@ -120,14 +134,14 @@ export default function Header({ query, onQueryChange }: HeaderProps) {
           <div className="hidden lg:flex flex-1 flex-col items-center gap-1.5">
             <div className="flex items-center gap-2 text-slate-400 text-xs tracking-wide">
               <MapPin size={12} className="text-[#FF5500] shrink-0" />
-              <span>2940 East 8 Mile Road, Detroit, MI 48234</span>
+              <span>//, Detroit, MI 48234</span>
             </div>
             <a
-              href="tel:3132517447"
+              href="tel:3130000000"
               className="flex items-center gap-2 text-[1.1rem] font-bold text-slate-800 hover:text-[#FF5500] transition-colors duration-200 tracking-wide"
             >
               <Phone size={14} className="text-[#FF5500] shrink-0" />
-              (313) 251-7447
+              (313) 000-0000
             </a>
           </div>
 

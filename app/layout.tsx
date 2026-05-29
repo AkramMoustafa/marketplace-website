@@ -15,8 +15,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Nova Motors | Detroit, MI',
-  description: 'Nova Motors — 2940 East 8 Mile Detroit, MI 48234. Call (313) 251-7447.',
+  title: 'RPM  | Detroit, MI',
+  description: 'RPM —Detroit, MI 48234. Call (313) 000-0000.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

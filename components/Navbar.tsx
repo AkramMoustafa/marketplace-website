@@ -28,11 +28,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        opaque
-          ? "bg-[#0A0A0A]/96 backdrop-blur-md border-b border-[#C9A84C]/10 shadow-[0_2px_30px_rgba(0,0,0,.6)]"
-          : "bg-transparent border-b border-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${opaque
+        ? "bg-[#0A0A0A]/96 backdrop-blur-md border-b border-[#C9A84C]/10 shadow-[0_2px_30px_rgba(0,0,0,.6)]"
+        : "bg-transparent border-b border-transparent"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between h-18 py-4">
@@ -45,7 +44,7 @@ export default function Navbar() {
               </span>
             </div>
             <span className="font-serif text-white text-lg tracking-widest uppercase">
-              Luxury<span className="text-[#C9A84C]">Motors</span>
+              RPM <span className="text-[#C9A84C]">MOTORS</span>
             </span>
           </Link>
 
@@ -55,15 +54,13 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative text-[11px] tracking-[0.18em] uppercase font-sans transition-colors duration-300 group ${
-                  pathname === link.href ? "text-[#C9A84C]" : "text-white/60 hover:text-white"
-                }`}
+                className={`relative text-[11px] tracking-[0.18em] uppercase font-sans transition-colors duration-300 group ${pathname === link.href ? "text-[#C9A84C]" : "text-white/60 hover:text-white"
+                  }`}
               >
                 {link.label}
                 <span
-                  className={`absolute -bottom-0.5 left-0 h-px bg-[#C9A84C] transition-all duration-300 ${
-                    pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
-                  }`}
+                  className={`absolute -bottom-0.5 left-0 h-px bg-[#C9A84C] transition-all duration-300 ${pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
                 />
               </Link>
             ))}
@@ -90,9 +87,8 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${
-          mobileOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`md:hidden overflow-hidden transition-all duration-300 ${mobileOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+          }`}
       >
         <div className="bg-[#0A0A0A] border-t border-[#C9A84C]/10 px-6 py-6 flex flex-col gap-5">
           {navLinks.map((link) => (
@@ -100,9 +96,8 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className={`text-[11px] tracking-[0.2em] uppercase font-sans transition-colors duration-200 ${
-                pathname === link.href ? "text-[#C9A84C]" : "text-white/60 hover:text-white"
-              }`}
+              className={`text-[11px] tracking-[0.2em] uppercase font-sans transition-colors duration-200 ${pathname === link.href ? "text-[#C9A84C]" : "text-white/60 hover:text-white"
+                }`}
             >
               {link.label}
             </Link>

@@ -4,15 +4,24 @@ import { useState } from "react";
 import AdminSidebar, { AdminView } from "@/components/AdminSidebar";
 import { TrendingUp, Users, DollarSign, Activity } from "lucide-react";
 
-export default function AdminPage() {
-  const [activeView, setActiveView] = useState<AdminView>("dashboard");
+interface AdminClientDashboardProps {
+  initialStats: {
+    totalVehicles: string;
+    activeLeads: string;
+    revenue: string;
+    siteVisitors: string;
+  };
+}
+
+export default function AdminClientDashboard({ initialStats }: AdminClientDashboardProps) {
+  const [activeView, setActiveView] = useState<AdminView | "extra-features">("dashboard");
   const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-[#050505] text-white font-sans">
       <AdminSidebar
-        activeView={activeView}
-        onViewChange={setActiveView}
+        activeView={activeView as AdminView}
+        onViewChange={(view) => setActiveView(view)}
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed(!collapsed)}
       />
@@ -40,48 +49,48 @@ export default function AdminPage() {
 
         {/* Main Content Area */}
         <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          {activeView === "dashboard" && <DashboardView />}
+          {activeView === "dashboard" && <DashboardView stats={initialStats} />}
           {activeView === "cars" && <PlaceholderView title="Inventory Management" />}
           {activeView === "add-car" && <PlaceholderView title="Add New Vehicle" />}
           {activeView === "reports" && <PlaceholderView title="Analytics & Reports" />}
           {activeView === "settings" && <PlaceholderView title="System Settings" />}
-          {activeView === "extra-features" && <PlaceholderView title="extra features" />} {/** added by abdul */}
-
+          {activeView === "extra-features" && <PlaceholderView title="extra features" />}
         </div>
       </main>
     </div>
   );
 }
 
-function DashboardView() {
+function DashboardView({ stats }: { stats: AdminClientDashboardProps["initialStats"] }) {
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Vehicles"
-          value="142"
+          value={stats.totalVehicles}
           change="+12"
           icon={<TrendingUp size={20} />}
         />
         <StatCard
           title="Active Leads"
-          value="84"
+          value={stats.activeLeads}
           change="+5"
           icon={<Users size={20} />}
         />
         <StatCard
           title="Revenue (MTD)"
-          value="$4.2M"
+          value={stats.revenue}
           change="+15%"
           icon={<DollarSign size={20} />}
         />
         <StatCard
           title="Site Visitors"
-          value="12.5k"
+          value={stats.siteVisitors}
           change="+2.4%"
           icon={<Activity size={20} />}
         />
+        {/* all real updates will be done using websocket */}
       </div>
 
       {/* Recent Activity / Charts Placeholder */}
@@ -104,7 +113,6 @@ function DashboardView() {
                   <div className="text-sm font-medium">New inquiry for Rolls Royce</div>
                   <div className="text-xs text-white/40">2 hours ago</div>
                 </div>
-                {/* will have to create real time updates using websocket*/}
               </div>
             ))}
           </div>
@@ -113,7 +121,7 @@ function DashboardView() {
     </div>
   );
 }
-
+// TODO: implemenet real data using websocket
 function StatCard({ title, value, change, icon }: { title: string; value: string; change: string; icon: React.ReactNode }) {
   const isPositive = change.startsWith("+");
   return (

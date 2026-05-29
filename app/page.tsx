@@ -12,7 +12,7 @@ const allYears = Array.from(new Set(cars.map(c => c.year))).sort((a, b) => b - a
 
 function inPriceRange(price: number | 'Call', rangeId: string): boolean {
   if (typeof price !== 'number') return false;
-  if (rangeId === 'under-15k') return price < 15000;
+  if (rangeId === 'under-15 k') return price < 15000;
   if (rangeId === '15k-20k') return price >= 15000 && price < 20000;
   if (rangeId === '20k-25k') return price >= 20000 && price < 25000;
   if (rangeId === '25k-plus') return price >= 25000;

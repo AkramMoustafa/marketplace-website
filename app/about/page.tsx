@@ -6,10 +6,10 @@ import Image from "next/image";
 import { Star, MapPin, Phone, Mail, Clock } from "lucide-react";
 
 const stats = [
-  { value: 25,   suffix: "+",  label: "Years of Excellence" },
-  { value: 2400, suffix: "+",  label: "Cars Sold" },
-  { value: 1800, suffix: "+",  label: "Happy Clients" },
-  { value: 12,   suffix: "",   label: "Industry Awards" },
+  { value: 25, suffix: "+", label: "Years of Excellence" },
+  { value: 2400, suffix: "+", label: "Cars Sold" },
+  { value: 1800, suffix: "+", label: "Happy Clients" },
+  { value: 12, suffix: "", label: "Industry Awards" },
 ];
 
 const testimonials = [
@@ -25,6 +25,7 @@ const testimonials = [
     name: "Sophia Chen", location: "Chicago, IL", rating: 5,
     quote: "The concierge service is real, not just marketing. My specialist handled everything — inspection, insurance, delivery — all while I was traveling abroad.",
   },
+  // we will need real, so we have to add google reviews api call here  
 ];
 
 function Counter({ target, suffix }: { target: number; suffix: string }) {
@@ -200,9 +201,9 @@ export default function AboutPage() {
               className="space-y-4"
             >
               {[
-                { icon: <MapPin size={16} className="text-[#C9A84C]" />, label: "Address",  value: "425 Park Avenue, New York, NY 10022" },
-                { icon: <Phone  size={16} className="text-[#C9A84C]" />, label: "Phone",    value: "+1 (212) 555-0199" },
-                { icon: <Mail   size={16} className="text-[#C9A84C]" />, label: "Email",    value: "hello@luxurymotors.com" },
+                { icon: <MapPin size={16} className="text-[#C9A84C]" />, label: "Address", value: "425 Park Avenue, New York, NY 10022" },
+                { icon: <Phone size={16} className="text-[#C9A84C]" />, label: "Phone", value: "+1 (212) 555-0199" },
+                { icon: <Mail size={16} className="text-[#C9A84C]" />, label: "Email", value: "hello@luxurymotors.com" },
               ].map((item) => (
                 <div key={item.label} className="flex items-start gap-5 bg-[#111111] border border-white/[0.07] p-5">
                   <span className="mt-0.5 shrink-0">{item.icon}</span>
@@ -221,8 +222,8 @@ export default function AboutPage() {
                   <div className="space-y-2.5">
                     {[
                       ["Monday – Friday", "9:00 AM – 7:00 PM"],
-                      ["Saturday",        "10:00 AM – 6:00 PM"],
-                      ["Sunday",          "By Appointment Only"],
+                      ["Saturday", "10:00 AM – 6:00 PM"],
+                      ["Sunday", "By Appointment Only"],
                     ].map(([day, hrs]) => (
                       <div key={day} className="flex justify-between text-sm font-sans">
                         <span className="text-white/45">{day}</span>
