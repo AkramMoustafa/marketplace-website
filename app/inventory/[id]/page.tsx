@@ -8,7 +8,7 @@ import { getVehicle, getReviews, bookAppointment, getImageUrl } from '@/lib/api'
 import type { Vehicle, Review } from '@/lib/types';
 import SiteHeader from '@/components/layout/SiteHeader';
 import HomeFooter from '@/components/HomeFooter';
-import { Star, Calendar, DollarSign, Fuel, Gauge, Zap, Palette } from 'lucide-react';
+import { Star, Calendar, Fuel, Gauge, Zap, Palette } from 'lucide-react';
 
 const PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjU2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjU2MCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjQwMCIgeT0iMjkwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMiIgZmlsbD0iI2NiZDVlMSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
 
@@ -226,10 +226,6 @@ export default function VehicleDetailPage() {
                 className="flex items-center justify-center gap-2 py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#FF7733] transition">
                 <Calendar size={16} /> Schedule Test Drive
               </button>
-              <Link href={`/financing?vehicle=${vehicle.id}`}
-                className="flex items-center justify-center gap-2 py-3.5 border border-slate-600 text-slate-200 font-black text-sm uppercase tracking-wide rounded-xl hover:border-[#FF5500] hover:text-[#FF5500] transition">
-                <DollarSign size={16} /> Apply for Financing
-              </Link>
             </div>
           </div>
         </div>

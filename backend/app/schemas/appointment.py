@@ -23,7 +23,7 @@ class AppointmentOut(BaseModel):
     model_config = {"from_attributes": True}
 
     id: uuid.UUID
-    customer_id: uuid.UUID
+    customer_id: uuid.UUID | None
     vehicle_id: uuid.UUID | None
     service_type: ServiceType
     appointment_date: datetime

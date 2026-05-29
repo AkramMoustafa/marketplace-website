@@ -31,8 +31,8 @@ class AppointmentStatus(str, enum.Enum):
 class ServiceAppointment(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "service_appointments"
 
-    customer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    customer_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     vehicle_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("vehicles.id", ondelete="SET NULL"), nullable=True

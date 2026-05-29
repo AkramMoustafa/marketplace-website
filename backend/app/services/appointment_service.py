@@ -7,7 +7,7 @@ from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 
 
 async def create_appointment(
-    db: AsyncSession, data: AppointmentCreate, customer_id: uuid.UUID
+    db: AsyncSession, data: AppointmentCreate, customer_id: uuid.UUID | None = None
 ) -> ServiceAppointment:
     appt = ServiceAppointment(**data.model_dump(), customer_id=customer_id)
     db.add(appt)

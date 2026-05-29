@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(Start-Sleep -Seconds 5)",
+      "Bash(Get-Content \"C:\\\\Users\\\\ammou\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--marketplace-website\\\\f3c09c40-ebb2-45b8-a250-2fc41e8984c9\\\\tasks\\\\bkggefxpr.output\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(.\\\\venv\\\\Scripts\\\\Activate.ps1)",
+      "Bash(alembic revision *)"
+    ]
+  }
+}
