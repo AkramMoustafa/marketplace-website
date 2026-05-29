@@ -51,19 +51,25 @@ export default function CarCard({ car }: { car: DisplayCar }) {
       ? 'Call for Price'
       : `$${Number(car.price).toLocaleString()}`;
 
-  return (
-    <div className="group relative [perspective:1200px]">
+return (
+  <div
+className="
+group
+relative
+transition-all
+duration-800
+hover:-translate-y-2
+hover:shadow-2xl
+"
+  >
 
-      {/* ── FLIP WRAPPER ──────────────────────────────────────────────── */}
-      <div
-className="relative will-change-transform transition-transform duration-700 ease-in-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]"
-      >
+
 
         {/* ── FRONT ─────────────────────────────────────────────────── */}
-        <div className="group [backface-visibility:hidden] bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+    <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300">
 
           {/* Image carousel */}
-          <div className="relative aspect-[4/2.85] overflow-hidden bg-slate-100">
+       <div className="relative aspect-[4/2.85] overflow-hidden bg-slate-100">
             {images.map((src, i) => (
               <div
                 key={i}
@@ -76,7 +82,13 @@ className="relative will-change-transform transition-transform duration-700 ease
                   alt={`${car.title} image ${i + 1}`}
                   fill
                   priority={i === 0}
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                  className="
+                  object-cover
+                  transition-transform
+                  duration-700
+                  ease-out
+                  group-hover:scale-110
+                  "
                 />
               </div>
             ))}
@@ -156,6 +168,38 @@ className="relative will-change-transform transition-transform duration-700 ease
                 {priceDisplay}
               </span>
             </div>
+<div className="relative">
+  <div className="mt-3 pt-3 border-t border-slate-200">
+
+    {car.mileage && (
+      <div className="flex justify-between text-xs mb-2">
+        <span className="text-slate-500">Mileage</span>
+        <span className="font-bold">
+          {car.mileage.toLocaleString()} mi
+        </span>
+      </div>
+    )}
+
+    {car.color && (
+      <div className="flex justify-between text-xs mb-2">
+        <span className="text-slate-500">Color</span>
+        <span className="font-bold capitalize">
+          {car.color}
+        </span>
+      </div>
+    )}
+
+    {car.stockNumber && (
+      <div className="flex justify-between text-xs">
+        <span className="text-slate-500">Stock</span>
+        <span className="font-bold">
+          #{car.stockNumber}
+        </span>
+      </div>
+    )}
+
+  </div>
+</div>
 
 <Link
   href={detailHref}
@@ -168,78 +212,9 @@ className="relative will-change-transform transition-transform duration-700 ease
           </div>
         </div>
 
-        {/* ── BACK ──────────────────────────────────────────────────── */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]
-          rounded-xl overflow-hidden bg-slate-900 flex flex-col">
+     
 
-          {/* Dimmed photo header */}
-          <div className="relative h-[88px] flex-shrink-0">
-            <Image
-              src={resolveImageSrc(images[0])}
-              alt={car.title}
-              fill
-              className="object-cover brightness-[0.3]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900" />
-            <div className="absolute inset-x-0 bottom-0 px-4 pb-3">
-              <p className="text-[9px] font-black uppercase tracking-[2px] text-[#FF5500]">
-                {car.make}
-              </p>
-              <h3 className="text-[13px] font-black uppercase text-white leading-tight line-clamp-1">
-                {car.title}
-              </h3>
-            </div>
-          </div>
-
-          {/* Specs + CTA */}
-          <div className="flex-1 px-4 py-3 flex flex-col justify-between">
-
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <div>
-                <p className="text-[8px] uppercase tracking-[1.5px] text-slate-500 font-bold mb-0.5">Year</p>
-                <p className="text-sm font-black text-white">{car.year}</p>
-              </div>
-              {car.mileage !== undefined && (
-                <div>
-                  <p className="text-[8px] uppercase tracking-[1.5px] text-slate-500 font-bold mb-0.5">Mileage</p>
-                  <p className="text-sm font-black text-white">{car.mileage.toLocaleString()} mi</p>
-                </div>
-              )}
-              {car.color && (
-                <div>
-                  <p className="text-[8px] uppercase tracking-[1.5px] text-slate-500 font-bold mb-0.5">Color</p>
-                  <p className="text-sm font-black text-white capitalize">{car.color}</p>
-                </div>
-              )}
-              {car.stockNumber && (
-                <div>
-                  <p className="text-[8px] uppercase tracking-[1.5px] text-slate-500 font-bold mb-0.5">Stock #</p>
-                  <p className="text-sm font-black text-white">{car.stockNumber}</p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <div className="my-3 h-px bg-slate-700/60" />
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[8px] uppercase tracking-[1.5px] text-slate-500 font-bold">Price</p>
-                <p className="text-xl font-black text-[#FF5500]">{priceDisplay}</p>
-              </div>
-              <Link
-                href={detailHref}
-                className="flex items-center justify-center w-full py-2.5 rounded-lg
-                  bg-[#FF5500] text-white text-[10.5px] font-black uppercase tracking-[1.5px]
-                  hover:bg-[#e04d00] transition-colors duration-200"
-              >
-                View Full Details →
-              </Link>
-
-            </div>
-
-          </div>
-        </div>
-
-      </div>
+      
     </div>
   );
 }

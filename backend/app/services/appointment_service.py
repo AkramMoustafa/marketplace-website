@@ -10,6 +10,8 @@ async def create_appointment(
     db: AsyncSession, data: AppointmentCreate, customer_id: uuid.UUID | None = None
 ) -> ServiceAppointment:
     appt = ServiceAppointment(**data.model_dump(), customer_id=customer_id)
+    if appt.service_type == ServiceType.test_drive:
+        appt.status = AppointmentStatus.confirmed
     db.add(appt)
     await db.flush()
     await db.refresh(appt)

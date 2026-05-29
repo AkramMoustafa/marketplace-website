@@ -129,7 +129,6 @@ function VehicleDescription({ sections }: VehicleDescriptionProps) {
 
 /* ─── Appointment Modal ─────────────────────────────────────────── */
 function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
-  const [serviceType, setServiceType] = useState('test_drive');
   const [date, setDate] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
@@ -142,7 +141,7 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
     setLoading(true);
     setError('');
     try {
-      await bookAppointment({ vehicle_id: vehicleId, service_type: serviceType, appointment_date: date, phone, notes });
+      await bookAppointment({ vehicle_id: vehicleId, service_type: 'test_drive', appointment_date: date, phone, notes });
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to book appointment');
@@ -157,29 +156,17 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
         {success ? (
           <div className="text-center py-4">
             <div className="text-4xl mb-3">✓</div>
-            <h3 className="text-lg font-black text-slate-900 mb-1">Appointment Booked!</h3>
-            <p className="text-slate-500 text-sm mb-4">We&apos;ll confirm your appointment shortly.</p>
+            <h3 className="text-lg font-black text-slate-900 mb-1">Test Drive Confirmed!</h3>
+            <p className="text-slate-500 text-sm mb-4">Your test drive appointment is confirmed. See you soon!</p>
             <button onClick={onClose} className="px-6 py-2.5 bg-[#FF5500] text-black font-black text-sm rounded-lg">Close</button>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-black text-slate-900">Book Appointment</h3>
+              <h3 className="text-lg font-black text-slate-900">Book a Test Drive</h3>
               <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
             </div>
             <form onSubmit={submit} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Service Type</label>
-                <select value={serviceType} onChange={e => setServiceType(e.target.value)} required
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]">
-                  <option value="test_drive">Test Drive</option>
-                  <option value="general_inspection">General Inspection</option>
-                  <option value="oil_change">Oil Change</option>
-                  <option value="brake_service">Brake Service</option>
-                  <option value="engine_diagnostic">Engine Diagnostic</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Preferred Date & Time</label>
                 <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)} required
