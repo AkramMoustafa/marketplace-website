@@ -8,7 +8,7 @@ import type {
   ContactMessagePayload, ContactMessageOut,
   PublicReview, PublicReviewCreate,
   VehicleSearchResult,
-  AgentEvent,
+  AgentEvent, PhaseBRequest, PhaseCRequest,
 } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -327,20 +327,20 @@ export function getImageUrl(path: string | null | undefined): string {
 
 // ── AI Sales Agent (SSE streaming) ────────────────────────────────────────────
 
-export async function* streamAgentPipeline(
-  vin: string,
-  adminPrice?: number,
-): AsyncGenerator<AgentEvent> {
+function _adminHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (typeof window !== 'undefined') {
-    const adminAuth = localStorage.getItem('adminAuthenticated');
-    if (adminAuth) headers['x-admin-auth'] = adminAuth;
+    const auth = localStorage.getItem('adminAuthenticated');
+    if (auth) headers['x-admin-auth'] = auth;
   }
+  return headers;
+}
 
-  const res = await fetch(`${BASE}/api/agent/process-vehicle`, {
+async function* _streamSSE(url: string, body: unknown): AsyncGenerator<AgentEvent> {
+  const res = await fetch(`${BASE}${url}`, {
     method: 'POST',
-    headers,
-    body: JSON.stringify({ vin, admin_price: adminPrice ?? null }),
+    headers: _adminHeaders(),
+    body: JSON.stringify(body),
     cache: 'no-store',
   });
 
@@ -358,11 +358,8 @@ export async function* streamAgentPipeline(
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-
-    // SSE events are separated by double newlines
     const chunks = buffer.split('\n\n');
     buffer = chunks.pop() ?? '';
-
     for (const chunk of chunks) {
       for (const line of chunk.split('\n')) {
         if (line.startsWith('data: ')) {
@@ -371,4 +368,24 @@ export async function* streamAgentPipeline(
       }
     }
   }
+}
+
+/** Phase A — VIN decode + market research. */
+export function streamVehicleIntelligence(vin: string): AsyncGenerator<AgentEvent> {
+  return _streamSSE('/api/agent/vehicle-intelligence', { vin });
+}
+
+/** Phase B — listing generation with user review inputs. */
+export function streamGenerateListing(data: PhaseBRequest): AsyncGenerator<AgentEvent> {
+  return _streamSSE('/api/agent/generate-listing', data);
+}
+
+/** Phase C — distribution (vehicle_id must be set). */
+export function streamDistribute(data: PhaseCRequest): AsyncGenerator<AgentEvent> {
+  return _streamSSE('/api/agent/distribute', data);
+}
+
+/** Legacy single-pass pipeline (kept for backward compat). */
+export function streamAgentPipeline(vin: string, adminPrice?: number): AsyncGenerator<AgentEvent> {
+  return _streamSSE('/api/agent/process-vehicle', { vin, admin_price: adminPrice ?? null });
 }

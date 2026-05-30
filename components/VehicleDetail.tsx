@@ -265,7 +265,7 @@ function Sidebar({ vehicle }: SidebarProps) {
               <HeartIcon />
             </div>
 
-            I WANT THIS CAR
+            CONTACT DEALER
           </button>
 
           <button onClick={() => setApptOpen(true)}
@@ -280,38 +280,6 @@ function Sidebar({ vehicle }: SidebarProps) {
 
         {apptOpen && <AppointmentModal vehicleId={vehicle.id} onClose={() => setApptOpen(false)} />}
 
-        {/* ESTIMATE PAYMENT */}
-        <div className="mx-6 mb-6 p-6 rounded-[20px] bg-[#356f98] text-white flex items-center justify-between">
-
-          <div>
-            <p className="text-[18px] font-bold">
-              Estimate payment
-            </p>
-
-            <p className="mt-1 text-sm opacity-90">
-              No impact to your credit score
-            </p>
-          </div>
-
-          <div className="w-[52px] h-[52px] rounded-full bg-white flex items-center justify-center flex-shrink-0">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <path
-                d="M14 4 C8 4 4 9 4 14 C4 20 9 24 14 24"
-                stroke="#e32"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path
-                d="M14 4 C20 4 24 9 24 14"
-                stroke="#e32"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path d="M18 10 L24 14 L18 18" fill="#e32" />
-            </svg>
-          </div>
-
-        </div>
 
         {/* CALL OR TEXT */}
         <div className="border-t border-[#edf0f3] p-8 text-center">
