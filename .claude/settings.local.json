@@ -8,7 +8,10 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash(.\\\\venv\\\\Scripts\\\\Activate.ps1)",
-      "Bash(alembic revision *)"
+      "Bash(alembic revision *)",
+      "Bash(tasklist *)",
+      "Bash(taskkill *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

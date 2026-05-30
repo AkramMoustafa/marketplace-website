@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { StaticImageData } from 'next/image';
 import { getImageUrl } from '@/lib/api';
 
@@ -30,7 +30,6 @@ function resolveImageSrc(src: string | StaticImageData): string | StaticImageDat
 
 export default function CarCard({ car }: { car: DisplayCar }) {
   const [slide, setSlide] = useState(0);
-  
 
   const images = car.images.length > 0 ? car.images : [PLACEHOLDER];
   const detailHref = `/vehicle-detail?id=${car.id}`;
@@ -51,170 +50,143 @@ export default function CarCard({ car }: { car: DisplayCar }) {
       ? 'Call for Price'
       : `$${Number(car.price).toLocaleString()}`;
 
-return (
-  <div
-className="
-group
-relative
-transition-all
-duration-800
-hover:-translate-y-2
-hover:shadow-2xl
-"
-  >
+  return (
+    /* Outer wrapper: fills the grid cell, flex-col, transform-only hover — never changes height */
+    <div className="group relative h-full flex flex-col hover:-translate-y-2 transition-transform duration-300">
 
+      {/* Card shell: flex-col h-full so content + button fill the whole cell */}
+      <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm
+        group-hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full">
 
+        {/* Image carousel — fixed aspect ratio, never resizes */}
+        <div className="relative aspect-[4/2.85] overflow-hidden bg-slate-100 flex-shrink-0">
+          {images.map((src, i) => (
+            <div
+              key={i}
+              className={`absolute inset-0 transition-opacity duration-300 ${
+                i === slide ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              <Image
+                src={resolveImageSrc(src)}
+                alt={`${car.title} image ${i + 1}`}
+                fill
+                priority={i === 0}
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              />
+            </div>
+          ))}
 
-        {/* ── FRONT ─────────────────────────────────────────────────── */}
-    <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300">
+          {/* Year badge */}
+          <div className="absolute top-2 left-2 z-20
+            px-2 py-1 rounded bg-slate-900/85 backdrop-blur-[2px]
+            text-white text-[10px] font-black tracking-wide">
+            {car.year}
+          </div>
 
-          {/* Image carousel */}
-       <div className="relative aspect-[4/2.85] overflow-hidden bg-slate-100">
-            {images.map((src, i) => (
-              <div
-                key={i}
-                className={`absolute inset-0 transition-opacity duration-300 ${
-                  i === slide ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
-              >
-                <Image
-                  src={resolveImageSrc(src)}
-                  alt={`${car.title} image ${i + 1}`}
-                  fill
-                  priority={i === 0}
-                  className="
-                  object-cover
-                  transition-transform
-                  duration-700
-                  ease-out
-                  group-hover:scale-110
-                  "
-                />
+          {images.length > 1 && (
+            <>
+              <button onClick={prev} aria-label="Previous image"
+                className="absolute left-2 top-1/2 z-20 -translate-y-1/2
+                  opacity-40 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="w-9 h-9 rounded-full bg-black/70 text-white
+                  flex items-center justify-center hover:bg-black shadow-md">
+                  <ChevronLeft size={20} />
+                </div>
+              </button>
+
+              <button onClick={next} aria-label="Next image"
+                className="absolute right-2 top-1/2 z-20 -translate-y-1/2
+                  opacity-40 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="w-9 h-9 rounded-full bg-black/70 text-white
+                  flex items-center justify-center hover:bg-black shadow-md">
+                  <ChevronRight size={20} />
+                </div>
+              </button>
+
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+                {images.map((_, i) => (
+                  <button key={i}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSlide(i); }}
+                    className={`rounded-full transition-all duration-200 ${
+                      i === slide ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/60'
+                    }`}
+                  />
+                ))}
               </div>
-            ))}
 
-            {/* Year badge */}
-            <div className="absolute top-2 left-2 z-20
-              px-2 py-1 rounded bg-slate-900/85 backdrop-blur-[2px]
-              text-white text-[10px] font-black tracking-wide">
-              {car.year}
-            </div>
-
-            {images.length > 1 && (
-              <>
-                <button onClick={prev} aria-label="Previous image"
-                  className="absolute left-2 top-1/2 z-20 -translate-y-1/2
-                    opacity-40 group-hover:opacity-100 transition duration-200">
-                  <div className="w-9 h-9 rounded-full bg-black/70 text-white
-                    flex items-center justify-center hover:bg-black shadow-md">
-                    <ChevronLeft size={20} />
-                  </div>
-                </button>
-
-                <button onClick={next} aria-label="Next image"
-                  className="absolute right-2 top-1/2 z-20 -translate-y-1/2
-                    opacity-40 group-hover:opacity-100 transition duration-200">
-                  <div className="w-9 h-9 rounded-full bg-black/70 text-white
-                    flex items-center justify-center hover:bg-black shadow-md">
-                    <ChevronRight size={20} />
-                  </div>
-                </button>
-
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
-                  {images.map((_, i) => (
-                    <button key={i}
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSlide(i); }}
-                      className={`rounded-full transition-all duration-200 ${
-                        i === slide ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/60'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                <div className="absolute bottom-2 right-2 z-20
-                  bg-black/75 text-white text-[9px] px-1.5 py-0.5 rounded-full">
-                  {slide + 1}/{images.length}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Card content */}
-          <div className="p-3.5">
-            <span className="inline-block mb-1 text-[9px] font-black uppercase tracking-[2px] text-[#FF5500]">
-              {car.make}
-            </span>
-
-            <Link href={detailHref}>
-              <h3 className="text-[13px] font-black uppercase tracking-wide leading-snug
-                text-slate-900 min-h-[38px] hover:text-[#FF5500] transition-colors duration-200">
-                {car.title}
-              </h3>
-            </Link>
-
-            {car.stockNumber && (
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                Stock #{car.stockNumber}
-              </p>
-            )}
-            {car.mileage !== undefined && !car.stockNumber && (
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                {car.mileage.toLocaleString()} mi
-              </p>
-            )}
-
-            <div className="mt-2.5 pt-2.5 border-t border-slate-100">
-              <span className="leading-none font-black text-slate-900 text-xl">
-                {priceDisplay}
-              </span>
-            </div>
-<div className="relative">
-  <div className="mt-3 pt-3 border-t border-slate-200">
-
-    {car.mileage && (
-      <div className="flex justify-between text-xs mb-2">
-        <span className="text-slate-500">Mileage</span>
-        <span className="font-bold">
-          {car.mileage.toLocaleString()} mi
-        </span>
-      </div>
-    )}
-
-    {car.color && (
-      <div className="flex justify-between text-xs mb-2">
-        <span className="text-slate-500">Color</span>
-        <span className="font-bold capitalize">
-          {car.color}
-        </span>
-      </div>
-    )}
-
-    {car.stockNumber && (
-      <div className="flex justify-between text-xs">
-        <span className="text-slate-500">Stock</span>
-        <span className="font-bold">
-          #{car.stockNumber}
-        </span>
-      </div>
-    )}
-
-  </div>
-</div>
-
-<Link
-  href={detailHref}
-  className="mt-4 flex items-center justify-center w-full py-3.5 rounded-xl
-  bg-slate-900 text-white text-[11px] font-black uppercase tracking-[1.5px]
-  hover:bg-[#FF5500] transition-all duration-200"
->
-  View Vehicle
-</Link>
-          </div>
+              <div className="absolute bottom-2 right-2 z-20
+                bg-black/75 text-white text-[9px] px-1.5 py-0.5 rounded-full">
+                {slide + 1}/{images.length}
+              </div>
+            </>
+          )}
         </div>
 
-     
+        {/* Card content: flex-col flex-1 so it grows and pushes button to bottom */}
+        <div className="p-3.5 flex flex-col flex-1">
 
-      
+          <span className="inline-block mb-1 text-[9px] font-black uppercase tracking-[2px] text-[#FF5500]">
+            {car.make}
+          </span>
+
+          <Link href={detailHref}>
+            <h3 className="text-[13px] font-black uppercase tracking-wide leading-snug
+              text-slate-900 line-clamp-2 min-h-[34px] hover:text-[#FF5500] transition-colors duration-200">
+              {car.title}
+            </h3>
+          </Link>
+
+          {car.stockNumber && (
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              Stock #{car.stockNumber}
+            </p>
+          )}
+          {car.mileage !== undefined && !car.stockNumber && (
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              {car.mileage.toLocaleString()} mi
+            </p>
+          )}
+
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100">
+            <span className="leading-none font-black text-slate-900 text-xl">
+              {priceDisplay}
+            </span>
+          </div>
+
+          {/* Details section — mileage / color / stock */}
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            {car.mileage !== undefined && (
+              <div className="flex justify-between text-xs mb-2">
+                <span className="text-slate-500">Mileage</span>
+                <span className="font-bold">{car.mileage.toLocaleString()} mi</span>
+              </div>
+            )}
+            {car.color && (
+              <div className="flex justify-between text-xs mb-2">
+                <span className="text-slate-500">Color</span>
+                <span className="font-bold capitalize">{car.color}</span>
+              </div>
+            )}
+            {car.stockNumber && (
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-500">Stock</span>
+                <span className="font-bold">#{car.stockNumber}</span>
+              </div>
+            )}
+          </div>
+
+          {/* mt-auto pushes the button to the bottom of every card */}
+          <Link
+            href={detailHref}
+            className="mt-auto pt-3 flex items-center justify-center w-full py-3.5 rounded-xl
+              bg-slate-900 text-white text-[11px] font-black uppercase tracking-[1.5px]
+              hover:bg-[#FF5500] transition-colors duration-200"
+          >
+            View Vehicle
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

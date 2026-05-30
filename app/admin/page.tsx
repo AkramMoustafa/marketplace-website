@@ -2081,14 +2081,30 @@ const AGENT_STEPS: { id: AgentStepId; label: string }[] = [
   { id: 'generate_facebook_copy', label: 'Create Facebook Copy'        },
 ];
 
-function StepIcon({ status }: { status: StepStatus }) {
+function StepIcon({ status, index }: { status: StepStatus; index: number }) {
   if (status === 'active')
-    return <div className="w-5 h-5 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin shrink-0" />;
+    return (
+      <div className="w-7 h-7 rounded-full bg-amber-50 border-2 border-[#C9A84C] flex items-center justify-center shrink-0">
+        <div className="w-3 h-3 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   if (status === 'done')
-    return <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0"><Check size={11} className="text-emerald-400" /></div>;
+    return (
+      <div className="w-7 h-7 rounded-full bg-emerald-50 border-2 border-emerald-400 flex items-center justify-center shrink-0">
+        <Check size={12} className="text-emerald-500" />
+      </div>
+    );
   if (status === 'error')
-    return <div className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center shrink-0"><X size={11} className="text-red-400" /></div>;
-  return <div className="w-5 h-5 rounded-full border border-slate-700 shrink-0" />;
+    return (
+      <div className="w-7 h-7 rounded-full bg-red-50 border-2 border-red-400 flex items-center justify-center shrink-0">
+        <X size={12} className="text-red-500" />
+      </div>
+    );
+  return (
+    <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center shrink-0">
+      <span className="text-[10px] font-bold text-gray-400">{index + 1}</span>
+    </div>
+  );
 }
 
 function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
@@ -2101,10 +2117,281 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
   };
   return (
     <button onClick={copy}
-      className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wide border border-slate-700 text-slate-400 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
-      {copied ? <Check size={11} /> : <Copy size={11} />}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-gray-200 text-gray-500 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] bg-white transition">
+      {copied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
       {copied ? 'Copied!' : label}
     </button>
+  );
+}
+
+function normalizeTransmission(raw?: string): TransmissionType {
+  const s = (raw || '').toLowerCase();
+  if (s.includes('cvt') || s.includes('continuously variable')) return 'cvt';
+  if (s.includes('dual clutch') || s.includes('dct')) return 'dct';
+  if (s.includes('manual')) return 'manual';
+  return 'automatic';
+}
+
+function normalizeFuelType(raw?: string): FuelType {
+  const s = (raw || '').toLowerCase();
+  if (s.includes('plug') || s.includes('phev')) return 'plug_in_hybrid';
+  if (s.includes('hybrid')) return 'hybrid';
+  if (s.includes('electric') || s.includes('bev')) return 'electric';
+  if (s.includes('diesel')) return 'diesel';
+  return 'gasoline';
+}
+
+function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string }) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
+
+  const [imgEntries, setImgEntries] = useState<ImgEntry[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [allDone, setAllDone] = useState(false);
+  const imgEntriesRef = useRef(imgEntries);
+  imgEntriesRef.current = imgEntries;
+
+  useEffect(() => {
+    return () => { imgEntriesRef.current.forEach(e => URL.revokeObjectURL(e.preview)); };
+  }, []);
+
+  const [form, setForm] = useState({
+    title: result.listing_title || '',
+    make: result.make || '',
+    model: result.model || '',
+    year: result.year || new Date().getFullYear(),
+    engine: result.engine || '',
+    transmission: normalizeTransmission(result.transmission),
+    fuel_type: normalizeFuelType(result.fuel_type),
+    price: result.suggested_price ? String(result.suggested_price) : '',
+    description: result.listing_description || '',
+    mileage: 0,
+    color: '',
+    body_type: '',
+    stock_number: '',
+    drive: '',
+    fuel_economy: '',
+    featured: false,
+    status: 'available' as VehicleStatus,
+  });
+
+  const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.price || Number(form.price) <= 0) { setSaveError('Price is required.'); return; }
+    setSaving(true);
+    setSaveError('');
+    try {
+      const vehicle = await api.adminCreateVehicle({
+        title: form.title, make: form.make, model: form.model, year: form.year,
+        mileage: form.mileage, price: form.price, transmission: form.transmission,
+        fuel_type: form.fuel_type, vin,
+        description: form.description || undefined, color: form.color || undefined,
+        body_type: form.body_type || undefined, stock_number: form.stock_number || undefined,
+        engine: form.engine || undefined, drive: form.drive || undefined,
+        fuel_economy: form.fuel_economy || undefined, featured: form.featured, status: form.status,
+      });
+      setVehicleId(vehicle.id);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save vehicle.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleImages = (files: File[]) => {
+    setImgEntries(prev => [...prev, ...files.map(f => ({ file: f, preview: URL.createObjectURL(f), status: 'idle' as const }))]);
+  };
+
+  const removeImg = (i: number) => {
+    setImgEntries(prev => { URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i); });
+  };
+
+  const uploadImages = async () => {
+    if (!vehicleId || imgEntries.length === 0) { setAllDone(true); return; }
+    setUploading(true);
+    for (let i = 0; i < imgEntries.length; i++) {
+      setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'uploading' } : e));
+      try {
+        await api.adminUploadImage(vehicleId, imgEntries[i].file);
+        setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'done' } : e));
+      } catch {
+        setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'error' } : e));
+      }
+    }
+    setUploading(false);
+    setAllDone(true);
+  };
+
+  const inp = (label: string, key: string, type = 'text', placeholder = '') => (
+    <div>
+      <label className="text-xs font-semibold text-gray-500 block mb-1.5">{label}</label>
+      <input type={type} value={String(form[key as keyof typeof form])} placeholder={placeholder}
+        onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)}
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300" />
+    </div>
+  );
+
+  const sel = (label: string, key: string, options: { value: string; label: string }[]) => (
+    <div>
+      <label className="text-xs font-semibold text-gray-500 block mb-1.5">{label}</label>
+      <select value={String(form[key as keyof typeof form])} onChange={e => set(key, e.target.value)}
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition">
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  );
+
+  const doneCount = imgEntries.filter(e => e.status === 'done').length;
+
+  // ── Phase 2: image upload ──────────────────────────────────────────────────
+  if (vehicleId) {
+    if (allDone) {
+      return (
+        <div className="bg-white border border-emerald-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center shrink-0">
+            <Check size={18} className="text-emerald-500" />
+          </div>
+          <div>
+            <p className="text-gray-900 font-bold text-sm">Vehicle saved to inventory!</p>
+            <p className="text-gray-400 text-xs mt-0.5">
+              {doneCount > 0 ? `${doneCount} photo${doneCount !== 1 ? 's' : ''} uploaded.` : 'No photos added.'} Manage it anytime under Vehicles.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center">
+              <Check size={13} className="text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900">Vehicle Created</p>
+              <p className="text-xs text-gray-400">Now add photos to your listing</p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">Step 2 of 2</span>
+        </div>
+        <div className="px-6 pb-6 pt-4 space-y-4">
+          <ImageDropZone onFiles={handleImages} />
+          <ImageEntryGrid entries={imgEntries} onRemove={uploading ? () => {} : removeImg} />
+          {uploading && (
+            <p className="text-xs text-[#C9A84C] font-medium">Uploading {doneCount} / {imgEntries.length} photos…</p>
+          )}
+          <button onClick={uploadImages} disabled={uploading}
+            className="w-full py-2.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
+            {uploading
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading…</>
+              : imgEntries.length > 0
+                ? <><Upload size={14} /> Upload {imgEntries.length} Photo{imgEntries.length !== 1 ? 's' : ''}</>
+                : <><Check size={14} /> Finish — Skip Photos</>
+            }
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Phase 1: vehicle details form ─────────────────────────────────────────
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
+            <Check size={14} className="text-[#C9A84C]" />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-bold text-gray-900">Save to Inventory</p>
+            <p className="text-xs text-gray-400">Review details then add to your lot</p>
+          </div>
+        </div>
+        <span className="text-gray-400 text-xs font-medium">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <form onSubmit={submit} className="px-6 pb-6 space-y-4 border-t border-gray-100 pt-5">
+          {inp('Listing Title', 'title', 'text', '2023 BMW M3 Competition')}
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Make', 'make')}
+            {inp('Model', 'model')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Year', 'year', 'number')}
+            {inp('Mileage *', 'mileage', 'number', '0')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1.5">Price ($) *</label>
+              <input type="number" value={form.price} placeholder="38500"
+                onChange={e => set('price', e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition" />
+            </div>
+            {inp('Color', 'color', 'text', 'Mineral White')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {sel('Transmission', 'transmission', [
+              { value: 'automatic', label: 'Automatic' }, { value: 'manual', label: 'Manual' },
+              { value: 'cvt', label: 'CVT' }, { value: 'dct', label: 'DCT' },
+            ])}
+            {sel('Fuel Type', 'fuel_type', [
+              { value: 'gasoline', label: 'Gasoline' }, { value: 'diesel', label: 'Diesel' },
+              { value: 'electric', label: 'Electric' }, { value: 'hybrid', label: 'Hybrid' },
+              { value: 'plug_in_hybrid', label: 'Plug-in Hybrid' },
+            ])}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Body Type', 'body_type', 'text', 'Sedan')}
+            {inp('Drive', 'drive', 'text', 'AWD')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Engine', 'engine', 'text', '3.0L Turbo')}
+            {inp('Fuel Economy', 'fuel_economy', 'text', '19/26 mpg')}
+          </div>
+          {inp('Stock Number', 'stock_number', 'text', 'STK-001')}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1.5">Description</label>
+            <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={4}
+              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition resize-none" />
+          </div>
+          <div className="flex items-center gap-6 pt-1">
+            {sel('Status', 'status', [
+              { value: 'available', label: 'Available' }, { value: 'reserved', label: 'Reserved' },
+              { value: 'sold', label: 'Sold' }, { value: 'pending', label: 'Pending' },
+            ])}
+            <label className="flex items-center gap-2 cursor-pointer select-none mt-5">
+              <div onClick={() => set('featured', !form.featured)}
+                className={`w-9 h-5 rounded-full transition-colors relative ${form.featured ? 'bg-[#C9A84C]' : 'bg-gray-200'}`}>
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${form.featured ? 'left-4' : 'left-0.5'}`} />
+              </div>
+              <span className="text-sm text-gray-600">Featured</span>
+            </label>
+          </div>
+
+          {saveError && (
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg">
+              <X size={13} className="text-red-500 shrink-0" />
+              <p className="text-red-600 text-xs">{saveError}</p>
+            </div>
+          )}
+
+          <button type="submit" disabled={saving}
+            className="w-full py-2.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
+            {saving
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</>
+              : <><Check size={14} /> Save to Inventory</>
+            }
+          </button>
+        </form>
+      )}
+    </div>
   );
 }
 
@@ -2128,12 +2415,10 @@ function AIAgentView() {
   const runAgent = async () => {
     const trimmedVin = vin.trim().toUpperCase();
     if (trimmedVin.length !== 17) { setError('VIN must be exactly 17 characters.'); return; }
-
     setError('');
     setResult(null);
     setRunning(true);
     setSteps(AGENT_STEPS.map(s => ({ ...s, status: 'pending' })));
-
     try {
       for await (const event of api.streamAgentPipeline(trimmedVin, price ? parseFloat(price) : undefined)) {
         if (!mountedRef.current) break;
@@ -2158,94 +2443,117 @@ function AIAgentView() {
     }
   };
 
+  const vinProgress = Math.round((vin.length / 17) * 100);
+
   return (
-    <div className="max-w-2xl">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 flex items-center justify-center">
-          <Bot size={18} className="text-[#C9A84C]" />
-        </div>
+    <div className="max-w-2xl space-y-5">
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">AI Sales Agent</h1>
-          <p className="text-xs text-slate-500 mt-0.5">NHTSA · DuckDuckGo · GPT-4o-mini · eBay · Facebook</p>
+          <p className="text-sm text-gray-400 mt-0.5">Paste a VIN and let the pipeline do the rest.</p>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {['NHTSA', 'DuckDuckGo', 'GPT-4o', 'eBay', 'Facebook'].map(tag => (
+            <span key={tag} className="px-2 py-0.5 bg-white/10 text-gray-400 text-[10px] font-semibold rounded-full border border-white/10">
+              {tag}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Input form */}
-      <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 mb-4">
-        <div className="space-y-4">
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">
-              Vehicle VIN <span className="text-slate-600">(17 characters)</span>
-            </label>
-            <input
-              value={vin}
-              onChange={e => { setVin(e.target.value.toUpperCase()); setError(''); }}
-              maxLength={17}
-              placeholder="e.g. WBAJR3C0XM7E12345"
-              disabled={running}
-              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/60 transition disabled:opacity-50"
+      {/* ── Input card ─────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+        {/* VIN */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-semibold text-gray-700">Vehicle Identification Number (VIN)</label>
+            <span className={`text-xs font-bold tabular-nums ${vin.length === 17 ? 'text-emerald-500' : 'text-gray-400'}`}>
+              {vin.length} / 17
+            </span>
+          </div>
+          <input
+            value={vin}
+            onChange={e => { setVin(e.target.value.toUpperCase()); setError(''); }}
+            maxLength={17}
+            placeholder="e.g. WBAJR3C0XM7E12345"
+            disabled={running}
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 font-mono placeholder-gray-300 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition disabled:opacity-50"
+          />
+          <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${vin.length === 17 ? 'bg-emerald-400' : 'bg-[#C9A84C]'}`}
+              style={{ width: `${vinProgress}%` }}
             />
-            <p className="text-[10px] text-slate-600 mt-1">{vin.length}/17 — found on windshield sticker or door jamb</p>
           </div>
-
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">
-              Asking Price <span className="text-slate-600">(optional — overrides AI suggestion)</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
-              <input
-                type="number"
-                value={price}
-                onChange={e => setPrice(e.target.value)}
-                placeholder="38500"
-                min={0}
-                disabled={running}
-                className="w-full pl-7 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/60 transition disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <X size={13} className="text-red-400 shrink-0" />
-              <p className="text-red-400 text-xs">{error}</p>
-            </div>
-          )}
-
-          <button
-            onClick={runAgent}
-            disabled={running || vin.trim().length !== 17}
-            className="w-full py-3 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-50 transition flex items-center justify-center gap-2"
-          >
-            {running ? (
-              <><div className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Running Pipeline…</>
-            ) : (
-              <><Sparkles size={13} /> Run AI Agent</>
-            )}
-          </button>
+          <p className="text-xs text-gray-400 mt-1.5">Found on the windshield sticker or driver-side door jamb.</p>
         </div>
+
+        {/* Price */}
+        <div>
+          <label className="text-xs font-semibold text-gray-700 block mb-2">
+            Asking Price <span className="font-normal text-gray-400">(optional — overrides AI suggestion)</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">$</span>
+            <input
+              type="number"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              placeholder="38,500"
+              min={0}
+              disabled={running}
+              className="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition disabled:opacity-50"
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
+            <X size={14} className="text-red-500 shrink-0" />
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+
+        <button
+          onClick={runAgent}
+          disabled={running || vin.trim().length !== 17}
+          className="w-full py-3 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          {running
+            ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Running Pipeline…</>
+            : <><Sparkles size={15} /> Run AI Agent</>
+          }
+        </button>
       </div>
 
-      {/* Pipeline progress */}
+      {/* ── Pipeline progress ───────────────────────────────────────────────── */}
       {hasRun && (
-        <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-4">Pipeline Progress</p>
-          <div className="space-y-3">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-5">Pipeline Progress</p>
+          <div className="space-y-4">
             {steps.map((step, i) => (
-              <div key={step.id} className="flex items-center gap-3">
-                <StepIcon status={step.status} />
-                <span className={`text-sm font-medium transition-colors ${
-                  step.status === 'active'  ? 'text-[#C9A84C]' :
-                  step.status === 'done'    ? 'text-white' :
-                  step.status === 'error'   ? 'text-red-400' :
-                  'text-slate-600'
-                }`}>
-                  {i + 1}. {step.label}
-                </span>
-                {step.status === 'error' && result?.errors?.[step.id] && (
-                  <span className="text-[10px] text-red-400/70 truncate ml-1">— {result.errors[step.id]}</span>
+              <div key={step.id} className="flex items-center gap-4">
+                <StepIcon status={step.status} index={i} />
+                <div className="flex-1 min-w-0">
+                  <span className={`text-sm font-semibold transition-colors ${
+                    step.status === 'active' ? 'text-[#C9A84C]' :
+                    step.status === 'done'   ? 'text-gray-900' :
+                    step.status === 'error'  ? 'text-red-500'  :
+                    'text-gray-400'
+                  }`}>
+                    {step.label}
+                  </span>
+                  {step.status === 'error' && result?.errors?.[step.id] && (
+                    <p className="text-xs text-red-400 mt-0.5 truncate">{result.errors[step.id]}</p>
+                  )}
+                </div>
+                {step.status === 'done' && (
+                  <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">Done</span>
+                )}
+                {step.status === 'active' && (
+                  <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full shrink-0">Running</span>
                 )}
               </div>
             ))}
@@ -2253,34 +2561,37 @@ function AIAgentView() {
         </div>
       )}
 
-      {/* Results */}
+      {/* ── Results ─────────────────────────────────────────────────────────── */}
       {result && (
         <div className="space-y-4">
+
           {/* Vehicle identity */}
           {result.make && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">Vehicle Identified</p>
-              <p className="text-xl font-black text-white">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Vehicle Identified</p>
+              <p className="text-2xl font-black text-gray-900 leading-tight">
                 {[result.year, result.make, result.model, result.trim].filter(Boolean).join(' ')}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {result.engine      && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.engine}</span>}
-                {result.fuel_type   && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.fuel_type}</span>}
-                {result.transmission && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.transmission}</span>}
+                {result.engine      && <span className="px-3 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600">{result.engine}</span>}
+                {result.fuel_type   && <span className="px-3 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600">{result.fuel_type}</span>}
+                {result.transmission && <span className="px-3 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600">{result.transmission}</span>}
               </div>
             </div>
           )}
 
           {/* Market research */}
           {result.market_price_range && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">Market Research</p>
-              <p className="text-lg font-black text-[#C9A84C]">{result.market_price_range}</p>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Market Research</p>
+              <p className="text-2xl font-black text-[#C9A84C]">{result.market_price_range}</p>
               {result.selling_points && result.selling_points.length > 0 && (
-                <ul className="mt-3 space-y-1.5">
+                <ul className="mt-4 space-y-2">
                   {result.selling_points.map((pt, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
-                      <Check size={11} className="text-[#C9A84C] shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-600">
+                      <div className="w-4 h-4 rounded-full bg-[#C9A84C]/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check size={9} className="text-[#C9A84C]" />
+                      </div>
                       {pt}
                     </li>
                   ))}
@@ -2291,56 +2602,64 @@ function AIAgentView() {
 
           {/* Generated listing */}
           {result.listing_title && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Generated Listing</p>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Generated Listing</p>
                 <CopyButton
                   text={`${result.listing_title}\n\nPrice: $${result.suggested_price?.toLocaleString()}\n\n${result.listing_description ?? ''}`}
                   label="Copy Listing"
                 />
               </div>
-              <p className="text-white font-bold text-base leading-snug">{result.listing_title}</p>
+              <p className="text-gray-900 font-bold text-lg leading-snug">{result.listing_title}</p>
               {result.suggested_price && result.suggested_price > 0 && (
-                <p className="text-[#C9A84C] font-black text-lg mt-1">${result.suggested_price.toLocaleString()}</p>
+                <p className="text-[#C9A84C] font-black text-2xl mt-1">${result.suggested_price.toLocaleString()}</p>
               )}
               {result.listing_description && (
-                <p className="text-slate-400 text-xs leading-relaxed mt-3 whitespace-pre-wrap">{result.listing_description}</p>
+                <p className="text-gray-500 text-sm leading-relaxed mt-4 whitespace-pre-wrap border-t border-gray-100 pt-4">
+                  {result.listing_description}
+                </p>
               )}
             </div>
           )}
 
           {/* eBay status */}
           {result.ebay_status && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">eBay Motors</p>
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${
-                  result.ebay_status === 'mock_published' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' :
-                  'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">eBay Motors</p>
+              <div className="flex items-center gap-3">
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+                  result.ebay_status === 'mock_published'
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                    : 'bg-amber-50 text-amber-600 border border-amber-200'
                 }`}>
                   {result.ebay_status.replace(/_/g, ' ')}
                 </span>
                 {result.ebay_listing_id && (
-                  <span className="text-xs font-mono text-slate-400">ID: {result.ebay_listing_id}</span>
+                  <span className="text-xs font-mono text-gray-400">ID: {result.ebay_listing_id}</span>
                 )}
               </div>
               {result.ebay_message && (
-                <p className="text-xs text-slate-500">{result.ebay_message}</p>
+                <p className="text-sm text-gray-500 mt-3">{result.ebay_message}</p>
               )}
             </div>
           )}
 
           {/* Facebook copy */}
           {result.facebook_copy && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Facebook Marketplace Copy</p>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Facebook Marketplace Copy</p>
                 <CopyButton text={result.facebook_copy} label="Copy Post" />
               </div>
-              <pre className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap font-sans bg-slate-800/50 rounded-lg px-4 py-3 overflow-auto max-h-64">
+              <pre className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap font-sans bg-gray-50 border border-gray-100 rounded-xl px-4 py-4 overflow-auto max-h-64">
                 {result.facebook_copy}
               </pre>
             </div>
+          )}
+
+          {/* Save to inventory */}
+          {result.make && (
+            <SaveToInventoryForm result={result} vin={vin} />
           )}
         </div>
       )}
