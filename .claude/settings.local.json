@@ -11,7 +11,12 @@
       "Bash(alembic revision *)",
       "Bash(tasklist *)",
       "Bash(taskkill *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(git checkout *)",
+      "Bash(npm install *)",
+      "Bash(git rm *)",
+      "Bash(Remove-Item *)",
+      "Bash(node --input-type=module)"
     ]
   }
 }
