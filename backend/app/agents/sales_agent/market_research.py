@@ -112,13 +112,17 @@ async def market_research(state: AgentState) -> AgentState:
                     "role": "system",
                     "content": (
                         "You are an automotive market analyst. "
-                        "Return JSON with exactly three keys:\n"
+                        "Return JSON with exactly four keys:\n"
                         '  "price_range": string — current US used-car price range, '
                         'e.g. "$28,000 – $36,000"\n'
                         '  "selling_points": array of 5–6 strings — key selling points, '
                         "each under 12 words\n"
                         '  "market_insights": string — 2–3 sentences about current market '
                         "demand, trends, and buyer appeal for this vehicle\n"
+                        '  "suggested_features": array of 6–10 strings — specific features '
+                        "and options typical for this exact trim level (e.g. \"Heated front seats\", "
+                        "\"Apple CarPlay\", \"Panoramic sunroof\", \"Blind-spot monitoring\"). "
+                        "Be accurate to the trim — do not invent features not standard on it.\n"
                         "Be specific and accurate. Do not include markdown."
                     ),
                 },
@@ -130,7 +134,7 @@ async def market_research(state: AgentState) -> AgentState:
                 },
             ],
             response_format={"type": "json_object"},
-            max_tokens=500,
+            max_tokens=700,
             temperature=0.3,
         )
 
@@ -141,10 +145,13 @@ async def market_research(state: AgentState) -> AgentState:
         if not isinstance(selling_points, list):
             selling_points = []
         market_insights: str = data.get("market_insights") or ""
+        suggested_features: list[str] = data.get("suggested_features") or []
+        if not isinstance(suggested_features, list):
+            suggested_features = []
 
         log.info(
-            "[MarketResearch] Done — price=%s, points=%d, insights=%d chars",
-            price_range, len(selling_points), len(market_insights),
+            "[MarketResearch] Done — price=%s, points=%d, features=%d, insights=%d chars",
+            price_range, len(selling_points), len(suggested_features), len(market_insights),
         )
 
         return {
@@ -152,6 +159,7 @@ async def market_research(state: AgentState) -> AgentState:
             "market_price_range": price_range,
             "selling_points": selling_points[:6],
             "market_insights": market_insights,
+            "suggested_features": suggested_features[:10],
             "errors": errors,
         }
 

@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getVehicle, getReviews, bookAppointment, getImageUrl } from '@/lib/api';
-import type { Vehicle, Review } from '@/lib/types';
+import { getVehicle, getReviews, bookAppointment, getImageUrl, getSimilarVehicles } from '@/lib/api';
+import type { Vehicle, Review, VehicleListItem } from '@/lib/types';
 import SiteHeader from '@/components/layout/SiteHeader';
 import HomeFooter from '@/components/HomeFooter';
 import { Star, Calendar, Fuel, Gauge, Zap, Palette } from 'lucide-react';
@@ -110,6 +110,7 @@ export default function VehicleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [similar, setSimilar] = useState<VehicleListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeImg, setActiveImg] = useState(0);
@@ -121,9 +122,11 @@ export default function VehicleDetailPage() {
     Promise.all([
       getVehicle(id),
       getReviews(id),
-    ]).then(([v, r]) => {
+      getSimilarVehicles(id).catch(() => []),
+    ]).then(([v, r, s]) => {
       setVehicle(v);
       setReviews(r.items);
+      setSimilar(s);
     }).catch(e => {
       setError(e instanceof Error ? e.message : 'Vehicle not found');
     }).finally(() => setLoading(false));
@@ -261,6 +264,39 @@ export default function VehicleDetailPage() {
                   <p className="text-sm text-slate-400 leading-relaxed">{r.body}</p>
                 </div>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Similar Vehicles */}
+        {similar.length > 0 && (
+          <section className="mb-14">
+            <SectionTitle>Similar Vehicles You May Like</SectionTitle>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {similar.map(s => {
+                const thumb = s.images?.[0];
+                const priceDisplay = s.price_on_call
+                  ? 'Call for Price'
+                  : `$${parseFloat(s.price).toLocaleString()}`;
+                return (
+                  <Link key={s.id} href={`/inventory/${s.id}`}
+                    className="group rounded-xl bg-slate-800/60 border border-white/[0.06] overflow-hidden hover:border-[#FF5500]/40 transition-all">
+                    <div className="relative aspect-[4/3] bg-slate-700/50">
+                      {thumb ? (
+                        <Image src={getImageUrl(thumb)} alt={s.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-600 text-sm">No photo</div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">{s.year}</p>
+                      <p className="font-black text-slate-100 text-sm leading-tight mb-1">{s.title}</p>
+                      <p className="text-[#FF5500] font-black text-base">{priceDisplay}</p>
+                      <p className="text-slate-500 text-xs mt-1">{s.mileage.toLocaleString()} mi</p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}

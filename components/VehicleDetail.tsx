@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import styles from './VehicleDetail.module.css';
 import SiteHeader from '@/components/layout/SiteHeader';
-import { bookAppointment } from '@/lib/api';
+import { bookAppointment, submitVehicleInquiry } from '@/lib/api';
 import type {
   Vehicle,
   VehicleImage,
@@ -127,6 +127,80 @@ function VehicleDescription({ sections }: VehicleDescriptionProps) {
   );
 }
 
+/* ─── Contact Dealer Modal ──────────────────────────────────────── */
+function ContactDealerModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState("Hi, I'm interested in this vehicle and would like more information.");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await submitVehicleInquiry(vehicleId, { name, email, phone: phone || undefined, message });
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send inquiry');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        {success ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-3">✓</div>
+            <h3 className="text-lg font-black text-slate-900 mb-1">Message Sent!</h3>
+            <p className="text-slate-500 text-sm mb-4">A dealer representative will be in touch with you shortly.</p>
+            <button onClick={onClose} className="px-6 py-2.5 bg-black text-white font-black text-sm rounded-lg">Close</button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-black text-slate-900">Contact Dealer</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            <form onSubmit={submit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Name</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Your full name"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Phone</label>
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="(555) 000-0000"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Message</label>
+                <textarea value={message} onChange={e => setMessage(e.target.value)} required rows={4}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black resize-none" />
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              <button type="submit" disabled={loading}
+                className="w-full py-3 bg-black text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-slate-800 transition disabled:opacity-60">
+                {loading ? 'Sending…' : 'Send Message'}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Appointment Modal ─────────────────────────────────────────── */
 function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
   const [date, setDate] = useState('');
@@ -217,6 +291,7 @@ interface SidebarProps {
 }
 function Sidebar({ vehicle }: SidebarProps) {
   const [apptOpen, setApptOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const formattedPrice = vehicle.price != null
     ? `$${vehicle.price.toLocaleString()}`
     : 'Call for Price';
@@ -260,7 +335,8 @@ function Sidebar({ vehicle }: SidebarProps) {
         <div className="p-6 space-y-3">
 
           {/* PRIMARY */}
-          <button className="w-full bg-black text-white rounded-[18px] py-4 px-6 font-black uppercase text-[15px] flex items-center justify-center gap-5">
+          <button onClick={() => setContactOpen(true)}
+            className="w-full bg-black text-white rounded-[18px] py-4 px-6 font-black uppercase text-[15px] flex items-center justify-center gap-5">
             <div className="w-[44px] h-[44px] rounded-full border border-white flex items-center justify-center">
               <HeartIcon />
             </div>
@@ -279,6 +355,7 @@ function Sidebar({ vehicle }: SidebarProps) {
         </div>
 
         {apptOpen && <AppointmentModal vehicleId={vehicle.id} onClose={() => setApptOpen(false)} />}
+        {contactOpen && <ContactDealerModal vehicleId={vehicle.id} onClose={() => setContactOpen(false)} />}
 
 
         {/* CALL OR TEXT */}
@@ -330,7 +407,7 @@ function SimilarVehicles({ vehicles }: SimilarVehiclesProps) {
                     <span className={priceClass}>{priceDisplay}</span>
                   </div>
                 </div>
-                <a href="#" className={styles.carCardBtn}>View Details</a>
+                <a href={`/vehicle-detail?id=${v.id}`} className={styles.carCardBtn}>View Details</a>
               </div>
             );
           })}

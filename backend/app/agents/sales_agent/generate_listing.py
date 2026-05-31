@@ -127,7 +127,7 @@ async def generate_listing(state: AgentState) -> AgentState:
                     "role": "system",
                     "content": (
                         "You are an expert automotive copywriter for NOVA Motors, a luxury dealership. "
-                        "Generate a complete listing package. Return JSON with exactly five keys:\n"
+                        "Generate a complete listing package. Return JSON with exactly six keys:\n"
                         '  "listing_title": string (≤ 80 chars, includes year/make/model/trim, '
                         "compelling and factual)\n"
                         '  "listing_description": string (2–3 paragraphs, professional website '
@@ -135,6 +135,10 @@ async def generate_listing(state: AgentState) -> AgentState:
                         "Note salvage/rebuilt title prominently if applicable. No markdown.)\n"
                         '  "suggested_price": number (integer asking price; if ASKING PRICE is '
                         "given use it exactly, otherwise price near the lower-middle of market range)\n"
+                        '  "key_features": array of 6–12 strings — specific, accurate vehicle '
+                        "features and options for this trim (e.g. \"Heated front seats\", "
+                        "\"Apple CarPlay\", \"Panoramic sunroof\", \"Lane-departure warning\"). "
+                        "Include any DEALER-LISTED FEATURES provided. Each item 2–6 words.\n"
                         '  "facebook_copy": string (Facebook Marketplace post — include title, '
                         "price, bullet specs, condition, VIN, NOVA Motors contact CTA. "
                         "Use emoji sparingly. Ready to copy-paste.)\n"
@@ -146,7 +150,7 @@ async def generate_listing(state: AgentState) -> AgentState:
                 {"role": "user", "content": prompt},
             ],
             response_format={"type": "json_object"},
-            max_tokens=1800,
+            max_tokens=2200,
             temperature=0.6,
         )
 
@@ -156,6 +160,9 @@ async def generate_listing(state: AgentState) -> AgentState:
         description: str = data.get("listing_description") or ""
         facebook_copy: str = data.get("facebook_copy") or ""
         ebay_description: str = data.get("ebay_listing_description") or ""
+        key_features: list[str] = data.get("key_features") or []
+        if not isinstance(key_features, list):
+            key_features = []
 
         if asking_price:
             suggested_price = float(asking_price)
@@ -166,13 +173,14 @@ async def generate_listing(state: AgentState) -> AgentState:
             except (ValueError, TypeError):
                 suggested_price = 0.0
 
-        log.info("[Listing] Done — title='%s' price=$%s", title, suggested_price)
+        log.info("[Listing] Done — title='%s' price=$%s features=%d", title, suggested_price, len(key_features))
 
         return {
             **state,
             "listing_title": title,
             "listing_description": description,
             "suggested_price": suggested_price,
+            "key_features": key_features,
             "facebook_copy": facebook_copy,
             "ebay_listing_description": ebay_description,
             "errors": errors,

@@ -2096,6 +2096,7 @@ type WizardPhase =
   | 'phase-a'
   | 'clarify'
   | 'phase-b'
+  | 'features'
   | 'review'
   | 'phase-c'
   | 'complete';
@@ -2121,6 +2122,7 @@ interface ListingEdit {
   listing_title: string;
   listing_description: string;
   suggested_price: string;
+  key_features: string[];
   facebook_copy: string;
   ebay_listing_description: string;
 }
@@ -2439,6 +2441,44 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
   );
 }
 
+const FEATURE_CATEGORIES: { label: string; features: string[] }[] = [
+  {
+    label: 'Safety',
+    features: [
+      'Blind Spot Monitoring', 'Lane Departure Warning', 'Adaptive Cruise Control',
+      'Rear Cross Traffic Alert', 'Parking Sensors', 'Automatic Emergency Braking',
+      'Collision Warning',
+    ],
+  },
+  {
+    label: 'Technology',
+    features: [
+      'Apple CarPlay', 'Android Auto', 'Bluetooth', 'Navigation',
+      'Wireless Charging', 'Premium Audio', 'Heads-Up Display',
+    ],
+  },
+  {
+    label: 'Comfort',
+    features: [
+      'Heated Seats', 'Ventilated Seats', 'Leather Seats', 'Power Seats',
+      'Heated Steering Wheel', 'Memory Seats', 'Dual Zone Climate Control',
+    ],
+  },
+  {
+    label: 'Exterior',
+    features: [
+      'Sunroof', 'Panoramic Roof', 'Tow Package', 'Running Boards',
+      'Power Liftgate', 'Roof Rack',
+    ],
+  },
+  {
+    label: 'Performance',
+    features: ['AWD', '4WD', 'Turbocharged Engine', 'Sport Package', 'Paddle Shifters'],
+  },
+];
+
+const ALL_PREDEFINED = FEATURE_CATEGORIES.flatMap(c => c.features);
+
 function AIAgentView() {
   const [wizardPhase, setWizardPhase] = useState<WizardPhase>('vin-input');
   const [vin, setVin] = useState('');
@@ -2449,13 +2489,16 @@ function AIAgentView() {
   });
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [listingEdit, setListingEdit] = useState<ListingEdit>({
-    listing_title: '', listing_description: '', suggested_price: '', facebook_copy: '', ebay_listing_description: '',
+    listing_title: '', listing_description: '', suggested_price: '', key_features: [], facebook_copy: '', ebay_listing_description: '',
   });
   const [phaseAResult, setPhaseAResult] = useState<AgentResult | null>(null);
   const [phaseCResult, setPhaseCResult] = useState<AgentResult | null>(null);
   const [phaseASteps, setPhaseASteps] = useState<PipelineStep[]>(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
   const [phaseBSteps, setPhaseBSteps] = useState<PipelineStep[]>(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
   const [phaseCSteps, setPhaseCSteps] = useState<PipelineStep[]>(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [featureSearch, setFeatureSearch] = useState('');
+  const [customFeatureInput, setCustomFeatureInput] = useState('');
   const [running, setRunning] = useState(false);
   const [error, setError] = useState('');
   const [saveError, setSaveError] = useState('');
@@ -2476,7 +2519,8 @@ function AIAgentView() {
   const resetWizard = () => {
     setWizardPhase('vin-input'); setVin(''); setError(''); setSaveError(''); setAdvancedOpen(false);
     setPhaseAResult(null); setPhaseCResult(null);
-    setListingEdit({ listing_title: '', listing_description: '', suggested_price: '', facebook_copy: '', ebay_listing_description: '' });
+    setListingEdit({ listing_title: '', listing_description: '', suggested_price: '', key_features: [], facebook_copy: '', ebay_listing_description: '' });
+    setSelectedFeatures([]); setFeatureSearch(''); setCustomFeatureInput('');
     imgEntries.forEach(e => URL.revokeObjectURL(e.preview));
     setImgEntries([]);
     setPhaseASteps(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
@@ -2552,13 +2596,16 @@ function AIAgentView() {
           setPhaseBSteps(prev => prev.map(s => ({
             ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
           })));
+          const aiFeatures = event.result.key_features || [];
           setListingEdit({
             listing_title: event.result.listing_title || '',
             listing_description: event.result.listing_description || '',
             suggested_price: event.result.suggested_price ? String(Math.round(event.result.suggested_price)) : '',
+            key_features: aiFeatures,
             facebook_copy: event.result.facebook_copy || '',
             ebay_listing_description: event.result.ebay_listing_description || '',
           });
+          setSelectedFeatures(aiFeatures);
         } else if (event.type === 'error') {
           setError(event.message); failed = true;
         }
@@ -2566,20 +2613,28 @@ function AIAgentView() {
     } catch (e) {
       if (mountedRef.current) { setError(e instanceof Error ? e.message : 'Phase B failed.'); failed = true; }
     } finally {
-      if (mountedRef.current) { setRunning(false); if (!failed) setWizardPhase('review'); }
+      if (mountedRef.current) { setRunning(false); if (!failed) setWizardPhase('features'); }
     }
   };
 
   // One-click: save → upload images → distribute
   const approveAndPublish = async () => {
     setError(''); setSaveError(''); setRunning(true);
+    let vehicleCreated = false;
     try {
+      const priceStr = listingEdit.suggested_price;
+      const priceNum = parseFloat(priceStr);
+      if (!priceStr || isNaN(priceNum) || priceNum <= 0) {
+        throw new Error('A valid asking price is required before publishing.');
+      }
+
       const vehicle = await api.adminCreateVehicle({
         title: listingEdit.listing_title || [phaseAResult?.year, phaseAResult?.make, phaseAResult?.model].filter(Boolean).join(' '),
-        make: phaseAResult?.make || '', model: phaseAResult?.model || '',
+        make: phaseAResult?.make || '',
+        model: phaseAResult?.model || '',
         year: phaseAResult?.year || new Date().getFullYear(),
-        mileage: userReview.mileage,
-        price: listingEdit.suggested_price || '0',
+        mileage: userReview.mileage || 0,
+        price: priceStr,
         transmission: normalizeTransmission(phaseAResult?.transmission),
         fuel_type: normalizeFuelType(phaseAResult?.fuel_type),
         vin: vin.trim().toUpperCase(),
@@ -2590,9 +2645,11 @@ function AIAgentView() {
         engine: phaseAResult?.engine || undefined,
         drive: userReview.drive || phaseAResult?.drive_type || undefined,
         fuel_economy: userReview.fuel_economy || undefined,
-        features: userReview.features ? userReview.features.split(',').map(f => f.trim()).filter(Boolean) : undefined,
-        featured: userReview.featured, status: userReview.status,
+        features: selectedFeatures.length ? selectedFeatures : undefined,
+        featured: userReview.featured,
+        status: userReview.status,
       });
+      vehicleCreated = true;
       const vid = vehicle.id;
 
       for (let i = 0; i < imgEntries.length; i++) {
@@ -2608,11 +2665,16 @@ function AIAgentView() {
       setWizardPhase('phase-c');
       setPhaseCSteps(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
       const phaseCReq: PhaseCRequest = {
-        vehicle_id: vid, vin: vin.trim().toUpperCase(),
-        make: phaseAResult?.make, model: phaseAResult?.model, year: phaseAResult?.year,
-        listing_title: listingEdit.listing_title, listing_description: listingEdit.listing_description,
-        facebook_copy: listingEdit.facebook_copy, ebay_listing_description: listingEdit.ebay_listing_description,
-        suggested_price: listingEdit.suggested_price ? parseFloat(listingEdit.suggested_price) : undefined,
+        vehicle_id: vid,
+        vin: vin.trim().toUpperCase(),
+        make: phaseAResult?.make,
+        model: phaseAResult?.model,
+        year: phaseAResult?.year,
+        listing_title: listingEdit.listing_title,
+        listing_description: listingEdit.listing_description,
+        facebook_copy: listingEdit.facebook_copy,
+        ebay_listing_description: listingEdit.ebay_listing_description,
+        suggested_price: priceNum,
       };
       for await (const event of api.streamDistribute(phaseCReq)) {
         if (!mountedRef.current) break;
@@ -2632,13 +2694,18 @@ function AIAgentView() {
     } catch (err) {
       if (mountedRef.current) setSaveError(err instanceof Error ? err.message : 'Failed to publish.');
     } finally {
-      if (mountedRef.current) { setRunning(false); setWizardPhase('complete'); }
+      if (mountedRef.current) {
+        setRunning(false);
+        // Only transition to complete if the vehicle was actually saved.
+        // If creation failed, stay on 'review' so saveError is visible.
+        if (vehicleCreated) setWizardPhase('complete');
+      }
     }
   };
 
-  const WIZARD_LABELS = ['VIN Scan', 'Details', 'Generate', 'Review', 'Publish'];
+  const WIZARD_LABELS = ['VIN Scan', 'Details', 'Generate', 'Features', 'Review', 'Publish'];
   const phaseIndex = ({
-    'vin-input': 0, 'phase-a': 0, 'clarify': 1, 'phase-b': 2, 'review': 3, 'phase-c': 4, 'complete': 5,
+    'vin-input': 0, 'phase-a': 0, 'clarify': 1, 'phase-b': 2, 'features': 3, 'review': 4, 'phase-c': 5, 'complete': 6,
   } as Record<WizardPhase, number>)[wizardPhase] ?? 0;
 
   return (
@@ -2905,7 +2972,157 @@ function AIAgentView() {
         </div>
       )}
 
-      {/* ─── STEP 3: Review & edit generated listing ────────────────────────── */}
+      {/* ─── STEP 3: Feature Selection ──────────────────────────────────────── */}
+      {wizardPhase === 'features' && (() => {
+        const query = featureSearch.toLowerCase();
+        const toggleFeature = (f: string) =>
+          setSelectedFeatures(prev =>
+            prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]
+          );
+        const addCustom = () => {
+          const val = customFeatureInput.trim();
+          if (val && !selectedFeatures.includes(val)) {
+            setSelectedFeatures(prev => [...prev, val]);
+          }
+          setCustomFeatureInput('');
+        };
+        const aiSuggestions = listingEdit.key_features;
+
+        return (
+          <div className="space-y-4">
+            {/* Header card */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-base font-black text-gray-900">Vehicle Features</p>
+                <span className="text-xs font-semibold text-[#C9A84C] bg-[#C9A84C]/10 px-2.5 py-1 rounded-full">
+                  {selectedFeatures.length} selected
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">Select all that apply. AI suggestions are pre-checked — adjust as needed.</p>
+
+              {/* Search */}
+              <div className="relative mt-4">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+                <input
+                  value={featureSearch}
+                  onChange={e => setFeatureSearch(e.target.value)}
+                  placeholder="Search features…"
+                  className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300"
+                />
+              </div>
+            </div>
+
+            {/* AI Suggested */}
+            {aiSuggestions.length > 0 && !featureSearch && (
+              <div className="bg-white rounded-2xl border border-[#C9A84C]/30 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-5 h-5 rounded-full bg-[#C9A84C]/10 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-[#C9A84C]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  </div>
+                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">AI Suggested Features</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {aiSuggestions.map(f => {
+                    const checked = selectedFeatures.includes(f);
+                    return (
+                      <button
+                        key={f}
+                        onClick={() => toggleFeature(f)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                          checked
+                            ? 'bg-[#C9A84C] border-[#C9A84C] text-white shadow-sm'
+                            : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-[#C9A84C]/50'
+                        }`}
+                      >
+                        {checked && <Check size={11} />}
+                        {f}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Category groups */}
+            {FEATURE_CATEGORIES.map(cat => {
+              const visible = cat.features.filter(f =>
+                !query || f.toLowerCase().includes(query)
+              );
+              if (visible.length === 0) return null;
+              return (
+                <div key={cat.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">{cat.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {visible.map(f => {
+                      const checked = selectedFeatures.includes(f);
+                      return (
+                        <button
+                          key={f}
+                          onClick={() => toggleFeature(f)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                            checked
+                              ? 'bg-[#C9A84C] border-[#C9A84C] text-white shadow-sm'
+                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C9A84C]/50 hover:bg-[#C9A84C]/5'
+                          }`}
+                        >
+                          {checked && <Check size={11} />}
+                          {f}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Custom feature */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Add Custom Feature</p>
+              <div className="flex gap-2">
+                <input
+                  value={customFeatureInput}
+                  onChange={e => setCustomFeatureInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { addCustom(); e.preventDefault(); } }}
+                  placeholder="e.g. Third Row Seating, Cooled Cup Holders…"
+                  className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300"
+                />
+                <button
+                  onClick={addCustom}
+                  disabled={!customFeatureInput.trim()}
+                  className="px-4 py-2.5 bg-[#C9A84C] text-white text-sm font-bold rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition shrink-0"
+                >
+                  + Add
+                </button>
+              </div>
+              {/* Custom / non-predefined selected features */}
+              {selectedFeatures.filter(f => !ALL_PREDEFINED.includes(f)).length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                  {selectedFeatures.filter(f => !ALL_PREDEFINED.includes(f)).map(f => (
+                    <span key={f} className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A84C] border border-[#C9A84C] text-white rounded-full text-sm font-medium">
+                      {f}
+                      <button onClick={() => setSelectedFeatures(prev => prev.filter(x => x !== f))} className="hover:opacity-70 transition leading-none">×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Continue */}
+            <button
+              onClick={() => setWizardPhase('review')}
+              className="w-full py-4 bg-[#C9A84C] text-white font-black text-base rounded-2xl hover:bg-[#B8943E] transition-all shadow-lg shadow-[#C9A84C]/20 flex items-center justify-center gap-2.5"
+            >
+              <Check size={18} /> Continue with {selectedFeatures.length} Feature{selectedFeatures.length !== 1 ? 's' : ''}
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* ─── STEP 4: Review & edit generated listing ────────────────────────── */}
       {wizardPhase === 'review' && (
         <div className="space-y-4">
 
@@ -2940,10 +3157,36 @@ function AIAgentView() {
             </div>
 
             {/* Description */}
-            <div className="px-6 py-5">
+            <div className="px-6 py-5 border-b border-gray-50">
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Description</p>
               <textarea value={listingEdit.listing_description} onChange={e => setLE('listing_description', e.target.value)} rows={7}
                 className="w-full text-gray-600 text-sm leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-gray-50 rounded-xl px-2 -mx-2 py-1 transition-all resize-none" />
+            </div>
+
+            {/* Features */}
+            <div className="px-6 py-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Features</p>
+                <button
+                  onClick={() => setWizardPhase('features')}
+                  className="text-[10px] text-[#C9A84C] hover:underline font-semibold transition"
+                >
+                  Edit features
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedFeatures.map((f, i) => (
+                  <span key={i} className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    {f}
+                    <button
+                      onClick={() => setSelectedFeatures(prev => prev.filter((_, idx) => idx !== i))}
+                      className="text-gray-400 hover:text-red-500 transition leading-none">×</button>
+                  </span>
+                ))}
+                {selectedFeatures.length === 0 && (
+                  <p className="text-sm text-gray-400 italic">No features selected.</p>
+                )}
+              </div>
             </div>
           </div>
 

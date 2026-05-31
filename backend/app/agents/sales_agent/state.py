@@ -36,6 +36,7 @@ class AgentState(TypedDict, total=False):
     market_price_range: Optional[str]  # e.g. "$28,000 – $36,000"
     selling_points: Optional[list]     # 5-6 concise selling points
     market_insights: Optional[str]     # 2-3 sentence market analysis paragraph
+    suggested_features: Optional[list] # AI-suggested features for this trim (e.g. "Heated seats")
 
     # ── User Review Inputs (Phase A → Phase B bridge) ─────────────────────────
     mileage: Optional[int]
@@ -50,6 +51,7 @@ class AgentState(TypedDict, total=False):
     listing_title: Optional[str]
     listing_description: Optional[str]           # website / general
     suggested_price: Optional[float]
+    key_features: Optional[list]                 # AI-generated feature tags for the vehicle
     facebook_copy: Optional[str]                 # ready-to-paste FB Marketplace text
     ebay_listing_description: Optional[str]      # eBay-specific description
 

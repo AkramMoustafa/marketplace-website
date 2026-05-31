@@ -331,11 +331,13 @@ export interface AgentResult {
   market_price_range?: string;
   selling_points?: string[];
   market_insights?: string;
+  suggested_features?: string[];
 
   // Phase B output
   listing_title?: string;
   listing_description?: string;
   suggested_price?: number;
+  key_features?: string[];
   facebook_copy?: string;
   ebay_listing_description?: string;
 

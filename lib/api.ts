@@ -95,6 +95,10 @@ export function getFeaturedVehicles(limit = 6): Promise<VehicleListItem[]> {
   return req(`/api/vehicles/featured?limit=${limit}`);
 }
 
+export function getSimilarVehicles(vehicleId: string, limit = 4): Promise<VehicleListItem[]> {
+  return req(`/api/vehicles/${vehicleId}/similar?limit=${limit}`);
+}
+
 export async function getVehicle(id: string): Promise<Vehicle> {
   console.log("GET VEHICLE CALLED", id);
 
@@ -301,6 +305,13 @@ export function adminGenerateAIContent(
 
 export function submitContact(data: ContactMessagePayload): Promise<ContactMessageOut> {
   return req('/api/contact', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function submitVehicleInquiry(
+  vehicleId: string,
+  data: { name: string; email: string; phone?: string; message: string },
+): Promise<ContactMessageOut> {
+  return req(`/api/vehicles/${vehicleId}/inquiry`, { method: 'POST', body: JSON.stringify(data) });
 }
 
 export function adminListContactMessages(page = 1): Promise<PaginatedResponse<ContactMessageOut>> {

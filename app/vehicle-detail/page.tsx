@@ -1,5 +1,5 @@
 import VehicleDetail from '@/components/VehicleDetail';
-import { getVehicle } from '@/lib/api';
+import { getVehicle, getSimilarVehicles } from '@/lib/api';
 import { mapBackendVehicleToDetailVehicle } from '@/lib/vehicleAdapter';
 
 // Opt this route out of static generation and Next.js Data Cache so every
@@ -17,7 +17,10 @@ export default async function VehicleDetailPage({
   let vehicle;
 
   try {
-    const apiVehicle = await getVehicle(id);
+    const [apiVehicle, similar] = await Promise.all([
+      getVehicle(id),
+      getSimilarVehicles(id).catch(() => []),
+    ]);
 
     console.log('========== RAW API VEHICLE ==========');
     console.log(apiVehicle);
@@ -26,7 +29,7 @@ export default async function VehicleDetailPage({
     console.log('drive:', apiVehicle?.drive);
     console.log('fuel_economy:', apiVehicle?.fuel_economy);
 
-    vehicle = mapBackendVehicleToDetailVehicle(apiVehicle);
+    vehicle = mapBackendVehicleToDetailVehicle(apiVehicle, similar);
 
     console.log('========== MAPPED VEHICLE ==========');
     console.log(vehicle);
