@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Calendar, DollarSign } from 'lucide-react';
 import { getImageUrl } from '@/lib/api';
 
@@ -28,10 +28,12 @@ interface Props {
   vehicle: VehicleData;
   onSchedule: () => void;
   onFinancing: () => void;
+  onNavigate: () => void;
 }
 
-export default function VehicleChatCard({ vehicle, onSchedule, onFinancing }: Props) {
+export default function VehicleChatCard({ vehicle, onSchedule, onFinancing, onNavigate }: Props) {
   const [imgError, setImgError] = useState(false);
+  const router = useRouter();
 
   const rawSrc = !imgError && vehicle.images.length > 0 ? vehicle.images[0] : null;
   const imageSrc = rawSrc ? getImageUrl(rawSrc) : PLACEHOLDER;
@@ -41,34 +43,48 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing }: Pr
       ? 'Call for Price'
       : `$${vehicle.price.toLocaleString()}`;
 
+  const href = `/vehicle-detail?id=${vehicle.id}`;
+
+  const handleNavigate = () => {
+    onNavigate();
+    router.push(href);
+  };
+
   return (
-    <div className="flex-shrink-0 w-[210px] bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      {/* Image */}
-      <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
-        <Image
-          src={imageSrc}
-          alt={vehicle.title}
-          fill
-          className="object-cover"
-          onError={() => setImgError(true)}
-          unoptimized={imageSrc === PLACEHOLDER}
-        />
-        <div className="absolute top-1.5 left-1.5 bg-gray-900/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded">
-          {vehicle.year}
+    <div className="flex-shrink-0 w-[170px] bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      {/* Image — clickable, closes chat then navigates */}
+      <button type="button" onClick={handleNavigate} className="block w-full text-left">
+        <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
+          <Image
+            src={imageSrc}
+            alt={vehicle.title}
+            fill
+            className="object-cover"
+            onError={() => setImgError(true)}
+            unoptimized={imageSrc === PLACEHOLDER}
+          />
+          <div className="absolute top-1.5 left-1.5 bg-gray-900/80 text-white text-[9px] font-black px-1.5 py-0.5 rounded">
+            {vehicle.year}
+          </div>
         </div>
-      </div>
+      </button>
 
       {/* Content */}
       <div className="p-2.5">
         <span className="text-[9px] font-black uppercase tracking-wider text-[#FF5500] block">
           {vehicle.make}
         </span>
-        <p className="text-[11px] font-black text-gray-900 leading-tight line-clamp-2 mt-0.5 min-h-[26px]">
+        {/* Title — clickable */}
+        <button
+          type="button"
+          onClick={handleNavigate}
+          className="text-[10px] font-black text-gray-900 leading-tight line-clamp-2 mt-0.5 min-h-[26px] text-left w-full hover:text-[#FF5500] transition-colors"
+        >
           {vehicle.title}
-        </p>
+        </button>
 
         <div className="mt-1.5 flex items-baseline justify-between gap-1">
-          <span className="text-sm font-black text-gray-900 truncate">{priceDisplay}</span>
+          <span className="text-xs font-black text-gray-900 truncate">{priceDisplay}</span>
           {vehicle.mileage > 0 && (
             <span className="text-[9px] text-gray-400 shrink-0">
               {vehicle.mileage.toLocaleString()} mi
@@ -78,13 +94,15 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing }: Pr
 
         {/* CTAs */}
         <div className="mt-2 space-y-1.5">
-          <Link
-            href={`/inventory/${vehicle.id}`}
+          <button
+            type="button"
+            onClick={handleNavigate}
             className="flex items-center justify-center w-full py-1.5 bg-gray-900 text-white text-[10px] font-black rounded-lg hover:bg-[#FF5500] transition-colors"
           >
             View Vehicle
-          </Link>
+          </button>
           <button
+            type="button"
             onClick={onSchedule}
             className="flex items-center justify-center gap-1 w-full py-1.5 bg-[#FF5500] text-white text-[10px] font-black rounded-lg hover:bg-[#FF7733] transition-colors"
           >
@@ -92,6 +110,7 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing }: Pr
             Test Drive
           </button>
           <button
+            type="button"
             onClick={onFinancing}
             className="flex items-center justify-center gap-1 w-full py-1.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-lg hover:bg-gray-200 transition-colors"
           >

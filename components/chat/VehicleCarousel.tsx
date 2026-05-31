@@ -9,9 +9,10 @@ interface Props {
   vehicles: VehicleData[];
   onSchedule: (vehicleId: string) => void;
   onFinancing: (vehicleTitle: string) => void;
+  onNavigate: () => void;
 }
 
-export default function VehicleCarousel({ vehicles, onSchedule, onFinancing }: Props) {
+export default function VehicleCarousel({ vehicles, onSchedule, onFinancing, onNavigate }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -52,6 +53,7 @@ export default function VehicleCarousel({ vehicles, onSchedule, onFinancing }: P
               vehicle={v}
               onSchedule={() => onSchedule(v.id)}
               onFinancing={() => onFinancing(v.title)}
+              onNavigate={onNavigate}
             />
           </div>
         ))}

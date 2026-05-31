@@ -254,6 +254,7 @@ export default function ChatWidget() {
                       vehicles={msg.vehicles}
                       onSchedule={handleCardSchedule}
                       onFinancing={handleCardFinancing}
+                      onNavigate={() => setOpen(false)}
                     />
                   )}
                   {/* Booking CTA card rendered for messages that carried the marker */}
