@@ -1,27 +1,37 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 import { MessageCircle, X, Send, RotateCcw } from 'lucide-react';
 import Message from './Message';
 import TypingIndicator from './TypingIndicator';
+import BookingCTA from './BookingCTA';
+import TestDriveModal from './TestDriveModal';
+import VehicleCarousel from './VehicleCarousel';
+import type { VehicleData } from './VehicleChatCard';
+
+// Marker Alex emits when test-drive scheduling intent is detected
+const BOOKING_MARKER = '[SCHEDULE_MODAL]';
 
 interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  showBookingCTA: boolean;
   timestamp: number;
+  vehicles?: VehicleData[];
 }
 
 const QUICK_REPLIES = [
-  { label: 'Schedule Test Drive', icon: '🚗' },
-  { label: 'Browse Inventory', icon: '🔍' },
-  { label: 'Get Financing', icon: '💰' },
-  { label: 'Call Us', icon: '📞' },
+  { label: 'Schedule Test Drive' },
+  { label: 'Browse Inventory' },
+  { label: 'Get Financing' },
+  { label: 'Call Us' },
 ];
 
 const WELCOME = "Hey! I'm Alex, your virtual assistant. I can help you schedule a test drive, inquire about a car, check availability, or connect you with our team. What can I help you with?";
 
-const CHATBOT_URL = process.env.NEXT_PUBLIC_CHATBOT_URL || 'http://localhost:3001';
+const CHATBOT_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 let _sessionId: string | null = null;
 function getSessionId(): string {
@@ -36,13 +46,33 @@ function msgId() {
   return `msg-${++_msgCounter}-${Date.now()}`;
 }
 
+function makeMessage(
+  role: ChatMessage['role'],
+  rawContent: string,
+  vehicles?: VehicleData[],
+): ChatMessage {
+  const hasMarker = rawContent.includes(BOOKING_MARKER);
+  const content = rawContent.replace(BOOKING_MARKER, '').trim();
+  return { id: msgId(), role, content, showBookingCTA: hasMarker, timestamp: Date.now(), vehicles };
+}
+
 export default function ChatWidget() {
+  const pathname = usePathname();
+
+  // Extract vehicle ID if the user is on a vehicle detail page
+  const currentVehicleId = useMemo(() => {
+    const m = pathname?.match(/\/(?:inventory|car)\/([a-f0-9-]{36})/i);
+    return m ? m[1] : null;
+  }, [pathname]);
+
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const sessionId = getSessionId();
@@ -61,7 +91,7 @@ export default function ChatWidget() {
   useEffect(() => {
     if (open && !hasOpened) {
       setHasOpened(true);
-      setMessages([{ id: msgId(), role: 'assistant', content: WELCOME, timestamp: Date.now() }]);
+      setMessages([makeMessage('assistant', WELCOME)]);
     }
   }, [open, hasOpened]);
 
@@ -69,7 +99,7 @@ export default function ChatWidget() {
     const content = (text ?? input).trim();
     if (!content || typing) return;
 
-    setMessages(prev => [...prev, { id: msgId(), role: 'user', content, timestamp: Date.now() }]);
+    setMessages(prev => [...prev, makeMessage('user', content)]);
     setInput('');
     setTyping(true);
 
@@ -81,20 +111,21 @@ export default function ChatWidget() {
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(err.error || 'Server error');
+        const err = await res.json().catch(() => ({})) as { error?: string; detail?: string };
+        throw new Error(err.error ?? err.detail ?? 'Server error');
       }
 
-      const data = await res.json() as { response: string };
-      setMessages(prev => [...prev, { id: msgId(), role: 'assistant', content: data.response, timestamp: Date.now() }]);
+      const data = await res.json() as { response: string; vehicles?: VehicleData[] };
+      const msg = makeMessage('assistant', data.response, data.vehicles ?? undefined);
+      setMessages(prev => [...prev, msg]);
       if (!open) setUnread(n => n + 1);
+
+      // If Alex signalled the booking modal, open it immediately
+      if (msg.showBookingCTA) setModalOpen(true);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      setMessages(prev => [...prev, {
-        id: msgId(), role: 'assistant',
-        content: `Sorry, I ran into an issue: ${msg}. Make sure the chatbot server is running on port 3001.`,
-        timestamp: Date.now(),
-      }]);
+      const errorText = err instanceof Error ? err.message : 'Unknown error';
+      setMessages(prev => [...prev, makeMessage('assistant',
+        `Sorry, I ran into an issue: ${errorText}.`)]);
     } finally {
       setTyping(false);
     }
@@ -108,10 +139,38 @@ export default function ChatWidget() {
   };
 
   const resetChat = () => {
-    setMessages([{ id: msgId(), role: 'assistant', content: WELCOME, timestamp: Date.now() }]);
+    setMessages([makeMessage('assistant', WELCOME)]);
     setInput('');
     setTyping(false);
-    fetch(`${CHATBOT_URL}/api/session/${sessionId}`, { method: 'DELETE' }).catch(() => {});
+    fetch(`${CHATBOT_URL}/api/chat/session/${sessionId}`, { method: 'DELETE' }).catch(() => {});
+  };
+
+  const handleQuickReply = (label: string) => {
+    if (label === 'Schedule Test Drive') {
+      setModalOpen(true);
+    } else {
+      sendMessage(label);
+    }
+  };
+
+  const handleCardSchedule = (vehicleId: string) => {
+    setSelectedVehicleId(vehicleId);
+    setModalOpen(true);
+  };
+
+  const handleCardFinancing = (vehicleTitle: string) => {
+    sendMessage(`I'd like financing information for the ${vehicleTitle}`);
+  };
+
+  const handleModalSuccess = (chatMsg: string) => {
+    setModalOpen(false);
+    setSelectedVehicleId(null);
+    setMessages(prev => [...prev, makeMessage('assistant', chatMsg)]);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedVehicleId(null);
   };
 
   return (
@@ -132,34 +191,50 @@ export default function ChatWidget() {
         .alex-widget { animation: alexSlideUp 0.28s cubic-bezier(0.34,1.56,0.64,1); }
         .alex-scroll::-webkit-scrollbar { width: 4px; }
         .alex-scroll::-webkit-scrollbar-track { background: transparent; }
-        .alex-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .alex-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
       `}</style>
+
+      {/* Full-screen booking modal */}
+      {modalOpen && (
+        <TestDriveModal
+          onClose={handleModalClose}
+          onSuccess={handleModalSuccess}
+          currentVehicleId={selectedVehicleId ?? currentVehicleId}
+        />
+      )}
 
       {/* Chat panel */}
       {open && (
         <div className="alex-widget fixed bottom-24 right-5 z-[9999] w-[370px] max-w-[calc(100vw-1.25rem)]">
-          <div className="flex flex-col bg-slate-900 border border-slate-700/60 rounded-2xl shadow-2xl overflow-hidden"
-               style={{ height: 'min(600px, calc(100vh - 7rem))' }}>
-
+          <div
+            className="flex flex-col bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
+            style={{ height: 'min(600px, calc(100vh - 7rem))' }}
+          >
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 bg-slate-800 border-b border-slate-700/60 shrink-0">
+            <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shrink-0">
               <div className="relative">
                 <div className="w-9 h-9 rounded-full bg-[#FF5500] flex items-center justify-center text-white font-black text-sm">
                   A
                 </div>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-800" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-black text-white text-sm leading-tight">Alex</p>
-                <p className="text-[11px] text-emerald-400 leading-tight">Online · NOVA Motors Assistant</p>
+                <p className="font-black text-gray-900 text-sm leading-tight">Alex</p>
+                <p className="text-[11px] text-emerald-500 leading-tight">Online · NOVA Motors Assistant</p>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={resetChat} title="New conversation"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition">
+                <button
+                  onClick={resetChat}
+                  title="New conversation"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition"
+                >
                   <RotateCcw size={14} />
                 </button>
-                <button onClick={() => setOpen(false)} title="Close chat"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition">
+                <button
+                  onClick={() => setOpen(false)}
+                  title="Close chat"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition"
+                >
                   <X size={16} />
                 </button>
               </div>
@@ -168,19 +243,38 @@ export default function ChatWidget() {
             {/* Messages */}
             <div className="alex-scroll flex-1 overflow-y-auto px-4 pt-4 pb-2">
               {messages.map(msg => (
-                <Message key={msg.id} role={msg.role} content={msg.content} timestamp={msg.timestamp} />
+                <div key={msg.id}>
+                  {/* Only show the text bubble if there's text content */}
+                  {msg.content && (
+                    <Message role={msg.role} content={msg.content} timestamp={msg.timestamp} />
+                  )}
+                  {/* Vehicle cards carousel for inventory search results */}
+                  {msg.vehicles && msg.vehicles.length > 0 && msg.role === 'assistant' && (
+                    <VehicleCarousel
+                      vehicles={msg.vehicles}
+                      onSchedule={handleCardSchedule}
+                      onFinancing={handleCardFinancing}
+                    />
+                  )}
+                  {/* Booking CTA card rendered for messages that carried the marker */}
+                  {msg.showBookingCTA && msg.role === 'assistant' && (
+                    <BookingCTA onOpen={() => setModalOpen(true)} />
+                  )}
+                </div>
               ))}
               {typing && <TypingIndicator />}
               <div ref={bottomRef} />
             </div>
 
-            {/* Quick replies — only on first open */}
+            {/* Quick replies — only on first message */}
             {messages.length <= 1 && !typing && (
               <div className="px-4 pb-3 flex flex-wrap gap-2 shrink-0">
-                {QUICK_REPLIES.map(({ label, icon }) => (
-                  <button key={label} onClick={() => sendMessage(label)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-[#FF5500]/50 text-slate-300 hover:text-white text-xs font-medium rounded-full transition-all">
-                    <span>{icon}</span>
+                {QUICK_REPLIES.map(({ label }) => (
+                  <button
+                    key={label}
+                    onClick={() => handleQuickReply(label)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-[#FF5500]/50 text-gray-600 hover:text-gray-900 text-xs font-medium rounded-full transition-all"
+                  >
                     {label}
                   </button>
                 ))}
@@ -188,8 +282,8 @@ export default function ChatWidget() {
             )}
 
             {/* Input */}
-            <div className="px-3 py-3 border-t border-slate-700/60 bg-slate-800/50 shrink-0">
-              <div className="flex items-end gap-2 bg-slate-700/60 rounded-xl px-3 py-2 border border-slate-600/50 focus-within:border-[#FF5500]/60 transition">
+            <div className="px-3 py-3 border-t border-gray-200 bg-gray-50 shrink-0">
+              <div className="flex items-end gap-2 bg-white rounded-xl px-3 py-2 border border-gray-300 focus-within:border-[#FF5500]/60 transition">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -198,7 +292,7 @@ export default function ChatWidget() {
                   placeholder="Type a message…"
                   rows={1}
                   disabled={typing}
-                  className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 resize-none focus:outline-none max-h-24 leading-relaxed py-0.5 disabled:opacity-50"
+                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none max-h-24 leading-relaxed py-0.5 disabled:opacity-50"
                   style={{ minHeight: '1.25rem' }}
                   onInput={(e) => {
                     const t = e.target as HTMLTextAreaElement;
@@ -206,23 +300,28 @@ export default function ChatWidget() {
                     t.style.height = `${Math.min(t.scrollHeight, 96)}px`;
                   }}
                 />
-                <button onClick={() => sendMessage()} disabled={!input.trim() || typing}
-                  className="p-1.5 rounded-lg bg-[#FF5500] text-white hover:bg-[#FF7733] disabled:opacity-40 disabled:cursor-not-allowed transition shrink-0">
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={!input.trim() || typing}
+                  className="p-1.5 rounded-lg bg-[#FF5500] text-white hover:bg-[#FF7733] disabled:opacity-40 disabled:cursor-not-allowed transition shrink-0"
+                >
                   <Send size={15} />
                 </button>
               </div>
-              <p className="text-center text-[10px] text-slate-600 mt-1.5">Powered by Alex AI · NOVA Motors</p>
+              <p className="text-center text-[10px] text-gray-400 mt-1.5">Powered by Alex AI · NOVA Motors</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Floating button */}
-      <button onClick={() => setOpen(v => !v)}
-        className="fixed bottom-5 right-5 z-[9999] w-14 h-14 rounded-full bg-[#FF5500] hover:bg-[#FF7733] text-white shadow-lg shadow-[#FF5500]/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="fixed bottom-5 right-5 z-[9999] w-14 h-14 rounded-full bg-[#FF5500] hover:bg-[#FF7733] text-white shadow-lg shadow-[#FF5500]/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+      >
         {open ? <X size={22} /> : <MessageCircle size={22} />}
         {!open && unread > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-slate-900">
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white">
             {unread}
           </span>
         )}

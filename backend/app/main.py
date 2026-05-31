@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.config.settings import get_settings
 from app.middleware.logging import LoggingMiddleware
-from app.routes import auth, vehicles, financing, tradein, appointments, reviews, users, admin, contact, marketplace, agent
+from app.routes import auth, vehicles, financing, tradein, appointments, reviews, users, admin, contact, marketplace, agent, chat
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
@@ -45,7 +45,7 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 # Routers
 for router in [auth.router, vehicles.router, financing.router, tradein.router,
                appointments.router, reviews.router, users.router, admin.router,
-               contact.router, marketplace.router, agent.router]:
+               contact.router, marketplace.router, agent.router, chat.router]:
     app.include_router(router)
 
 

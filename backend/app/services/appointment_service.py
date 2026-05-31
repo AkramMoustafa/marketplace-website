@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from fastapi import HTTPException, status
-from app.models.appointment import ServiceAppointment, AppointmentStatus
+from app.models.appointment import ServiceAppointment, AppointmentStatus, ServiceType
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 
 

@@ -21,11 +21,11 @@ export default function Message({ role, content, timestamp }: MessageProps) {
         <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
           isUser
             ? 'bg-[#FF5500] text-white rounded-br-sm'
-            : 'bg-slate-700 text-slate-100 rounded-bl-sm'
+            : 'bg-gray-100 text-gray-900 rounded-bl-sm'
         }`}>
           {content}
         </div>
-        <span className="text-[10px] text-slate-600 px-1">
+        <span className="text-[10px] text-gray-400 px-1">
           {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>

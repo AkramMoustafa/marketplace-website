@@ -6,11 +6,11 @@ export default function TypingIndicator() {
       <div className="w-7 h-7 rounded-full bg-[#FF5500] flex items-center justify-center text-white text-xs font-black shrink-0">
         A
       </div>
-      <div className="bg-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5">
+      <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5">
         {[0, 1, 2].map(i => (
           <span
             key={i}
-            className="w-1.5 h-1.5 rounded-full bg-slate-400"
+            className="w-1.5 h-1.5 rounded-full bg-gray-400"
             style={{
               animation: 'alexBounce 1.2s infinite ease-in-out',
               animationDelay: `${i * 0.15}s`,
