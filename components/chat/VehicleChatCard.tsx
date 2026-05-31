@@ -101,22 +101,7 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing, onNa
           >
             View Vehicle
           </button>
-          <button
-            type="button"
-            onClick={onSchedule}
-            className="flex items-center justify-center gap-1 w-full py-1.5 bg-[#FF5500] text-white text-[10px] font-black rounded-lg hover:bg-[#FF7733] transition-colors"
-          >
-            <Calendar size={10} />
-            Test Drive
-          </button>
-          <button
-            type="button"
-            onClick={onFinancing}
-            className="flex items-center justify-center gap-1 w-full py-1.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <DollarSign size={10} />
-            Get Financing
-          </button>
+
         </div>
       </div>
     </div>

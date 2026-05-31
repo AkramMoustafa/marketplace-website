@@ -16,7 +16,14 @@
       "Bash(npm install *)",
       "Bash(git rm *)",
       "Bash(Remove-Item *)",
-      "Bash(node --input-type=module)"
+      "Bash(node --input-type=module)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe -m pip install \"langchain>=0.2.0\" \"langchain-openai>=0.1.0\" \"langchain-core>=0.2.0\" --quiet)",
+      "Bash(./venv/Scripts/python.exe -m pip install \"langchain>=0.2.0\" \"langchain-openai>=0.1.0\" \"langchain-core>=0.2.0\" --quiet)",
+      "Bash(./venv/Scripts/python.exe -c \"import langchain; import langchain_openai; import langchain_core; print\\('langchain', langchain.__version__\\); print\\('langchain_openai', langchain_openai.__version__\\); print\\('langchain_core', langchain_core.__version__\\)\")",
+      "Bash(./venv/Scripts/python.exe -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\marketplace-website\\\\components\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }
