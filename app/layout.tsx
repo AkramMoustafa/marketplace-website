@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import Providers from './providers';
+import ChatWidget from '@/components/chat/ChatWidget';
 import './globals.css';
 
 const inter = Inter({
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body>
         <Providers>{children}</Providers>
+        <ChatWidget />
       </body>
     </html>
   );

@@ -42,10 +42,11 @@ def _build_engine_string(r: dict) -> str:
 
 
 async def lookup_nhtsa(state: AgentState) -> AgentState:
-    """Call NHTSA, extract vehicle fields, return updated state.
+    """Call NHTSA vPIC API and extract vehicle specs.
 
-    On any failure the error is stored in ``state["errors"]["lookup_nhtsa"]``
-    and all subsequent nodes should short-circuit.
+    Errors are stored under two keys for compatibility:
+      state["errors"]["lookup_nhtsa"]       — legacy pipeline
+      state["errors"]["vehicle_intelligence"] — new phase-based pipeline
     """
     vin: str = state.get("vin", "")
     errors: dict = dict(state.get("errors") or {})
@@ -58,8 +59,10 @@ async def lookup_nhtsa(state: AgentState) -> AgentState:
             resp.raise_for_status()
             data = resp.json()
     except Exception as exc:
-        errors["lookup_nhtsa"] = f"NHTSA request failed: {exc}"
-        log.error("[NHTSA] %s", errors["lookup_nhtsa"])
+        msg = f"NHTSA request failed: {exc}"
+        errors["lookup_nhtsa"] = msg
+        errors["vehicle_intelligence"] = msg
+        log.error("[NHTSA] %s", msg)
         return {**state, "errors": errors}
 
     # Build a flat dict, filtering out empty/None values
@@ -74,11 +77,13 @@ async def lookup_nhtsa(state: AgentState) -> AgentState:
     year_str = raw.get("Model Year")
 
     if not make or not model or not year_str:
-        errors["lookup_nhtsa"] = (
+        msg = (
             "NHTSA returned no results for this VIN. "
             "Please verify the VIN is correct (17 alphanumeric characters, no I/O/Q)."
         )
-        log.warning("[NHTSA] %s", errors["lookup_nhtsa"])
+        errors["lookup_nhtsa"] = msg
+        errors["vehicle_intelligence"] = msg
+        log.warning("[NHTSA] %s", msg)
         return {**state, "errors": errors}
 
     try:
@@ -94,6 +99,8 @@ async def lookup_nhtsa(state: AgentState) -> AgentState:
         or ""
     )
     trim = raw.get("Trim") or raw.get("Trim2") or ""
+    body_style = raw.get("Body Class") or ""
+    drive_type = raw.get("Drive Type") or ""
 
     log.info("[NHTSA] %s %s %s %s — OK", year, make, model, trim)
 
@@ -106,6 +113,8 @@ async def lookup_nhtsa(state: AgentState) -> AgentState:
         "engine": engine_str,
         "fuel_type": fuel_type,
         "transmission": transmission,
+        "body_style": body_style,
+        "drive_type": drive_type,
         "nhtsa_raw": raw,
         "errors": errors,
     }

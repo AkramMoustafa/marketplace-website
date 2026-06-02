@@ -300,15 +300,25 @@ export interface PublicReview {
 // ── AI Sales Agent ────────────────────────────────────────────────────────────
 
 export type AgentStepId =
+  // Phase A — Vehicle Intelligence
+  | 'vehicle_intelligence'
+  | 'market_research'
+  // Phase B — Listing Generation
+  | 'generate_listing'
+  // Phase C — Distribution
+  | 'distribute_ebay'
+  | 'distribute_facebook'
+  | 'distribute_website'
+  // Legacy pipeline (backward compat)
   | 'lookup_nhtsa'
   | 'web_search_market'
-  | 'generate_listing'
   | 'publish_ebay'
   | 'generate_facebook_copy';
 
 export interface AgentResult {
   vin: string;
-  admin_price?: number | null;
+
+  // Phase A output
   make?: string;
   model?: string;
   year?: number;
@@ -316,16 +326,69 @@ export interface AgentResult {
   engine?: string;
   fuel_type?: string;
   transmission?: string;
+  body_style?: string;
+  drive_type?: string;
   market_price_range?: string;
   selling_points?: string[];
+  market_insights?: string;
+  suggested_features?: string[];
+
+  // Phase B output
   listing_title?: string;
   listing_description?: string;
   suggested_price?: number;
+  key_features?: string[];
+  facebook_copy?: string;
+  ebay_listing_description?: string;
+
+  // Phase C output
   ebay_status?: string;
   ebay_listing_id?: string | null;
   ebay_message?: string;
-  facebook_copy?: string;
+  distribution_status?: Record<string, string>;
+
+  // Legacy
+  admin_price?: number | null;
+
   errors?: Record<string, string>;
+}
+
+/** Phase B request — Phase A output + user review inputs. */
+export interface PhaseBRequest {
+  vin: string;
+  make?: string;
+  model?: string;
+  year?: number;
+  trim?: string;
+  engine?: string;
+  fuel_type?: string;
+  transmission?: string;
+  body_style?: string;
+  drive_type?: string;
+  market_price_range?: string;
+  selling_points?: string[];
+  market_insights?: string;
+  mileage?: number;
+  asking_price?: number;
+  condition?: string;
+  title_status?: string;
+  features?: string[];
+  service_history?: string;
+  notes?: string;
+}
+
+/** Phase C request — requires vehicle_id from inventory save. */
+export interface PhaseCRequest {
+  vehicle_id: string;
+  vin: string;
+  make?: string;
+  model?: string;
+  year?: number;
+  listing_title?: string;
+  listing_description?: string;
+  facebook_copy?: string;
+  ebay_listing_description?: string;
+  suggested_price?: number;
 }
 
 export type AgentEvent =

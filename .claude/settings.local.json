@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(Start-Sleep -Seconds 5)",
+      "Bash(Get-Content \"C:\\\\Users\\\\ammou\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--marketplace-website\\\\f3c09c40-ebb2-45b8-a250-2fc41e8984c9\\\\tasks\\\\bkggefxpr.output\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(.\\\\venv\\\\Scripts\\\\Activate.ps1)",
+      "Bash(alembic revision *)",
+      "Bash(tasklist *)",
+      "Bash(taskkill *)",
+      "Bash(npx tsc *)",
+      "Bash(git checkout *)",
+      "Bash(npm install *)",
+      "Bash(git rm *)",
+      "Bash(Remove-Item *)",
+      "Bash(node --input-type=module)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe -m pip install \"langchain>=0.2.0\" \"langchain-openai>=0.1.0\" \"langchain-core>=0.2.0\" --quiet)",
+      "Bash(./venv/Scripts/python.exe -m pip install \"langchain>=0.2.0\" \"langchain-openai>=0.1.0\" \"langchain-core>=0.2.0\" --quiet)",
+      "Bash(./venv/Scripts/python.exe -c \"import langchain; import langchain_openai; import langchain_core; print\\('langchain', langchain.__version__\\); print\\('langchain_openai', langchain_openai.__version__\\); print\\('langchain_core', langchain_core.__version__\\)\")",
+      "Bash(./venv/Scripts/python.exe -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\marketplace-website\\\\components\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(xargs ls -la)",
+      "Bash(Get-ChildItem -Path \"C:\\\\marketplace-website\" -Recurse -Depth 3)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\marketplace-website\\\\backend\" -Recurse -Force | where { $_.PSIsContainer } | Select-Object -ExpandProperty FullName)",
+      "Bash(python -c \"from app.routes.agent import router, ws_router; from app.main import app; print\\('OK'\\)\")",
+      "Bash(python *)"
+    ]
+  }
+}

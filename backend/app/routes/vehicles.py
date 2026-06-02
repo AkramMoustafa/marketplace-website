@@ -1,15 +1,46 @@
 import re
 import time
 import uuid
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel, field_validator
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.models.vehicle import Vehicle, TransmissionType, FuelType, VehicleStatus
+from app.models.contact import ContactMessage
 from app.schemas.vehicle import VehicleOut, VehicleListOut, VehicleSearchOut, VehicleFilters
+from app.schemas.contact import ContactMessageOut
 from app.services import vehicle_service
 from app.utils.pagination import PaginationParams, PaginatedResponse, pagination_params
 from decimal import Decimal
+
+
+class VehicleInquiryCreate(BaseModel):
+    name: str
+    email: str
+    phone: str | None = None
+    message: str
+
+    @field_validator("name")
+    @classmethod
+    def name_not_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Name is required")
+        return v.strip()
+
+    @field_validator("email")
+    @classmethod
+    def email_valid(cls, v: str) -> str:
+        if not v.strip() or "@" not in v:
+            raise ValueError("A valid email address is required")
+        return v.strip().lower()
+
+    @field_validator("message")
+    @classmethod
+    def message_not_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Message is required")
+        return v.strip()
 
 router = APIRouter(prefix="/api/vehicles", tags=["Vehicles"])
 
@@ -116,3 +147,63 @@ async def get_vehicle(vehicle_id: uuid.UUID, db: AsyncSession = Depends(get_db))
     vehicle = await vehicle_service.get_vehicle(db, vehicle_id)
     print(f"/api/vehicles/{vehicle_id}: {(time.perf_counter()-t0)*1000:.1f}ms")
     return VehicleOut.model_validate(vehicle)
+
+
+@router.get("/{vehicle_id}/similar", response_model=list[VehicleListOut])
+async def get_similar_vehicles(
+    vehicle_id: uuid.UUID,
+    limit: int = Query(4, le=8),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return available vehicles similar to the given one (same make first, then others)."""
+    from sqlalchemy import not_
+    vehicle = await vehicle_service.get_vehicle(db, vehicle_id)
+
+    same_make = (await db.execute(
+        select(Vehicle)
+        .where(
+            Vehicle.id != vehicle_id,
+            Vehicle.make.ilike(vehicle.make),
+            Vehicle.status == VehicleStatus.available,
+        )
+        .order_by(Vehicle.featured.desc(), Vehicle.created_at.desc())
+        .limit(limit)
+    )).scalars().all()
+
+    results = list(same_make)
+    if len(results) < limit:
+        exclude_ids = [vehicle_id] + [v.id for v in results]
+        filler = (await db.execute(
+            select(Vehicle)
+            .where(
+                not_(Vehicle.id.in_(exclude_ids)),
+                Vehicle.status == VehicleStatus.available,
+            )
+            .order_by(Vehicle.featured.desc(), Vehicle.created_at.desc())
+            .limit(limit - len(results))
+        )).scalars().all()
+        results += list(filler)
+
+    return [VehicleListOut.model_validate(v) for v in results]
+
+
+@router.post("/{vehicle_id}/inquiry", response_model=ContactMessageOut, status_code=status.HTTP_201_CREATED)
+async def submit_vehicle_inquiry(
+    vehicle_id: uuid.UUID,
+    data: VehicleInquiryCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    """Public endpoint — no auth required. Stores a dealer inquiry for a specific vehicle."""
+    vehicle = await vehicle_service.get_vehicle(db, vehicle_id)
+    subject = f"Vehicle Inquiry – {vehicle.title}"
+    msg = ContactMessage(
+        name=data.name,
+        email=data.email,
+        phone=data.phone,
+        subject=subject,
+        message=data.message,
+    )
+    db.add(msg)
+    await db.flush()
+    await db.refresh(msg)
+    return ContactMessageOut.model_validate(msg)

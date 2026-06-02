@@ -2,14 +2,16 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from fastapi import HTTPException, status
-from app.models.appointment import ServiceAppointment, AppointmentStatus
+from app.models.appointment import ServiceAppointment, AppointmentStatus, ServiceType
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 
 
 async def create_appointment(
-    db: AsyncSession, data: AppointmentCreate, customer_id: uuid.UUID
+    db: AsyncSession, data: AppointmentCreate, customer_id: uuid.UUID | None = None
 ) -> ServiceAppointment:
     appt = ServiceAppointment(**data.model_dump(), customer_id=customer_id)
+    if appt.service_type == ServiceType.test_drive:
+        appt.status = AppointmentStatus.confirmed
     db.add(appt)
     await db.flush()
     await db.refresh(appt)

@@ -9,7 +9,7 @@ import type {
   DashboardStats, Vehicle, VehicleListItem, FinancingRequest, Review, TradeIn, ServiceAppointment,
   FinancingStatus, ReviewStatus, TransmissionType, FuelType, VehicleStatus,
   VehicleAIPreviewResponse, VehicleAIImageAnalysisResponse, ContactMessageOut,
-  AgentResult, AgentStepId,
+  AgentResult, AgentStepId, PhaseBRequest, PhaseCRequest,
 } from '@/lib/types';
 import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone, Sparkles, Bot, Copy } from 'lucide-react';
 
@@ -2069,26 +2069,88 @@ const Pagination = memo(function Pagination({ page, pages, onChange }: { page: n
 
 // ── AI Sales Agent view ────────────────────────────────────────────────────────
 
+// ── Shared step types ─────────────────────────────────────────────────────────
 type StepStatus = 'pending' | 'active' | 'done' | 'error';
 
 interface PipelineStep { id: AgentStepId; label: string; status: StepStatus; }
 
-const AGENT_STEPS: { id: AgentStepId; label: string }[] = [
-  { id: 'lookup_nhtsa',           label: 'VIN Lookup via NHTSA'       },
-  { id: 'web_search_market',      label: 'Market Research'             },
-  { id: 'generate_listing',       label: 'Generate AI Listing'         },
-  { id: 'publish_ebay',           label: 'Publish to eBay Motors'      },
-  { id: 'generate_facebook_copy', label: 'Create Facebook Copy'        },
+const PHASE_A_STEPS: { id: AgentStepId; label: string }[] = [
+  { id: 'vehicle_intelligence', label: 'Decoding VIN via NHTSA' },
+  { id: 'market_research',      label: 'Researching market value & trends' },
 ];
 
-function StepIcon({ status }: { status: StepStatus }) {
+const PHASE_B_STEPS: { id: AgentStepId; label: string }[] = [
+  { id: 'generate_listing', label: 'Generating complete listing package' },
+];
+
+const PHASE_C_STEPS: { id: AgentStepId; label: string }[] = [
+  { id: 'distribute_ebay',     label: 'Publishing to eBay Motors' },
+  { id: 'distribute_facebook', label: 'Preparing Facebook Marketplace post' },
+  { id: 'distribute_website',  label: 'Confirming website inventory' },
+];
+
+// ── Wizard types ──────────────────────────────────────────────────────────────
+
+type WizardPhase =
+  | 'vin-input'
+  | 'phase-a'
+  | 'clarify'
+  | 'phase-b'
+  | 'features'
+  | 'review'
+  | 'phase-c'
+  | 'complete';
+
+interface UserReviewData {
+  mileage: number;
+  color: string;
+  asking_price: string;
+  condition: string;
+  title_status: string;
+  body_type: string;
+  drive: string;
+  features: string;
+  service_history: string;
+  notes: string;
+  stock_number: string;
+  fuel_economy: string;
+  featured: boolean;
+  status: VehicleStatus;
+}
+
+interface ListingEdit {
+  listing_title: string;
+  listing_description: string;
+  suggested_price: string;
+  key_features: string[];
+  facebook_copy: string;
+  ebay_listing_description: string;
+}
+
+function StepIcon({ status, index }: { status: StepStatus; index: number }) {
   if (status === 'active')
-    return <div className="w-5 h-5 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin shrink-0" />;
+    return (
+      <div className="w-7 h-7 rounded-full bg-amber-50 border-2 border-[#C9A84C] flex items-center justify-center shrink-0">
+        <div className="w-3 h-3 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   if (status === 'done')
-    return <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0"><Check size={11} className="text-emerald-400" /></div>;
+    return (
+      <div className="w-7 h-7 rounded-full bg-emerald-50 border-2 border-emerald-400 flex items-center justify-center shrink-0">
+        <Check size={12} className="text-emerald-500" />
+      </div>
+    );
   if (status === 'error')
-    return <div className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center shrink-0"><X size={11} className="text-red-400" /></div>;
-  return <div className="w-5 h-5 rounded-full border border-slate-700 shrink-0" />;
+    return (
+      <div className="w-7 h-7 rounded-full bg-red-50 border-2 border-red-400 flex items-center justify-center shrink-0">
+        <X size={12} className="text-red-500" />
+      </div>
+    );
+  return (
+    <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center shrink-0">
+      <span className="text-[10px] font-bold text-gray-400">{index + 1}</span>
+    </div>
+  );
 }
 
 function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
@@ -2101,247 +2163,1184 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
   };
   return (
     <button onClick={copy}
-      className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wide border border-slate-700 text-slate-400 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
-      {copied ? <Check size={11} /> : <Copy size={11} />}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-gray-200 text-gray-500 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] bg-white transition">
+      {copied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
       {copied ? 'Copied!' : label}
     </button>
   );
 }
 
+function normalizeTransmission(raw?: string): TransmissionType {
+  const s = (raw || '').toLowerCase();
+  if (s.includes('cvt') || s.includes('continuously variable')) return 'cvt';
+  if (s.includes('dual clutch') || s.includes('dct')) return 'dct';
+  if (s.includes('manual')) return 'manual';
+  return 'automatic';
+}
+
+function normalizeFuelType(raw?: string): FuelType {
+  const s = (raw || '').toLowerCase();
+  if (s.includes('plug') || s.includes('phev')) return 'plug_in_hybrid';
+  if (s.includes('hybrid')) return 'hybrid';
+  if (s.includes('electric') || s.includes('bev')) return 'electric';
+  if (s.includes('diesel')) return 'diesel';
+  return 'gasoline';
+}
+
+function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string }) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
+
+  const [imgEntries, setImgEntries] = useState<ImgEntry[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [allDone, setAllDone] = useState(false);
+  const imgEntriesRef = useRef(imgEntries);
+  imgEntriesRef.current = imgEntries;
+
+  useEffect(() => {
+    return () => { imgEntriesRef.current.forEach(e => URL.revokeObjectURL(e.preview)); };
+  }, []);
+
+  const [form, setForm] = useState({
+    title: result.listing_title || '',
+    make: result.make || '',
+    model: result.model || '',
+    year: result.year || new Date().getFullYear(),
+    engine: result.engine || '',
+    transmission: normalizeTransmission(result.transmission),
+    fuel_type: normalizeFuelType(result.fuel_type),
+    price: result.suggested_price ? String(result.suggested_price) : '',
+    description: result.listing_description || '',
+    mileage: 0,
+    color: '',
+    body_type: '',
+    stock_number: '',
+    drive: '',
+    fuel_economy: '',
+    featured: false,
+    status: 'available' as VehicleStatus,
+  });
+
+  const set = (k: string, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.price || Number(form.price) <= 0) { setSaveError('Price is required.'); return; }
+    setSaving(true);
+    setSaveError('');
+    try {
+      const vehicle = await api.adminCreateVehicle({
+        title: form.title, make: form.make, model: form.model, year: form.year,
+        mileage: form.mileage, price: form.price, transmission: form.transmission,
+        fuel_type: form.fuel_type, vin,
+        description: form.description || undefined, color: form.color || undefined,
+        body_type: form.body_type || undefined, stock_number: form.stock_number || undefined,
+        engine: form.engine || undefined, drive: form.drive || undefined,
+        fuel_economy: form.fuel_economy || undefined, featured: form.featured, status: form.status,
+      });
+      setVehicleId(vehicle.id);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save vehicle.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleImages = (files: File[]) => {
+    setImgEntries(prev => [...prev, ...files.map(f => ({ file: f, preview: URL.createObjectURL(f), status: 'idle' as const }))]);
+  };
+
+  const removeImg = (i: number) => {
+    setImgEntries(prev => { URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i); });
+  };
+
+  const uploadImages = async () => {
+    if (!vehicleId || imgEntries.length === 0) { setAllDone(true); return; }
+    setUploading(true);
+    for (let i = 0; i < imgEntries.length; i++) {
+      setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'uploading' } : e));
+      try {
+        await api.adminUploadImage(vehicleId, imgEntries[i].file);
+        setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'done' } : e));
+      } catch {
+        setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'error' } : e));
+      }
+    }
+    setUploading(false);
+    setAllDone(true);
+  };
+
+  const inp = (label: string, key: string, type = 'text', placeholder = '') => (
+    <div>
+      <label className="text-xs font-semibold text-gray-500 block mb-1.5">{label}</label>
+      <input type={type} value={String(form[key as keyof typeof form])} placeholder={placeholder}
+        onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)}
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300" />
+    </div>
+  );
+
+  const sel = (label: string, key: string, options: { value: string; label: string }[]) => (
+    <div>
+      <label className="text-xs font-semibold text-gray-500 block mb-1.5">{label}</label>
+      <select value={String(form[key as keyof typeof form])} onChange={e => set(key, e.target.value)}
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition">
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  );
+
+  const doneCount = imgEntries.filter(e => e.status === 'done').length;
+
+  // ── Phase 2: image upload ──────────────────────────────────────────────────
+  if (vehicleId) {
+    if (allDone) {
+      return (
+        <div className="bg-white border border-emerald-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center shrink-0">
+            <Check size={18} className="text-emerald-500" />
+          </div>
+          <div>
+            <p className="text-gray-900 font-bold text-sm">Vehicle saved to inventory!</p>
+            <p className="text-gray-400 text-xs mt-0.5">
+              {doneCount > 0 ? `${doneCount} photo${doneCount !== 1 ? 's' : ''} uploaded.` : 'No photos added.'} Manage it anytime under Vehicles.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center">
+              <Check size={13} className="text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900">Vehicle Created</p>
+              <p className="text-xs text-gray-400">Now add photos to your listing</p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">Step 2 of 2</span>
+        </div>
+        <div className="px-6 pb-6 pt-4 space-y-4">
+          <ImageDropZone onFiles={handleImages} />
+          <ImageEntryGrid entries={imgEntries} onRemove={uploading ? () => {} : removeImg} />
+          {uploading && (
+            <p className="text-xs text-[#C9A84C] font-medium">Uploading {doneCount} / {imgEntries.length} photos…</p>
+          )}
+          <button onClick={uploadImages} disabled={uploading}
+            className="w-full py-2.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
+            {uploading
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading…</>
+              : imgEntries.length > 0
+                ? <><Upload size={14} /> Upload {imgEntries.length} Photo{imgEntries.length !== 1 ? 's' : ''}</>
+                : <><Check size={14} /> Finish — Skip Photos</>
+            }
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Phase 1: vehicle details form ─────────────────────────────────────────
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
+            <Check size={14} className="text-[#C9A84C]" />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-bold text-gray-900">Save to Inventory</p>
+            <p className="text-xs text-gray-400">Review details then add to your lot</p>
+          </div>
+        </div>
+        <span className="text-gray-400 text-xs font-medium">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <form onSubmit={submit} className="px-6 pb-6 space-y-4 border-t border-gray-100 pt-5">
+          {inp('Listing Title', 'title', 'text', '2023 BMW M3 Competition')}
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Make', 'make')}
+            {inp('Model', 'model')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Year', 'year', 'number')}
+            {inp('Mileage *', 'mileage', 'number', '0')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1.5">Price ($) *</label>
+              <input type="number" value={form.price} placeholder="38500"
+                onChange={e => set('price', e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition" />
+            </div>
+            {inp('Color', 'color', 'text', 'Mineral White')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {sel('Transmission', 'transmission', [
+              { value: 'automatic', label: 'Automatic' }, { value: 'manual', label: 'Manual' },
+              { value: 'cvt', label: 'CVT' }, { value: 'dct', label: 'DCT' },
+            ])}
+            {sel('Fuel Type', 'fuel_type', [
+              { value: 'gasoline', label: 'Gasoline' }, { value: 'diesel', label: 'Diesel' },
+              { value: 'electric', label: 'Electric' }, { value: 'hybrid', label: 'Hybrid' },
+              { value: 'plug_in_hybrid', label: 'Plug-in Hybrid' },
+            ])}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Body Type', 'body_type', 'text', 'Sedan')}
+            {inp('Drive', 'drive', 'text', 'AWD')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {inp('Engine', 'engine', 'text', '3.0L Turbo')}
+            {inp('Fuel Economy', 'fuel_economy', 'text', '19/26 mpg')}
+          </div>
+          {inp('Stock Number', 'stock_number', 'text', 'STK-001')}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1.5">Description</label>
+            <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={4}
+              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition resize-none" />
+          </div>
+          <div className="flex items-center gap-6 pt-1">
+            {sel('Status', 'status', [
+              { value: 'available', label: 'Available' }, { value: 'reserved', label: 'Reserved' },
+              { value: 'sold', label: 'Sold' }, { value: 'pending', label: 'Pending' },
+            ])}
+            <label className="flex items-center gap-2 cursor-pointer select-none mt-5">
+              <div onClick={() => set('featured', !form.featured)}
+                className={`w-9 h-5 rounded-full transition-colors relative ${form.featured ? 'bg-[#C9A84C]' : 'bg-gray-200'}`}>
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${form.featured ? 'left-4' : 'left-0.5'}`} />
+              </div>
+              <span className="text-sm text-gray-600">Featured</span>
+            </label>
+          </div>
+
+          {saveError && (
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg">
+              <X size={13} className="text-red-500 shrink-0" />
+              <p className="text-red-600 text-xs">{saveError}</p>
+            </div>
+          )}
+
+          <button type="submit" disabled={saving}
+            className="w-full py-2.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
+            {saving
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</>
+              : <><Check size={14} /> Save to Inventory</>
+            }
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+const FEATURE_CATEGORIES: { label: string; features: string[] }[] = [
+  {
+    label: 'Safety',
+    features: [
+      'Blind Spot Monitoring', 'Lane Departure Warning', 'Adaptive Cruise Control',
+      'Rear Cross Traffic Alert', 'Parking Sensors', 'Automatic Emergency Braking',
+      'Collision Warning',
+    ],
+  },
+  {
+    label: 'Technology',
+    features: [
+      'Apple CarPlay', 'Android Auto', 'Bluetooth', 'Navigation',
+      'Wireless Charging', 'Premium Audio', 'Heads-Up Display',
+    ],
+  },
+  {
+    label: 'Comfort',
+    features: [
+      'Heated Seats', 'Ventilated Seats', 'Leather Seats', 'Power Seats',
+      'Heated Steering Wheel', 'Memory Seats', 'Dual Zone Climate Control',
+    ],
+  },
+  {
+    label: 'Exterior',
+    features: [
+      'Sunroof', 'Panoramic Roof', 'Tow Package', 'Running Boards',
+      'Power Liftgate', 'Roof Rack',
+    ],
+  },
+  {
+    label: 'Performance',
+    features: ['AWD', '4WD', 'Turbocharged Engine', 'Sport Package', 'Paddle Shifters'],
+  },
+];
+
+const ALL_PREDEFINED = FEATURE_CATEGORIES.flatMap(c => c.features);
+
 function AIAgentView() {
+  const [wizardPhase, setWizardPhase] = useState<WizardPhase>('vin-input');
   const [vin, setVin] = useState('');
-  const [price, setPrice] = useState('');
+  const [userReview, setUserReview] = useState<UserReviewData>({
+    mileage: 0, color: '', asking_price: '', condition: 'good', title_status: 'clean',
+    body_type: '', drive: '', features: '', service_history: '',
+    notes: '', stock_number: '', fuel_economy: '', featured: false, status: 'available',
+  });
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [listingEdit, setListingEdit] = useState<ListingEdit>({
+    listing_title: '', listing_description: '', suggested_price: '', key_features: [], facebook_copy: '', ebay_listing_description: '',
+  });
+  const [phaseAResult, setPhaseAResult] = useState<AgentResult | null>(null);
+  const [phaseCResult, setPhaseCResult] = useState<AgentResult | null>(null);
+  const [phaseASteps, setPhaseASteps] = useState<PipelineStep[]>(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
+  const [phaseBSteps, setPhaseBSteps] = useState<PipelineStep[]>(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
+  const [phaseCSteps, setPhaseCSteps] = useState<PipelineStep[]>(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [featureSearch, setFeatureSearch] = useState('');
+  const [customFeatureInput, setCustomFeatureInput] = useState('');
   const [running, setRunning] = useState(false);
   const [error, setError] = useState('');
-  const [steps, setSteps] = useState<PipelineStep[]>(
-    AGENT_STEPS.map(s => ({ ...s, status: 'pending' }))
-  );
-  const [result, setResult] = useState<AgentResult | null>(null);
-  const hasRun = steps.some(s => s.status !== 'pending') || result !== null;
+  const [saveError, setSaveError] = useState('');
+  const [imgEntries, setImgEntries] = useState<ImgEntry[]>([]);
   const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
+    return () => {
+      mountedRef.current = false;
+      imgEntries.forEach(e => URL.revokeObjectURL(e.preview));
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const runAgent = async () => {
+  const setR = (k: keyof UserReviewData, v: unknown) => setUserReview(prev => ({ ...prev, [k]: v }));
+  const setLE = (k: keyof ListingEdit, v: string) => setListingEdit(prev => ({ ...prev, [k]: v }));
+
+  const resetWizard = () => {
+    setWizardPhase('vin-input'); setVin(''); setError(''); setSaveError(''); setAdvancedOpen(false);
+    setPhaseAResult(null); setPhaseCResult(null);
+    setListingEdit({ listing_title: '', listing_description: '', suggested_price: '', key_features: [], facebook_copy: '', ebay_listing_description: '' });
+    setSelectedFeatures([]); setFeatureSearch(''); setCustomFeatureInput('');
+    imgEntries.forEach(e => URL.revokeObjectURL(e.preview));
+    setImgEntries([]);
+    setPhaseASteps(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
+    setPhaseBSteps(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
+    setPhaseCSteps(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
+    setUserReview({ mileage: 0, color: '', asking_price: '', condition: 'good', title_status: 'clean',
+      body_type: '', drive: '', features: '', service_history: '',
+      notes: '', stock_number: '', fuel_economy: '', featured: false, status: 'available' });
+  };
+
+  const runPhaseA = async () => {
     const trimmedVin = vin.trim().toUpperCase();
     if (trimmedVin.length !== 17) { setError('VIN must be exactly 17 characters.'); return; }
-
-    setError('');
-    setResult(null);
-    setRunning(true);
-    setSteps(AGENT_STEPS.map(s => ({ ...s, status: 'pending' })));
-
+    setError(''); setRunning(true);
+    setPhaseASteps(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
+    setWizardPhase('phase-a');
+    let failed = false;
     try {
-      for await (const event of api.streamAgentPipeline(trimmedVin, price ? parseFloat(price) : undefined)) {
+      for await (const event of api.streamVehicleIntelligence(trimmedVin)) {
         if (!mountedRef.current) break;
         if (event.type === 'step_start') {
-          setSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
+          setPhaseASteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
         } else if (event.type === 'step_done') {
-          setSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
+          setPhaseASteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
         } else if (event.type === 'complete') {
-          setResult(event.result);
-          setSteps(prev => prev.map(s => ({
-            ...s,
-            status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
+          setPhaseAResult(event.result);
+          setPhaseASteps(prev => prev.map(s => ({
+            ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
+          })));
+          setUserReview(prev => ({
+            ...prev,
+            body_type: event.result.body_style || prev.body_type,
+            drive: event.result.drive_type || prev.drive,
+          }));
+        } else if (event.type === 'error') {
+          setError(event.message); failed = true;
+        }
+      }
+    } catch (e) {
+      if (mountedRef.current) { setError(e instanceof Error ? e.message : 'Phase A failed.'); failed = true; }
+    } finally {
+      if (mountedRef.current) { setRunning(false); if (!failed) setWizardPhase('clarify'); }
+    }
+  };
+
+  const runPhaseB = async () => {
+    if (!phaseAResult) return;
+    setError(''); setRunning(true);
+    setPhaseBSteps(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
+    setWizardPhase('phase-b');
+    const req: PhaseBRequest = {
+      vin: vin.trim().toUpperCase(),
+      make: phaseAResult.make, model: phaseAResult.model, year: phaseAResult.year,
+      trim: phaseAResult.trim, engine: phaseAResult.engine, fuel_type: phaseAResult.fuel_type,
+      transmission: phaseAResult.transmission, body_style: phaseAResult.body_style,
+      drive_type: phaseAResult.drive_type, market_price_range: phaseAResult.market_price_range,
+      selling_points: phaseAResult.selling_points, market_insights: phaseAResult.market_insights,
+      mileage: userReview.mileage || undefined,
+      asking_price: userReview.asking_price ? parseFloat(userReview.asking_price) : undefined,
+      condition: userReview.condition || undefined, title_status: userReview.title_status || undefined,
+      features: userReview.features ? userReview.features.split(',').map(f => f.trim()).filter(Boolean) : undefined,
+      service_history: userReview.service_history || undefined, notes: userReview.notes || undefined,
+    };
+    let failed = false;
+    try {
+      for await (const event of api.streamGenerateListing(req)) {
+        if (!mountedRef.current) break;
+        if (event.type === 'step_start') {
+          setPhaseBSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
+        } else if (event.type === 'step_done') {
+          setPhaseBSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
+        } else if (event.type === 'complete') {
+          setPhaseBSteps(prev => prev.map(s => ({
+            ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
+          })));
+          const aiFeatures = event.result.key_features || [];
+          setListingEdit({
+            listing_title: event.result.listing_title || '',
+            listing_description: event.result.listing_description || '',
+            suggested_price: event.result.suggested_price ? String(Math.round(event.result.suggested_price)) : '',
+            key_features: aiFeatures,
+            facebook_copy: event.result.facebook_copy || '',
+            ebay_listing_description: event.result.ebay_listing_description || '',
+          });
+          setSelectedFeatures(aiFeatures);
+        } else if (event.type === 'error') {
+          setError(event.message); failed = true;
+        }
+      }
+    } catch (e) {
+      if (mountedRef.current) { setError(e instanceof Error ? e.message : 'Phase B failed.'); failed = true; }
+    } finally {
+      if (mountedRef.current) { setRunning(false); if (!failed) setWizardPhase('features'); }
+    }
+  };
+
+  // One-click: save → upload images → distribute
+  const approveAndPublish = async () => {
+    setError(''); setSaveError(''); setRunning(true);
+    let vehicleCreated = false;
+    try {
+      const priceStr = listingEdit.suggested_price;
+      const priceNum = parseFloat(priceStr);
+      if (!priceStr || isNaN(priceNum) || priceNum <= 0) {
+        throw new Error('A valid asking price is required before publishing.');
+      }
+
+      const vehicle = await api.adminCreateVehicle({
+        title: listingEdit.listing_title || [phaseAResult?.year, phaseAResult?.make, phaseAResult?.model].filter(Boolean).join(' '),
+        make: phaseAResult?.make || '',
+        model: phaseAResult?.model || '',
+        year: phaseAResult?.year || new Date().getFullYear(),
+        mileage: userReview.mileage || 0,
+        price: priceStr,
+        transmission: normalizeTransmission(phaseAResult?.transmission),
+        fuel_type: normalizeFuelType(phaseAResult?.fuel_type),
+        vin: vin.trim().toUpperCase(),
+        description: listingEdit.listing_description || undefined,
+        color: userReview.color || undefined,
+        body_type: userReview.body_type || phaseAResult?.body_style || undefined,
+        stock_number: userReview.stock_number || undefined,
+        engine: phaseAResult?.engine || undefined,
+        drive: userReview.drive || phaseAResult?.drive_type || undefined,
+        fuel_economy: userReview.fuel_economy || undefined,
+        features: selectedFeatures.length ? selectedFeatures : undefined,
+        featured: userReview.featured,
+        status: userReview.status,
+      });
+      vehicleCreated = true;
+      const vid = vehicle.id;
+
+      for (let i = 0; i < imgEntries.length; i++) {
+        setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'uploading' } : e));
+        try {
+          await api.adminUploadImage(vid, imgEntries[i].file);
+          setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'done' } : e));
+        } catch {
+          setImgEntries(prev => prev.map((e, idx) => idx === i ? { ...e, status: 'error' } : e));
+        }
+      }
+
+      setWizardPhase('phase-c');
+      setPhaseCSteps(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
+      const phaseCReq: PhaseCRequest = {
+        vehicle_id: vid,
+        vin: vin.trim().toUpperCase(),
+        make: phaseAResult?.make,
+        model: phaseAResult?.model,
+        year: phaseAResult?.year,
+        listing_title: listingEdit.listing_title,
+        listing_description: listingEdit.listing_description,
+        facebook_copy: listingEdit.facebook_copy,
+        ebay_listing_description: listingEdit.ebay_listing_description,
+        suggested_price: priceNum,
+      };
+      for await (const event of api.streamDistribute(phaseCReq)) {
+        if (!mountedRef.current) break;
+        if (event.type === 'step_start') {
+          setPhaseCSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
+        } else if (event.type === 'step_done') {
+          setPhaseCSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
+        } else if (event.type === 'complete') {
+          setPhaseCResult(event.result);
+          setPhaseCSteps(prev => prev.map(s => ({
+            ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
           })));
         } else if (event.type === 'error') {
           setError(event.message);
         }
       }
-    } catch (e) {
-      if (mountedRef.current) setError(e instanceof Error ? e.message : 'Pipeline failed.');
+    } catch (err) {
+      if (mountedRef.current) setSaveError(err instanceof Error ? err.message : 'Failed to publish.');
     } finally {
-      if (mountedRef.current) setRunning(false);
+      if (mountedRef.current) {
+        setRunning(false);
+        // Only transition to complete if the vehicle was actually saved.
+        // If creation failed, stay on 'review' so saveError is visible.
+        if (vehicleCreated) setWizardPhase('complete');
+      }
     }
   };
 
+  const WIZARD_LABELS = ['VIN Scan', 'Details', 'Generate', 'Features', 'Review', 'Publish'];
+  const phaseIndex = ({
+    'vin-input': 0, 'phase-a': 0, 'clarify': 1, 'phase-b': 2, 'features': 3, 'review': 4, 'phase-c': 5, 'complete': 6,
+  } as Record<WizardPhase, number>)[wizardPhase] ?? 0;
+
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl space-y-5">
+
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-xl bg-[#C9A84C]/10 border border-[#C9A84C]/30 flex items-center justify-center">
-          <Bot size={18} className="text-[#C9A84C]" />
-        </div>
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">AI Sales Agent</h1>
-          <p className="text-xs text-slate-500 mt-0.5">NHTSA · DuckDuckGo · GPT-4o-mini · eBay · Facebook</p>
+          <p className="text-sm text-gray-400 mt-0.5">VIN → 2 questions → complete listing.</p>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {['NHTSA', 'DuckDuckGo', 'GPT-4o', 'eBay', 'Facebook'].map(tag => (
+            <span key={tag} className="px-2 py-0.5 bg-white/10 text-gray-400 text-[10px] font-semibold rounded-full border border-white/10">{tag}</span>
+          ))}
         </div>
       </div>
 
-      {/* Input form */}
-      <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 mb-4">
-        <div className="space-y-4">
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">
-              Vehicle VIN <span className="text-slate-600">(17 characters)</span>
-            </label>
-            <input
-              value={vin}
-              onChange={e => { setVin(e.target.value.toUpperCase()); setError(''); }}
-              maxLength={17}
-              placeholder="e.g. WBAJR3C0XM7E12345"
-              disabled={running}
-              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white font-mono placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/60 transition disabled:opacity-50"
-            />
-            <p className="text-[10px] text-slate-600 mt-1">{vin.length}/17 — found on windshield sticker or door jamb</p>
-          </div>
-
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">
-              Asking Price <span className="text-slate-600">(optional — overrides AI suggestion)</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
-              <input
-                type="number"
-                value={price}
-                onChange={e => setPrice(e.target.value)}
-                placeholder="38500"
-                min={0}
-                disabled={running}
-                className="w-full pl-7 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/60 transition disabled:opacity-50"
-              />
+      {/* Progress bar */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4">
+        <div className="flex items-center">
+          {WIZARD_LABELS.map((label, i) => (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1 shrink-0">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  i < phaseIndex ? 'bg-emerald-500 text-white' :
+                  i === phaseIndex ? 'bg-[#C9A84C] text-white shadow-md shadow-[#C9A84C]/30' :
+                  'bg-gray-100 text-gray-400'
+                }`}>
+                  {i < phaseIndex ? <Check size={12} /> : i + 1}
+                </div>
+                <span className={`text-[10px] font-semibold whitespace-nowrap ${i <= phaseIndex ? 'text-gray-700' : 'text-gray-400'}`}>{label}</span>
+              </div>
+              {i < WIZARD_LABELS.length - 1 && (
+                <div className={`flex-1 h-0.5 mx-2 mb-3.5 transition-all ${i < phaseIndex ? 'bg-emerald-400' : 'bg-gray-200'}`} />
+              )}
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          {error && (
-            <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <X size={13} className="text-red-400 shrink-0" />
-              <p className="text-red-400 text-xs">{error}</p>
-            </div>
+      {/* Global error */}
+      {error && (
+        <div className="flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
+          <X size={14} className="text-red-500 shrink-0" />
+          <p className="text-red-600 text-sm flex-1">{error}</p>
+          {wizardPhase !== 'vin-input' && (
+            <button onClick={resetWizard} className="text-xs text-red-400 underline shrink-0">Start over</button>
           )}
+        </div>
+      )}
 
-          <button
-            onClick={runAgent}
-            disabled={running || vin.trim().length !== 17}
-            className="w-full py-3 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-50 transition flex items-center justify-center gap-2"
-          >
-            {running ? (
-              <><div className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Running Pipeline…</>
-            ) : (
-              <><Sparkles size={13} /> Run AI Agent</>
-            )}
+      {/* ─── STEP 1: VIN input ─────────────────────────────────────────────── */}
+      {wizardPhase === 'vin-input' && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold text-gray-700">Vehicle Identification Number</label>
+              <span className={`text-xs font-bold tabular-nums ${vin.length === 17 ? 'text-emerald-500' : 'text-gray-400'}`}>{vin.length} / 17</span>
+            </div>
+            <input value={vin} onChange={e => { setVin(e.target.value.toUpperCase()); setError(''); }} maxLength={17}
+              placeholder="e.g. 1HGCM82633A004352"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 font-mono placeholder-gray-300 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition" />
+            <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all duration-300 ${vin.length === 17 ? 'bg-emerald-400' : 'bg-[#C9A84C]'}`}
+                style={{ width: `${Math.round((vin.length / 17) * 100)}%` }} />
+            </div>
+          </div>
+          <button onClick={runPhaseA} disabled={vin.trim().length !== 17}
+            className="w-full py-3.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2">
+            <Sparkles size={15} /> Analyze Vehicle
           </button>
         </div>
-      </div>
+      )}
 
-      {/* Pipeline progress */}
-      {hasRun && (
-        <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-4">Pipeline Progress</p>
-          <div className="space-y-3">
-            {steps.map((step, i) => (
+      {/* ─── AI running (Phase A) ───────────────────────────────────────────── */}
+      {wizardPhase === 'phase-a' && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
+              <Bot size={16} className="text-[#C9A84C]" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900">AI Agent Working…</p>
+              <p className="text-xs text-gray-400">Decoding VIN and researching the market</p>
+            </div>
+          </div>
+          <div className="px-6 py-5 space-y-3">
+            {phaseASteps.map((step, i) => (
               <div key={step.id} className="flex items-center gap-3">
-                <StepIcon status={step.status} />
-                <span className={`text-sm font-medium transition-colors ${
-                  step.status === 'active'  ? 'text-[#C9A84C]' :
-                  step.status === 'done'    ? 'text-white' :
-                  step.status === 'error'   ? 'text-red-400' :
-                  'text-slate-600'
-                }`}>
-                  {i + 1}. {step.label}
-                </span>
-                {step.status === 'error' && result?.errors?.[step.id] && (
-                  <span className="text-[10px] text-red-400/70 truncate ml-1">— {result.errors[step.id]}</span>
+                <StepIcon status={step.status} index={i} />
+                <span className={`text-sm flex-1 transition-colors ${
+                  step.status === 'active' ? 'text-[#C9A84C] font-semibold' :
+                  step.status === 'done'   ? 'text-gray-800 font-medium' :
+                  step.status === 'error'  ? 'text-red-500' : 'text-gray-400'}`}>{step.label}</span>
+                {step.status === 'active' && <span className="text-[10px] text-amber-500 animate-pulse">Running…</span>}
+                {step.status === 'done'   && <span className="text-[10px] text-emerald-500">Done</span>}
+              </div>
+            ))}
+            {phaseAResult?.make && (
+              <div className="pt-3 border-t border-gray-100">
+                <p className="text-lg font-black text-gray-900">
+                  {[phaseAResult.year, phaseAResult.make, phaseAResult.model, phaseAResult.trim].filter(Boolean).join(' ')}
+                </p>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {[phaseAResult.engine, phaseAResult.fuel_type, phaseAResult.transmission].filter(Boolean).map(v => (
+                    <span key={v} className="px-2 py-0.5 rounded-full bg-gray-100 text-[11px] font-medium text-gray-600">{v}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── STEP 2: AI clarification — just 2 questions ───────────────────── */}
+      {wizardPhase === 'clarify' && phaseAResult && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          {/* Vehicle found banner */}
+          <div className="px-6 py-5 bg-gradient-to-r from-[#C9A84C]/5 to-transparent border-b border-gray-100">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Bot size={16} className="text-[#C9A84C]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-900 font-bold text-base">
+                  Found: {[phaseAResult.year, phaseAResult.make, phaseAResult.model, phaseAResult.trim].filter(Boolean).join(' ')}
+                </p>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {[phaseAResult.engine, phaseAResult.fuel_type, phaseAResult.transmission, phaseAResult.body_style].filter(Boolean).map(v => (
+                    <span key={v} className="px-2 py-0.5 rounded-full bg-white border border-gray-200 text-[11px] font-medium text-gray-600">{v}</span>
+                  ))}
+                </div>
+                {phaseAResult.market_price_range && (
+                  <p className="text-xs text-gray-500 mt-1.5">
+                    Market value: <span className="font-bold text-[#C9A84C]">{phaseAResult.market_price_range}</span>
+                  </p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* The ask */}
+          <div className="px-6 pt-5 pb-1">
+            <p className="text-sm text-gray-500">To generate an accurate listing, I need <strong className="text-gray-800">two things</strong>:</p>
+          </div>
+
+          <div className="px-6 pb-5 space-y-3">
+            {/* Required: mileage */}
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5 rounded-full bg-[#C9A84C] text-white text-[10px] font-black flex items-center justify-center shrink-0">1</span>
+              <div className="flex-1 relative">
+                <input type="number" min={0} value={userReview.mileage || ''}
+                  onChange={e => setR('mileage', Number(e.target.value))}
+                  placeholder="Mileage"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-400 pr-14" />
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">miles</span>
+              </div>
+            </div>
+
+            {/* Required: color */}
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5 rounded-full bg-[#C9A84C] text-white text-[10px] font-black flex items-center justify-center shrink-0">2</span>
+              <input value={userReview.color} onChange={e => setR('color', e.target.value)}
+                placeholder="Exterior color  (e.g. Pearl White)"
+                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-400" />
+            </div>
+
+            {/* Optional advanced */}
+            <div className="pt-1">
+              <button onClick={() => setAdvancedOpen(v => !v)}
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition py-1 select-none">
+                <span className={`inline-block transition-transform duration-150 ${advancedOpen ? 'rotate-90' : ''}`}>▶</span>
+                Advanced details — condition, features, notes
+                <span className="text-gray-300 ml-0.5">(optional, improves listing)</span>
+              </button>
+
+              {advancedOpen && (
+                <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-500 block mb-1">Asking Price ($)</label>
+                      <input type="number" value={userReview.asking_price} onChange={e => setR('asking_price', e.target.value)}
+                        placeholder="AI will suggest"
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-500 block mb-1">Condition</label>
+                      <select value={userReview.condition} onChange={e => setR('condition', e.target.value)}
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition">
+                        <option value="excellent">Excellent</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 block mb-1">Title Status</label>
+                    <select value={userReview.title_status} onChange={e => setR('title_status', e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition">
+                      <option value="clean">Clean Title</option>
+                      <option value="rebuilt">Rebuilt / Reconstructed</option>
+                      <option value="salvage">Salvage Title</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 block mb-1">Features <span className="font-normal text-gray-400">(comma-separated)</span></label>
+                    <input value={userReview.features} onChange={e => setR('features', e.target.value)}
+                      placeholder="Heated seats, Sunroof, Apple CarPlay, Lane Assist"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 block mb-1">Service History</label>
+                    <input value={userReview.service_history} onChange={e => setR('service_history', e.target.value)}
+                      placeholder="e.g. Regular oil changes, dealer maintained"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-gray-500 block mb-1">Notes for AI</label>
+                    <textarea value={userReview.notes} onChange={e => setR('notes', e.target.value)} rows={2}
+                      placeholder="Extras, modifications, known issues…"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition resize-none placeholder-gray-300" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button onClick={runPhaseB} disabled={running || !userReview.mileage}
+              className="w-full py-3.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2 mt-2">
+              {running
+                ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generating…</>
+                : <><Sparkles size={15} /> Generate Listing</>}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── AI running (Phase B) ───────────────────────────────────────────── */}
+      {wizardPhase === 'phase-b' && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
+              <Bot size={16} className="text-[#C9A84C]" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900">Writing Your Listing…</p>
+              <p className="text-xs text-gray-400">Generating title, description, price, and marketplace copies</p>
+            </div>
+          </div>
+          <div className="px-6 py-5 space-y-3">
+            {phaseBSteps.map((step, i) => (
+              <div key={step.id} className="flex items-center gap-3">
+                <StepIcon status={step.status} index={i} />
+                <span className={`text-sm flex-1 transition-colors ${
+                  step.status === 'active' ? 'text-[#C9A84C] font-semibold' :
+                  step.status === 'done'   ? 'text-gray-800 font-medium' :
+                  step.status === 'error'  ? 'text-red-500' : 'text-gray-400'}`}>{step.label}</span>
+                {step.status === 'active' && <span className="text-[10px] text-amber-500 animate-pulse">Running…</span>}
+                {step.status === 'done'   && <span className="text-[10px] text-emerald-500">Done</span>}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Results */}
-      {result && (
-        <div className="space-y-4">
-          {/* Vehicle identity */}
-          {result.make && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">Vehicle Identified</p>
-              <p className="text-xl font-black text-white">
-                {[result.year, result.make, result.model, result.trim].filter(Boolean).join(' ')}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {result.engine      && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.engine}</span>}
-                {result.fuel_type   && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.fuel_type}</span>}
-                {result.transmission && <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">{result.transmission}</span>}
+      {/* ─── STEP 3: Feature Selection ──────────────────────────────────────── */}
+      {wizardPhase === 'features' && (() => {
+        const query = featureSearch.toLowerCase();
+        const toggleFeature = (f: string) =>
+          setSelectedFeatures(prev =>
+            prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]
+          );
+        const addCustom = () => {
+          const val = customFeatureInput.trim();
+          if (val && !selectedFeatures.includes(val)) {
+            setSelectedFeatures(prev => [...prev, val]);
+          }
+          setCustomFeatureInput('');
+        };
+        const aiSuggestions = listingEdit.key_features;
+
+        return (
+          <div className="space-y-4">
+            {/* Header card */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-base font-black text-gray-900">Vehicle Features</p>
+                <span className="text-xs font-semibold text-[#C9A84C] bg-[#C9A84C]/10 px-2.5 py-1 rounded-full">
+                  {selectedFeatures.length} selected
+                </span>
               </div>
-            </div>
-          )}
+              <p className="text-xs text-gray-400">Select all that apply. AI suggestions are pre-checked — adjust as needed.</p>
 
-          {/* Market research */}
-          {result.market_price_range && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">Market Research</p>
-              <p className="text-lg font-black text-[#C9A84C]">{result.market_price_range}</p>
-              {result.selling_points && result.selling_points.length > 0 && (
-                <ul className="mt-3 space-y-1.5">
-                  {result.selling_points.map((pt, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
-                      <Check size={11} className="text-[#C9A84C] shrink-0 mt-0.5" />
-                      {pt}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
-          {/* Generated listing */}
-          {result.listing_title && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Generated Listing</p>
-                <CopyButton
-                  text={`${result.listing_title}\n\nPrice: $${result.suggested_price?.toLocaleString()}\n\n${result.listing_description ?? ''}`}
-                  label="Copy Listing"
+              {/* Search */}
+              <div className="relative mt-4">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+                <input
+                  value={featureSearch}
+                  onChange={e => setFeatureSearch(e.target.value)}
+                  placeholder="Search features…"
+                  className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300"
                 />
               </div>
-              <p className="text-white font-bold text-base leading-snug">{result.listing_title}</p>
-              {result.suggested_price && result.suggested_price > 0 && (
-                <p className="text-[#C9A84C] font-black text-lg mt-1">${result.suggested_price.toLocaleString()}</p>
-              )}
-              {result.listing_description && (
-                <p className="text-slate-400 text-xs leading-relaxed mt-3 whitespace-pre-wrap">{result.listing_description}</p>
+            </div>
+
+            {/* AI Suggested */}
+            {aiSuggestions.length > 0 && !featureSearch && (
+              <div className="bg-white rounded-2xl border border-[#C9A84C]/30 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-5 h-5 rounded-full bg-[#C9A84C]/10 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-[#C9A84C]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  </div>
+                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">AI Suggested Features</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {aiSuggestions.map(f => {
+                    const checked = selectedFeatures.includes(f);
+                    return (
+                      <button
+                        key={f}
+                        onClick={() => toggleFeature(f)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                          checked
+                            ? 'bg-[#C9A84C] border-[#C9A84C] text-white shadow-sm'
+                            : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-[#C9A84C]/50'
+                        }`}
+                      >
+                        {checked && <Check size={11} />}
+                        {f}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Category groups */}
+            {FEATURE_CATEGORIES.map(cat => {
+              const visible = cat.features.filter(f =>
+                !query || f.toLowerCase().includes(query)
+              );
+              if (visible.length === 0) return null;
+              return (
+                <div key={cat.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">{cat.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {visible.map(f => {
+                      const checked = selectedFeatures.includes(f);
+                      return (
+                        <button
+                          key={f}
+                          onClick={() => toggleFeature(f)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                            checked
+                              ? 'bg-[#C9A84C] border-[#C9A84C] text-white shadow-sm'
+                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C9A84C]/50 hover:bg-[#C9A84C]/5'
+                          }`}
+                        >
+                          {checked && <Check size={11} />}
+                          {f}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Custom feature */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Add Custom Feature</p>
+              <div className="flex gap-2">
+                <input
+                  value={customFeatureInput}
+                  onChange={e => setCustomFeatureInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { addCustom(); e.preventDefault(); } }}
+                  placeholder="e.g. Third Row Seating, Cooled Cup Holders…"
+                  className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300"
+                />
+                <button
+                  onClick={addCustom}
+                  disabled={!customFeatureInput.trim()}
+                  className="px-4 py-2.5 bg-[#C9A84C] text-white text-sm font-bold rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition shrink-0"
+                >
+                  + Add
+                </button>
+              </div>
+              {/* Custom / non-predefined selected features */}
+              {selectedFeatures.filter(f => !ALL_PREDEFINED.includes(f)).length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                  {selectedFeatures.filter(f => !ALL_PREDEFINED.includes(f)).map(f => (
+                    <span key={f} className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A84C] border border-[#C9A84C] text-white rounded-full text-sm font-medium">
+                      {f}
+                      <button onClick={() => setSelectedFeatures(prev => prev.filter(x => x !== f))} className="hover:opacity-70 transition leading-none">×</button>
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
-          )}
 
-          {/* eBay status */}
-          {result.ebay_status && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
-              <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-3">eBay Motors</p>
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${
-                  result.ebay_status === 'mock_published' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' :
-                  'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                }`}>
-                  {result.ebay_status.replace(/_/g, ' ')}
-                </span>
-                {result.ebay_listing_id && (
-                  <span className="text-xs font-mono text-slate-400">ID: {result.ebay_listing_id}</span>
+            {/* Continue */}
+            <button
+              onClick={() => setWizardPhase('review')}
+              className="w-full py-4 bg-[#C9A84C] text-white font-black text-base rounded-2xl hover:bg-[#B8943E] transition-all shadow-lg shadow-[#C9A84C]/20 flex items-center justify-center gap-2.5"
+            >
+              <Check size={18} /> Continue with {selectedFeatures.length} Feature{selectedFeatures.length !== 1 ? 's' : ''}
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* ─── STEP 4: Review & edit generated listing ────────────────────────── */}
+      {wizardPhase === 'review' && (
+        <div className="space-y-4">
+
+          {/* Main listing document — inline editable */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Generated Listing</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">Click any field to edit before publishing</p>
+              </div>
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                <Check size={10} /> Ready
+              </span>
+            </div>
+
+            {/* Price */}
+            <div className="px-6 py-4 border-b border-gray-50">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Asking Price</p>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl text-gray-300 font-medium select-none">$</span>
+                <input type="number" value={listingEdit.suggested_price} onChange={e => setLE('suggested_price', e.target.value)}
+                  placeholder="0"
+                  className="text-4xl font-black text-[#C9A84C] bg-transparent border-none outline-none w-full hover:bg-gray-50 focus:bg-gray-50 rounded-xl px-2 -mx-2 py-1 transition-all" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="px-6 py-4 border-b border-gray-50">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Listing Title</p>
+              <input value={listingEdit.listing_title} onChange={e => setLE('listing_title', e.target.value)}
+                className="w-full text-gray-900 font-bold text-base bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-gray-50 rounded-xl px-2 -mx-2 py-1 transition-all" />
+            </div>
+
+            {/* Description */}
+            <div className="px-6 py-5 border-b border-gray-50">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Description</p>
+              <textarea value={listingEdit.listing_description} onChange={e => setLE('listing_description', e.target.value)} rows={7}
+                className="w-full text-gray-600 text-sm leading-relaxed bg-transparent border-none outline-none hover:bg-gray-50 focus:bg-gray-50 rounded-xl px-2 -mx-2 py-1 transition-all resize-none" />
+            </div>
+
+            {/* Features */}
+            <div className="px-6 py-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Features</p>
+                <button
+                  onClick={() => setWizardPhase('features')}
+                  className="text-[10px] text-[#C9A84C] hover:underline font-semibold transition"
+                >
+                  Edit features
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedFeatures.map((f, i) => (
+                  <span key={i} className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    {f}
+                    <button
+                      onClick={() => setSelectedFeatures(prev => prev.filter((_, idx) => idx !== i))}
+                      className="text-gray-400 hover:text-red-500 transition leading-none">×</button>
+                  </span>
+                ))}
+                {selectedFeatures.length === 0 && (
+                  <p className="text-sm text-gray-400 italic">No features selected.</p>
                 )}
               </div>
-              {result.ebay_message && (
-                <p className="text-xs text-slate-500">{result.ebay_message}</p>
-              )}
+            </div>
+          </div>
+
+          {/* Facebook copy */}
+          {listingEdit.facebook_copy && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Facebook Marketplace</p>
+                <CopyButton text={listingEdit.facebook_copy} label="Copy" />
+              </div>
+              <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans bg-gray-50 rounded-xl p-4 max-h-48 overflow-auto leading-relaxed">{listingEdit.facebook_copy}</pre>
             </div>
           )}
 
-          {/* Facebook copy */}
-          {result.facebook_copy && (
-            <div className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+          {/* eBay copy */}
+          {listingEdit.ebay_listing_description && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Facebook Marketplace Copy</p>
-                <CopyButton text={result.facebook_copy} label="Copy Post" />
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">eBay Listing</p>
+                <CopyButton text={listingEdit.ebay_listing_description} label="Copy" />
               </div>
-              <pre className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap font-sans bg-slate-800/50 rounded-lg px-4 py-3 overflow-auto max-h-64">
-                {result.facebook_copy}
-              </pre>
+              <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans bg-gray-50 rounded-xl p-4 max-h-48 overflow-auto leading-relaxed">{listingEdit.ebay_listing_description}</pre>
             </div>
           )}
+
+          {/* Photos */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              Photos <span className="font-normal text-gray-300 normal-case tracking-normal">(optional)</span>
+            </p>
+            <ImageDropZone onFiles={files => setImgEntries(prev => [
+              ...prev, ...files.map(f => ({ file: f, preview: URL.createObjectURL(f), status: 'idle' as const }))
+            ])} />
+            {imgEntries.length > 0 && (
+              <div className="mt-3">
+                <ImageEntryGrid entries={imgEntries} onRemove={i => setImgEntries(prev => {
+                  URL.revokeObjectURL(prev[i].preview); return prev.filter((_, idx) => idx !== i);
+                })} />
+              </div>
+            )}
+          </div>
+
+          {/* Inventory settings */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Inventory Settings</p>
+            <div className="flex items-end gap-4">
+              <div className="flex-1">
+                <label className="text-[11px] font-semibold text-gray-500 block mb-1">Status</label>
+                <select value={userReview.status} onChange={e => setR('status', e.target.value as VehicleStatus)}
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition">
+                  <option value="available">Available</option>
+                  <option value="reserved">Reserved</option>
+                  <option value="sold">Sold</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-[11px] font-semibold text-gray-500 block mb-1">Stock #</label>
+                <input value={userReview.stock_number} onChange={e => setR('stock_number', e.target.value)} placeholder="STK-001"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none pb-0.5 shrink-0">
+                <div onClick={() => setR('featured', !userReview.featured)}
+                  className={`w-9 h-5 rounded-full transition-colors relative ${userReview.featured ? 'bg-[#C9A84C]' : 'bg-gray-200'}`}>
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${userReview.featured ? 'left-4' : 'left-0.5'}`} />
+                </div>
+                <span className="text-sm text-gray-600">Featured</span>
+              </label>
+            </div>
+          </div>
+
+          {saveError && (
+            <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
+              <X size={13} className="text-red-500 shrink-0" />
+              <p className="text-red-600 text-sm">{saveError}</p>
+            </div>
+          )}
+
+          {/* One-click CTA */}
+          <button onClick={approveAndPublish} disabled={running || !listingEdit.suggested_price}
+            className="w-full py-4 bg-[#C9A84C] text-white font-black text-base rounded-2xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-lg shadow-[#C9A84C]/20 flex items-center justify-center gap-2.5">
+            {running
+              ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving &amp; Publishing…</>
+              : <><Bot size={18} /> Approve &amp; Publish</>}
+          </button>
+          <p className="text-center text-xs text-gray-400 -mt-2">Saves to inventory, uploads photos, and publishes to all platforms.</p>
+        </div>
+      )}
+
+      {/* ─── Publishing (Phase C) ───────────────────────────────────────────── */}
+      {wizardPhase === 'phase-c' && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
+              <Bot size={16} className="text-[#C9A84C]" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900">Publishing…</p>
+              <p className="text-xs text-gray-400">Distributing to eBay, Facebook, and website inventory</p>
+            </div>
+          </div>
+          <div className="px-6 py-5 space-y-3">
+            {phaseCSteps.map((step, i) => (
+              <div key={step.id} className="flex items-center gap-3">
+                <StepIcon status={step.status} index={i} />
+                <span className={`text-sm flex-1 transition-colors ${
+                  step.status === 'active' ? 'text-[#C9A84C] font-semibold' :
+                  step.status === 'done'   ? 'text-gray-800 font-medium' :
+                  step.status === 'error'  ? 'text-red-500' : 'text-gray-400'}`}>{step.label}</span>
+                {step.status === 'active' && <span className="text-[10px] text-amber-500 animate-pulse">Running…</span>}
+                {step.status === 'done'   && <span className="text-[10px] text-emerald-500">Done</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Complete ───────────────────────────────────────────────────────── */}
+      {wizardPhase === 'complete' && (
+        <div className="space-y-4">
+          <div className="bg-white border border-emerald-200 rounded-2xl p-6 space-y-4 shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center shrink-0">
+                <Check size={22} className="text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-gray-900 font-black text-lg">Listing Published!</p>
+                <p className="text-gray-500 text-sm mt-0.5">
+                  {[phaseAResult?.year, phaseAResult?.make, phaseAResult?.model].filter(Boolean).join(' ')} is now live.
+                </p>
+              </div>
+            </div>
+            {phaseCResult?.distribution_status && (
+              <div className="border-t border-gray-100 pt-4 space-y-2">
+                {Object.entries(phaseCResult.distribution_status).map(([platform, status]) => (
+                  <div key={platform} className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600 capitalize">{platform}</span>
+                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                      ['success','mock','published','live','ready'].some(k => status.includes(k))
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                        : 'bg-amber-50 text-amber-600 border border-amber-200'
+                    }`}>{status.replace(/_/g, ' ')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {phaseCResult?.ebay_listing_id && (
+              <p className="text-xs text-gray-400 font-mono border-t border-gray-100 pt-3">eBay ID: {phaseCResult.ebay_listing_id}</p>
+            )}
+          </div>
+          <button onClick={resetWizard}
+            className="w-full py-3 bg-white text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 border border-gray-200 transition-all flex items-center justify-center gap-2">
+            <Sparkles size={15} /> Process Another Vehicle
+          </button>
         </div>
       )}
     </div>

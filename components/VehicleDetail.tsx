@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import styles from './VehicleDetail.module.css';
 import SiteHeader from '@/components/layout/SiteHeader';
+import { bookAppointment, submitVehicleInquiry } from '@/lib/api';
 import type {
   Vehicle,
   VehicleImage,
@@ -126,6 +127,149 @@ function VehicleDescription({ sections }: VehicleDescriptionProps) {
   );
 }
 
+/* ─── Contact Dealer Modal ──────────────────────────────────────── */
+function ContactDealerModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState("Hi, I'm interested in this vehicle and would like more information.");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await submitVehicleInquiry(vehicleId, { name, email, phone: phone || undefined, message });
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send inquiry');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        {success ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-3">✓</div>
+            <h3 className="text-lg font-black text-slate-900 mb-1">Message Sent!</h3>
+            <p className="text-slate-500 text-sm mb-4">A dealer representative will be in touch with you shortly.</p>
+            <button onClick={onClose} className="px-6 py-2.5 bg-black text-white font-black text-sm rounded-lg">Close</button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-black text-slate-900">Contact Dealer</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            <form onSubmit={submit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Name</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Your full name"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Phone</label>
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="(555) 000-0000"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Message</label>
+                <textarea value={message} onChange={e => setMessage(e.target.value)} required rows={4}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-black resize-none" />
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              <button type="submit" disabled={loading}
+                className="w-full py-3 bg-black text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-slate-800 transition disabled:opacity-60">
+                {loading ? 'Sending…' : 'Send Message'}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Appointment Modal ─────────────────────────────────────────── */
+function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
+  const [date, setDate] = useState('');
+  const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await bookAppointment({ vehicle_id: vehicleId, service_type: 'test_drive', appointment_date: date, phone, notes });
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to book appointment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        {success ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-3">✓</div>
+            <h3 className="text-lg font-black text-slate-900 mb-1">Test Drive Confirmed!</h3>
+            <p className="text-slate-500 text-sm mb-4">Your test drive appointment is confirmed. See you soon!</p>
+            <button onClick={onClose} className="px-6 py-2.5 bg-[#FF5500] text-black font-black text-sm rounded-lg">Close</button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-black text-slate-900">Book a Test Drive</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            <form onSubmit={submit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Preferred Date & Time</label>
+                <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)} required
+                  min={new Date().toISOString().slice(0, 16)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Phone</label>
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required placeholder="(555) 000-0000"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Notes (optional)</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Any specific requests…"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500] resize-none" />
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              <button type="submit" disabled={loading}
+                className="w-full py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-[#FF5500] hover:text-black transition disabled:opacity-60">
+                {loading ? 'Booking…' : 'Confirm Appointment'}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Sidebar ───────────────────────────────────────────────────── */
 const HeartIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -133,19 +277,12 @@ const HeartIcon = () => (
   </svg>
 );
 
-const ApprovalIcon = () => (
+const CalendarIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="9"/>
-    <path d="M8 12l2.5 2.5L16 9"/>
-  </svg>
-);
-
-const CarIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M5 16h14l-1-5H6l-1 5z"/>
-    <circle cx="7" cy="17" r="1.5"/>
-    <circle cx="17" cy="17" r="1.5"/>
-    <path d="M8 11l2-4h4l2 4"/>
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 );
 
@@ -153,6 +290,8 @@ interface SidebarProps {
   vehicle: Vehicle;
 }
 function Sidebar({ vehicle }: SidebarProps) {
+  const [apptOpen, setApptOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const formattedPrice = vehicle.price != null
     ? `$${vehicle.price.toLocaleString()}`
     : 'Call for Price';
@@ -196,67 +335,28 @@ function Sidebar({ vehicle }: SidebarProps) {
         <div className="p-6 space-y-3">
 
           {/* PRIMARY */}
-          <button className="w-full bg-black text-white rounded-[18px] py-4 px-6 font-black uppercase text-[15px] flex items-center justify-center gap-5">
+          <button onClick={() => setContactOpen(true)}
+            className="w-full bg-black text-white rounded-[18px] py-4 px-6 font-black uppercase text-[15px] flex items-center justify-center gap-5">
             <div className="w-[44px] h-[44px] rounded-full border border-white flex items-center justify-center">
               <HeartIcon />
             </div>
 
-            I WANT THIS CAR
+            CONTACT DEALER
           </button>
 
-          {/* SECONDARY */}
-          <button className="w-full border border-[#d8d8d8] rounded-[18px] py-4 px-6 flex items-center justify-center gap-5 font-extrabold uppercase text-[15px] text-[#222]">
-
+          <button onClick={() => setApptOpen(true)}
+            className="w-full border border-[#d8d8d8] rounded-[18px] py-4 px-6 flex items-center justify-center gap-5 font-extrabold uppercase text-[15px] text-[#222]">
             <div className="w-[44px] h-[44px] rounded-full border border-[#d8d8d8] flex items-center justify-center">
-              <ApprovalIcon />
+              <CalendarIcon />
             </div>
-
-            GET ME PRE-APPROVED
-          </button>
-
-          <button className="w-full border border-[#d8d8d8] rounded-[18px] py-4 px-6 flex items-center justify-center gap-5 font-extrabold uppercase text-[15px] text-[#222]">
-
-            <div className="w-[44px] h-[44px] rounded-full border border-[#d8d8d8] flex items-center justify-center">
-              <CarIcon />
-            </div>
-
-            CHECK AVAILABILITY
+            SCHEDULE TEST DRIVE
           </button>
 
         </div>
 
-        {/* ESTIMATE PAYMENT */}
-        <div className="mx-6 mb-6 p-6 rounded-[20px] bg-[#356f98] text-white flex items-center justify-between">
+        {apptOpen && <AppointmentModal vehicleId={vehicle.id} onClose={() => setApptOpen(false)} />}
+        {contactOpen && <ContactDealerModal vehicleId={vehicle.id} onClose={() => setContactOpen(false)} />}
 
-          <div>
-            <p className="text-[18px] font-bold">
-              Estimate payment
-            </p>
-
-            <p className="mt-1 text-sm opacity-90">
-              No impact to your credit score
-            </p>
-          </div>
-
-          <div className="w-[52px] h-[52px] rounded-full bg-white flex items-center justify-center flex-shrink-0">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <path
-                d="M14 4 C8 4 4 9 4 14 C4 20 9 24 14 24"
-                stroke="#e32"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path
-                d="M14 4 C20 4 24 9 24 14"
-                stroke="#e32"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path d="M18 10 L24 14 L18 18" fill="#e32" />
-            </svg>
-          </div>
-
-        </div>
 
         {/* CALL OR TEXT */}
         <div className="border-t border-[#edf0f3] p-8 text-center">
@@ -307,7 +407,7 @@ function SimilarVehicles({ vehicles }: SimilarVehiclesProps) {
                     <span className={priceClass}>{priceDisplay}</span>
                   </div>
                 </div>
-                <a href="#" className={styles.carCardBtn}>View Details</a>
+                <a href={`/vehicle-detail?id=${v.id}`} className={styles.carCardBtn}>View Details</a>
               </div>
             );
           })}

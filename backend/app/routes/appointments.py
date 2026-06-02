@@ -8,16 +8,16 @@ from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.utils.pagination import PaginationParams, PaginatedResponse, pagination_params
 
+
 router = APIRouter(prefix="/api/appointments", tags=["Appointments"])
 
 
 @router.post("", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)
 async def book_appointment(
     data: AppointmentCreate,
-    current: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    appt = await appointment_service.create_appointment(db, data, current.id)
+    appt = await appointment_service.create_appointment(db, data)
     return AppointmentOut.model_validate(appt)
 
 
