@@ -23,7 +23,13 @@
       "Bash(./venv/Scripts/python.exe -c ' *)",
       "Bash(node -e ' *)",
       "Bash(Get-ChildItem -Path \"C:\\\\marketplace-website\\\\components\" -Recurse -File)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(xargs ls -la)",
+      "Bash(Get-ChildItem -Path \"C:\\\\marketplace-website\" -Recurse -Depth 3)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\marketplace-website\\\\backend\" -Recurse -Force | where { $_.PSIsContainer } | Select-Object -ExpandProperty FullName)",
+      "Bash(python -c \"from app.routes.agent import router, ws_router; from app.main import app; print\\('OK'\\)\")",
+      "Bash(python *)"
     ]
   }
 }

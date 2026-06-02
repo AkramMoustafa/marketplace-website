@@ -7,7 +7,7 @@ import VehicleChatCard, { type VehicleData } from './VehicleChatCard';
 
 interface Props {
   vehicles: VehicleData[];
-  onSchedule: (vehicleId: string) => void;
+  onSchedule: (vehicleId: string, vehicleTitle: string) => void;
   onFinancing: (vehicleTitle: string) => void;
   onNavigate: () => void;
 }
@@ -51,7 +51,7 @@ export default function VehicleCarousel({ vehicles, onSchedule, onFinancing, onN
           <div key={v.id} style={{ scrollSnapAlign: 'start' }}>
             <VehicleChatCard
               vehicle={v}
-              onSchedule={() => onSchedule(v.id)}
+              onSchedule={() => onSchedule(v.id, v.title)}
               onFinancing={() => onFinancing(v.title)}
               onNavigate={onNavigate}
             />

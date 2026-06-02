@@ -31,6 +31,8 @@ interface Props {
   onNavigate: () => void;
 }
 
+
+
 export default function VehicleChatCard({ vehicle, onSchedule, onFinancing, onNavigate }: Props) {
   const [imgError, setImgError] = useState(false);
   const router = useRouter();
@@ -101,7 +103,13 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing, onNa
           >
             View Vehicle
           </button>
-
+          <button
+            type="button"
+            onClick={onSchedule}
+            className="flex items-center justify-center w-full py-1.5 bg-[#FF5500]/10 text-[#FF5500] text-[10px] font-black rounded-lg hover:bg-[#FF5500] hover:text-white transition-colors border border-[#FF5500]/20"
+          >
+            Test Drive
+          </button>
         </div>
       </div>
     </div>

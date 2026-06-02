@@ -3,8 +3,12 @@ agent.py  (routes)
 ~~~~~~~~~~~~~~~~~~
 AI Sales Agent routes for NOVA Motors.
 
-New phase-based endpoints (preferred)
---------------------------------------
+WebSocket endpoint (preferred)
+--------------------------------
+  WS  /ws/vehicle-processing            All phases — connect, send phase request, receive events
+
+New phase-based SSE endpoints (kept for reference)
+------------------------------------------------------
   POST /api/agent/vehicle-intelligence   Phase A — VIN decode + market research
   POST /api/agent/generate-listing       Phase B — listing generation (user inputs required)
   POST /api/agent/distribute             Phase C — distribution (inventory save required)
@@ -13,11 +17,16 @@ Legacy endpoint (backward compat)
 ----------------------------------
   POST /api/agent/process-vehicle        Single-pass pipeline (original flow)
 
-All endpoints stream SSE events:
-  {"type": "step_start", "step": "<id>", "label": "<label>"}
-  {"type": "step_done",  "step": "<id>"}
-  {"type": "complete",   "result": { ...AgentState fields... }}
-  {"type": "error",      "message": "<description>"}
+WebSocket message format (server → client):
+  {"type": "step_start", "step": "<id>", "status": "running", "message": "<label>"}
+  {"type": "step_done",  "step": "<id>", "status": "done"}
+  {"type": "complete",   "status": "completed", "result": { ...AgentState fields... }}
+  {"type": "error",      "status": "error",     "message": "<description>"}
+
+WebSocket message format (client → server, one message to initiate):
+  {"phase": "A", "x_admin_auth": "true", "vin": "<vin>"}
+  {"phase": "B", "x_admin_auth": "true", "vin": "<vin>", "make": ..., ...}
+  {"phase": "C", "x_admin_auth": "true", "vehicle_id": "<uuid>", ...}
 """
 from __future__ import annotations
 
@@ -25,7 +34,7 @@ import json
 import logging
 from typing import AsyncGenerator
 
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter, Header, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import StreamingResponse
 
 from app.agents.sales_agent.distribute import (
@@ -45,6 +54,9 @@ from app.schemas.agent import PhaseARequest, PhaseBRequest, PhaseCRequest, Proce
 log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/agent", tags=["AI Sales Agent"])
+
+# Separate router with no prefix so the WS endpoint lives at /ws/vehicle-processing
+ws_router = APIRouter(tags=["AI Sales Agent — WebSocket"])
 
 _SSE_HEADERS = {
     "Cache-Control": "no-cache",
@@ -225,3 +237,134 @@ async def process_vehicle(
         "errors": {},
     }
     return _streaming_response(_stream_pipeline(initial, _LEGACY_PIPELINE))
+
+
+# ── WebSocket — /ws/vehicle-processing ───────────────────────────────────────
+
+async def _ws_run_pipeline(
+    websocket: WebSocket,
+    initial_state: AgentState,
+    pipeline: list[tuple[str, str, object]],
+) -> None:
+    state = initial_state
+    for step_id, label, node_fn in pipeline:
+        await websocket.send_json({
+            "type": "step_start",
+            "step": step_id,
+            "status": "running",
+            "message": label,
+        })
+        try:
+            state = await node_fn(state)  # type: ignore[assignment]
+        except Exception as exc:
+            log.exception("[WS Agent] Error in node %s: %s", step_id, exc)
+            state = {**state, "errors": {**state.get("errors", {}), step_id: str(exc)}}
+        await websocket.send_json({"type": "step_done", "step": step_id, "status": "done"})
+
+    result = {k: v for k, v in state.items() if _is_serialisable(v)}
+    completion: dict = {"type": "complete", "status": "completed", "result": result}
+    inventory_id = state.get("inventory_vehicle_id")
+    if inventory_id:
+        completion["vehicle_id"] = inventory_id
+    await websocket.send_json(completion)
+
+
+@ws_router.websocket("/ws/vehicle-processing")
+async def ws_vehicle_processing(websocket: WebSocket) -> None:
+    await websocket.accept()
+    print("WebSocket client connected")
+    log.info("[WS Agent] Client connected from %s", websocket.client)
+    try:
+        data: dict = await websocket.receive_json()
+        print("Received websocket message:", data)
+
+        if data.get("x_admin_auth") != "true":
+            await websocket.send_json({
+                "type": "error",
+                "status": "error",
+                "message": "Admin authentication required",
+            })
+            await websocket.close(code=1008)
+            return
+
+        phase = data.get("phase", "")
+
+        if phase == "A":
+            vin = data.get("vin", "")
+            log.info("[WS Agent Phase A] VIN=%s", vin)
+            initial: AgentState = {"vin": vin, "errors": {}}
+            await _ws_run_pipeline(websocket, initial, _PHASE_A)
+
+        elif phase == "B":
+            log.info("[WS Agent Phase B] VIN=%s condition=%s", data.get("vin"), data.get("condition"))
+            initial = {
+                "vin": data.get("vin", ""),
+                "make": data.get("make"),
+                "model": data.get("model"),
+                "year": data.get("year"),
+                "trim": data.get("trim"),
+                "engine": data.get("engine"),
+                "fuel_type": data.get("fuel_type"),
+                "transmission": data.get("transmission"),
+                "body_style": data.get("body_style"),
+                "drive_type": data.get("drive_type"),
+                "market_price_range": data.get("market_price_range"),
+                "selling_points": data.get("selling_points"),
+                "market_insights": data.get("market_insights"),
+                "mileage": data.get("mileage"),
+                "asking_price": data.get("asking_price"),
+                "condition": data.get("condition"),
+                "title_status": data.get("title_status"),
+                "features": data.get("features"),
+                "service_history": data.get("service_history"),
+                "notes": data.get("notes"),
+                "errors": {},
+            }
+            await _ws_run_pipeline(websocket, initial, _PHASE_B)
+
+        elif phase == "C":
+            vehicle_id = data.get("vehicle_id")
+            if not vehicle_id:
+                await websocket.send_json({
+                    "type": "error",
+                    "status": "error",
+                    "message": "vehicle_id is required for Phase C. Save the vehicle to inventory first.",
+                })
+                return
+            log.info("[WS Agent Phase C] vehicle_id=%s VIN=%s", vehicle_id, data.get("vin"))
+            initial = {
+                "vin": data.get("vin", ""),
+                "make": data.get("make"),
+                "model": data.get("model"),
+                "year": data.get("year"),
+                "inventory_vehicle_id": vehicle_id,
+                "listing_title": data.get("listing_title"),
+                "listing_description": data.get("listing_description"),
+                "facebook_copy": data.get("facebook_copy"),
+                "ebay_listing_description": data.get("ebay_listing_description"),
+                "suggested_price": data.get("suggested_price"),
+                "errors": {},
+            }
+            await _ws_run_pipeline(websocket, initial, _PHASE_C)
+
+        elif phase == "legacy":
+            vin = data.get("vin", "")
+            log.info("[WS Agent Legacy] VIN=%s", vin)
+            initial = {"vin": vin, "admin_price": data.get("admin_price"), "errors": {}}
+            await _ws_run_pipeline(websocket, initial, _LEGACY_PIPELINE)
+
+        else:
+            await websocket.send_json({
+                "type": "error",
+                "status": "error",
+                "message": f"Unknown phase '{phase}'. Expected A, B, C, or legacy.",
+            })
+
+    except WebSocketDisconnect:
+        log.info("[WS Agent] Client disconnected during processing")
+    except Exception as exc:
+        log.exception("[WS Agent] Unhandled error: %s", exc)
+        try:
+            await websocket.send_json({"type": "error", "status": "error", "message": str(exc)})
+        except Exception:
+            pass

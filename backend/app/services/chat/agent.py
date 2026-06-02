@@ -47,14 +47,16 @@ SYSTEM_PROMPT = (
     "'I found X vehicles matching your criteria.' — do NOT list vehicles in text; "
     "the frontend renders them as cards automatically\n\n"
     "CRITICAL — Test drive scheduling:\n"
-    "When a user expresses ANY intent to schedule or book a test drive, visit a car, "
-    "make an appointment, or says things like 'can I drive this', 'I want to see this car', "
-    "'schedule', 'book', 'appointment', 'test drive':\n"
-    "1. Reply with ONE short, enthusiastic sentence (e.g. 'Absolutely! Let me pull up the booking form for you.')\n"
+    "When a user expresses ANY intent to schedule or book a test drive, visit, see, or "
+    "try a car — including phrases like 'schedule a test drive', 'book a test drive', "
+    "'can I test drive this', 'I'd like an appointment', 'can I come see this vehicle', "
+    "'I want to see this car', 'can I drive this', 'book', 'appointment', 'test drive':\n"
+    "1. Reply with ONE short, warm sentence (e.g. 'Absolutely! I've opened the booking card for you.')\n"
     "2. Immediately append the exact token [SCHEDULE_MODAL] at the end of your response — nothing after it\n"
-    "3. Do NOT ask for name, phone, email, date, or time in the chat — the booking form handles all of that\n"
+    "3. NEVER ask for name, phone number, email, date, or time in chat messages — "
+    "an interactive booking card embedded in the chat collects all of that\n"
     "4. Do NOT use the schedule_test_drive tool — it is disabled\n"
-    "Example output: 'Of course! Let me get that set up for you right now.[SCHEDULE_MODAL]'"
+    "Example output: 'Great choice! The booking card is ready — pick a date below.[SCHEDULE_MODAL]'"
 )
 
 

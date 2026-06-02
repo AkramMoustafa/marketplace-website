@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation';
 import { MessageCircle, X, Send, RotateCcw } from 'lucide-react';
 import Message from './Message';
 import TypingIndicator from './TypingIndicator';
-import BookingCTA from './BookingCTA';
-import TestDriveModal from './TestDriveModal';
+import TestDriveBookingCard from './TestDriveBookingCard';
 import VehicleCarousel from './VehicleCarousel';
 import type { VehicleData } from './VehicleChatCard';
 
@@ -17,9 +16,11 @@ interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  showBookingCTA: boolean;
+  showBookingCard: boolean;
   timestamp: number;
   vehicles?: VehicleData[];
+  bookingVehicleId?: string | null;
+  bookingVehicleTitle?: string | null;
 }
 
 const QUICK_REPLIES = [
@@ -50,10 +51,21 @@ function makeMessage(
   role: ChatMessage['role'],
   rawContent: string,
   vehicles?: VehicleData[],
+  bookingVehicleId?: string | null,
+  bookingVehicleTitle?: string | null,
 ): ChatMessage {
   const hasMarker = rawContent.includes(BOOKING_MARKER);
   const content = rawContent.replace(BOOKING_MARKER, '').trim();
-  return { id: msgId(), role, content, showBookingCTA: hasMarker, timestamp: Date.now(), vehicles };
+  return {
+    id: msgId(),
+    role,
+    content,
+    showBookingCard: hasMarker,
+    timestamp: Date.now(),
+    vehicles,
+    bookingVehicleId: hasMarker ? bookingVehicleId : undefined,
+    bookingVehicleTitle: hasMarker ? bookingVehicleTitle : undefined,
+  };
 }
 
 export default function ChatWidget() {
@@ -71,8 +83,6 @@ export default function ChatWidget() {
   const [typing, setTyping] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [unread, setUnread] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const sessionId = getSessionId();
@@ -95,6 +105,22 @@ export default function ChatWidget() {
     }
   }, [open, hasOpened]);
 
+  // Inject a booking card message directly without calling the AI
+  const openBooking = useCallback((vehicleId?: string | null, vehicleTitle?: string | null) => {
+    const intro = vehicleTitle
+      ? `Let's set up your test drive for the ${vehicleTitle}. Choose a date below to get started!`
+      : "Let's schedule your test drive. Choose a date below to get started!";
+    setMessages(prev => [...prev, {
+      id: msgId(),
+      role: 'assistant',
+      content: intro,
+      showBookingCard: true,
+      timestamp: Date.now(),
+      bookingVehicleId: vehicleId ?? null,
+      bookingVehicleTitle: vehicleTitle ?? null,
+    }]);
+  }, []);
+
   const sendMessage = useCallback(async (text?: string) => {
     const content = (text ?? input).trim();
     if (!content || typing) return;
@@ -116,12 +142,15 @@ export default function ChatWidget() {
       }
 
       const data = await res.json() as { response: string; vehicles?: VehicleData[] };
-      const msg = makeMessage('assistant', data.response, data.vehicles ?? undefined);
+      const msg = makeMessage(
+        'assistant',
+        data.response,
+        data.vehicles ?? undefined,
+        currentVehicleId,
+        null,
+      );
       setMessages(prev => [...prev, msg]);
       if (!open) setUnread(n => n + 1);
-
-      // If Alex signalled the booking modal, open it immediately
-      if (msg.showBookingCTA) setModalOpen(true);
     } catch (err) {
       const errorText = err instanceof Error ? err.message : 'Unknown error';
       setMessages(prev => [...prev, makeMessage('assistant',
@@ -129,7 +158,7 @@ export default function ChatWidget() {
     } finally {
       setTyping(false);
     }
-  }, [input, typing, sessionId, open]);
+  }, [input, typing, sessionId, open, currentVehicleId]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -147,30 +176,23 @@ export default function ChatWidget() {
 
   const handleQuickReply = (label: string) => {
     if (label === 'Schedule Test Drive') {
-      setModalOpen(true);
+      openBooking(currentVehicleId);
     } else {
       sendMessage(label);
     }
   };
 
-  const handleCardSchedule = (vehicleId: string) => {
-    setSelectedVehicleId(vehicleId);
-    setModalOpen(true);
+  const handleCardSchedule = (vehicleId: string, vehicleTitle: string) => {
+    setOpen(true);
+    openBooking(vehicleId, vehicleTitle);
   };
 
   const handleCardFinancing = (vehicleTitle: string) => {
     sendMessage(`I'd like financing information for the ${vehicleTitle}`);
   };
 
-  const handleModalSuccess = (chatMsg: string) => {
-    setModalOpen(false);
-    setSelectedVehicleId(null);
+  const handleBookingSuccess = (chatMsg: string) => {
     setMessages(prev => [...prev, makeMessage('assistant', chatMsg)]);
-  };
-
-  const handleModalClose = () => {
-    setModalOpen(false);
-    setSelectedVehicleId(null);
   };
 
   return (
@@ -193,15 +215,6 @@ export default function ChatWidget() {
         .alex-scroll::-webkit-scrollbar-track { background: transparent; }
         .alex-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
       `}</style>
-
-      {/* Full-screen booking modal */}
-      {modalOpen && (
-        <TestDriveModal
-          onClose={handleModalClose}
-          onSuccess={handleModalSuccess}
-          currentVehicleId={selectedVehicleId ?? currentVehicleId}
-        />
-      )}
 
       {/* Chat panel */}
       {open && (
@@ -244,11 +257,9 @@ export default function ChatWidget() {
             <div className="alex-scroll flex-1 overflow-y-auto px-4 pt-4 pb-2">
               {messages.map(msg => (
                 <div key={msg.id}>
-                  {/* Only show the text bubble if there's text content */}
                   {msg.content && (
                     <Message role={msg.role} content={msg.content} timestamp={msg.timestamp} />
                   )}
-                  {/* Vehicle cards carousel for inventory search results */}
                   {msg.vehicles && msg.vehicles.length > 0 && msg.role === 'assistant' && (
                     <VehicleCarousel
                       vehicles={msg.vehicles}
@@ -257,9 +268,12 @@ export default function ChatWidget() {
                       onNavigate={() => setOpen(false)}
                     />
                   )}
-                  {/* Booking CTA card rendered for messages that carried the marker */}
-                  {msg.showBookingCTA && msg.role === 'assistant' && (
-                    <BookingCTA onOpen={() => setModalOpen(true)} />
+                  {msg.showBookingCard && msg.role === 'assistant' && (
+                    <TestDriveBookingCard
+                      vehicleId={msg.bookingVehicleId}
+                      vehicleTitle={msg.bookingVehicleTitle}
+                      onSuccess={handleBookingSuccess}
+                    />
                   )}
                 </div>
               ))}
