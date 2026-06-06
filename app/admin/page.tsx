@@ -9,7 +9,7 @@ import type {
   DashboardStats, Vehicle, VehicleListItem, FinancingRequest, Review, TradeIn, ServiceAppointment,
   FinancingStatus, ReviewStatus, TransmissionType, FuelType, VehicleStatus,
   VehicleAIPreviewResponse, VehicleAIImageAnalysisResponse, ContactMessageOut,
-  AgentResult, AgentStepId, PhaseBRequest, PhaseCRequest,
+  AgentResult, PhaseBRequest, PhaseCRequest,
 } from '@/lib/types';
 import { Trash2, LogOut, Check, X, Eye, EyeOff, Upload, ChevronLeft, Pencil, Phone, Sparkles, Bot, Copy } from 'lucide-react';
 
@@ -2069,25 +2069,6 @@ const Pagination = memo(function Pagination({ page, pages, onChange }: { page: n
 
 // ── AI Sales Agent view ────────────────────────────────────────────────────────
 
-// ── Shared step types ─────────────────────────────────────────────────────────
-type StepStatus = 'pending' | 'active' | 'done' | 'error';
-
-interface PipelineStep { id: AgentStepId; label: string; status: StepStatus; }
-
-const PHASE_A_STEPS: { id: AgentStepId; label: string }[] = [
-  { id: 'vehicle_intelligence', label: 'Decoding VIN via NHTSA' },
-  { id: 'market_research',      label: 'Researching market value & trends' },
-];
-
-const PHASE_B_STEPS: { id: AgentStepId; label: string }[] = [
-  { id: 'generate_listing', label: 'Generating complete listing package' },
-];
-
-const PHASE_C_STEPS: { id: AgentStepId; label: string }[] = [
-  { id: 'distribute_ebay',     label: 'Publishing to eBay Motors' },
-  { id: 'distribute_facebook', label: 'Preparing Facebook Marketplace post' },
-  { id: 'distribute_website',  label: 'Confirming website inventory' },
-];
 
 // ── Wizard types ──────────────────────────────────────────────────────────────
 
@@ -2127,31 +2108,6 @@ interface ListingEdit {
   ebay_listing_description: string;
 }
 
-function StepIcon({ status, index }: { status: StepStatus; index: number }) {
-  if (status === 'active')
-    return (
-      <div className="w-7 h-7 rounded-full bg-amber-50 border-2 border-[#C9A84C] flex items-center justify-center shrink-0">
-        <div className="w-3 h-3 border-2 border-[#C9A84C] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  if (status === 'done')
-    return (
-      <div className="w-7 h-7 rounded-full bg-emerald-50 border-2 border-emerald-400 flex items-center justify-center shrink-0">
-        <Check size={12} className="text-emerald-500" />
-      </div>
-    );
-  if (status === 'error')
-    return (
-      <div className="w-7 h-7 rounded-full bg-red-50 border-2 border-red-400 flex items-center justify-center shrink-0">
-        <X size={12} className="text-red-500" />
-      </div>
-    );
-  return (
-    <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center shrink-0">
-      <span className="text-[10px] font-bold text-gray-400">{index + 1}</span>
-    </div>
-  );
-}
 
 function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -2493,9 +2449,6 @@ function AIAgentView() {
   });
   const [phaseAResult, setPhaseAResult] = useState<AgentResult | null>(null);
   const [phaseCResult, setPhaseCResult] = useState<AgentResult | null>(null);
-  const [phaseASteps, setPhaseASteps] = useState<PipelineStep[]>(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
-  const [phaseBSteps, setPhaseBSteps] = useState<PipelineStep[]>(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
-  const [phaseCSteps, setPhaseCSteps] = useState<PipelineStep[]>(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [featureSearch, setFeatureSearch] = useState('');
   const [customFeatureInput, setCustomFeatureInput] = useState('');
@@ -2523,9 +2476,6 @@ function AIAgentView() {
     setSelectedFeatures([]); setFeatureSearch(''); setCustomFeatureInput('');
     imgEntries.forEach(e => URL.revokeObjectURL(e.preview));
     setImgEntries([]);
-    setPhaseASteps(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
-    setPhaseBSteps(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
-    setPhaseCSteps(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
     setUserReview({ mileage: 0, color: '', asking_price: '', condition: 'good', title_status: 'clean',
       body_type: '', drive: '', features: '', service_history: '',
       notes: '', stock_number: '', fuel_economy: '', featured: false, status: 'available' });
@@ -2535,43 +2485,29 @@ function AIAgentView() {
     const trimmedVin = vin.trim().toUpperCase();
     if (trimmedVin.length !== 17) { setError('VIN must be exactly 17 characters.'); return; }
     setError(''); setRunning(true);
-    setPhaseASteps(PHASE_A_STEPS.map(s => ({ ...s, status: 'pending' })));
     setWizardPhase('phase-a');
-    let failed = false;
     try {
-      for await (const event of api.streamVehicleIntelligence(trimmedVin)) {
-        if (!mountedRef.current) break;
-        if (event.type === 'step_start') {
-          setPhaseASteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
-        } else if (event.type === 'step_done') {
-          setPhaseASteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
-        } else if (event.type === 'complete') {
-          setPhaseAResult(event.result);
-          setPhaseASteps(prev => prev.map(s => ({
-            ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
-          })));
-          setUserReview(prev => ({
-            ...prev,
-            body_type: event.result.body_style || prev.body_type,
-            drive: event.result.drive_type || prev.drive,
-          }));
-        } else if (event.type === 'error') {
-          setError(event.message); failed = true;
-        }
-      }
+      const result = await api.fetchVehicleIntelligence(trimmedVin);
+      if (!mountedRef.current) return;
+      setPhaseAResult(result);
+      setUserReview(prev => ({
+        ...prev,
+        body_type: result.body_style || prev.body_type,
+        drive: result.drive_type || prev.drive,
+      }));
+      setWizardPhase('clarify');
     } catch (e) {
-      if (mountedRef.current) { setError(e instanceof Error ? e.message : 'Phase A failed.'); failed = true; }
+      if (mountedRef.current) setError(e instanceof Error ? e.message : 'Phase A failed.');
     } finally {
-      if (mountedRef.current) { setRunning(false); if (!failed) setWizardPhase('clarify'); }
+      if (mountedRef.current) setRunning(false);
     }
   };
 
   const runPhaseB = async () => {
     if (!phaseAResult) return;
     setError(''); setRunning(true);
-    setPhaseBSteps(PHASE_B_STEPS.map(s => ({ ...s, status: 'pending' })));
     setWizardPhase('phase-b');
-    const req: PhaseBRequest = {
+    const phaseBreq: PhaseBRequest = {
       vin: vin.trim().toUpperCase(),
       make: phaseAResult.make, model: phaseAResult.model, year: phaseAResult.year,
       trim: phaseAResult.trim, engine: phaseAResult.engine, fuel_type: phaseAResult.fuel_type,
@@ -2584,36 +2520,24 @@ function AIAgentView() {
       features: userReview.features ? userReview.features.split(',').map(f => f.trim()).filter(Boolean) : undefined,
       service_history: userReview.service_history || undefined, notes: userReview.notes || undefined,
     };
-    let failed = false;
     try {
-      for await (const event of api.streamGenerateListing(req)) {
-        if (!mountedRef.current) break;
-        if (event.type === 'step_start') {
-          setPhaseBSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
-        } else if (event.type === 'step_done') {
-          setPhaseBSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
-        } else if (event.type === 'complete') {
-          setPhaseBSteps(prev => prev.map(s => ({
-            ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
-          })));
-          const aiFeatures = event.result.key_features || [];
-          setListingEdit({
-            listing_title: event.result.listing_title || '',
-            listing_description: event.result.listing_description || '',
-            suggested_price: event.result.suggested_price ? String(Math.round(event.result.suggested_price)) : '',
-            key_features: aiFeatures,
-            facebook_copy: event.result.facebook_copy || '',
-            ebay_listing_description: event.result.ebay_listing_description || '',
-          });
-          setSelectedFeatures(aiFeatures);
-        } else if (event.type === 'error') {
-          setError(event.message); failed = true;
-        }
-      }
+      const result = await api.fetchGenerateListing(phaseBreq);
+      if (!mountedRef.current) return;
+      const aiFeatures = result.key_features || [];
+      setListingEdit({
+        listing_title: result.listing_title || '',
+        listing_description: result.listing_description || '',
+        suggested_price: result.suggested_price ? String(Math.round(result.suggested_price)) : '',
+        key_features: aiFeatures,
+        facebook_copy: result.facebook_copy || '',
+        ebay_listing_description: result.ebay_listing_description || '',
+      });
+      setSelectedFeatures(aiFeatures);
+      setWizardPhase('features');
     } catch (e) {
-      if (mountedRef.current) { setError(e instanceof Error ? e.message : 'Phase B failed.'); failed = true; }
+      if (mountedRef.current) setError(e instanceof Error ? e.message : 'Phase B failed.');
     } finally {
-      if (mountedRef.current) { setRunning(false); if (!failed) setWizardPhase('features'); }
+      if (mountedRef.current) setRunning(false);
     }
   };
 
@@ -2663,7 +2587,6 @@ function AIAgentView() {
       }
 
       setWizardPhase('phase-c');
-      setPhaseCSteps(PHASE_C_STEPS.map(s => ({ ...s, status: 'pending' })));
       const phaseCReq: PhaseCRequest = {
         vehicle_id: vid,
         vin: vin.trim().toUpperCase(),
@@ -2676,21 +2599,8 @@ function AIAgentView() {
         ebay_listing_description: listingEdit.ebay_listing_description,
         suggested_price: priceNum,
       };
-      for await (const event of api.streamDistribute(phaseCReq)) {
-        if (!mountedRef.current) break;
-        if (event.type === 'step_start') {
-          setPhaseCSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'active' } : s));
-        } else if (event.type === 'step_done') {
-          setPhaseCSteps(prev => prev.map(s => s.id === event.step ? { ...s, status: 'done' } : s));
-        } else if (event.type === 'complete') {
-          setPhaseCResult(event.result);
-          setPhaseCSteps(prev => prev.map(s => ({
-            ...s, status: event.result.errors?.[s.id] ? 'error' : s.status === 'active' ? 'done' : s.status,
-          })));
-        } else if (event.type === 'error') {
-          setError(event.message);
-        }
-      }
+      const distResult = await api.fetchDistribute(phaseCReq);
+      if (mountedRef.current) setPhaseCResult(distResult);
     } catch (err) {
       if (mountedRef.current) setSaveError(err instanceof Error ? err.message : 'Failed to publish.');
     } finally {
@@ -2793,30 +2703,8 @@ function AIAgentView() {
               <p className="text-xs text-gray-400">Decoding VIN and researching the market</p>
             </div>
           </div>
-          <div className="px-6 py-5 space-y-3">
-            {phaseASteps.map((step, i) => (
-              <div key={step.id} className="flex items-center gap-3">
-                <StepIcon status={step.status} index={i} />
-                <span className={`text-sm flex-1 transition-colors ${
-                  step.status === 'active' ? 'text-[#C9A84C] font-semibold' :
-                  step.status === 'done'   ? 'text-gray-800 font-medium' :
-                  step.status === 'error'  ? 'text-red-500' : 'text-gray-400'}`}>{step.label}</span>
-                {step.status === 'active' && <span className="text-[10px] text-amber-500 animate-pulse">Running…</span>}
-                {step.status === 'done'   && <span className="text-[10px] text-emerald-500">Done</span>}
-              </div>
-            ))}
-            {phaseAResult?.make && (
-              <div className="pt-3 border-t border-gray-100">
-                <p className="text-lg font-black text-gray-900">
-                  {[phaseAResult.year, phaseAResult.make, phaseAResult.model, phaseAResult.trim].filter(Boolean).join(' ')}
-                </p>
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {[phaseAResult.engine, phaseAResult.fuel_type, phaseAResult.transmission].filter(Boolean).map(v => (
-                    <span key={v} className="px-2 py-0.5 rounded-full bg-gray-100 text-[11px] font-medium text-gray-600">{v}</span>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="px-6 py-8 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" />
           </div>
         </div>
       )}
@@ -2956,18 +2844,8 @@ function AIAgentView() {
               <p className="text-xs text-gray-400">Generating title, description, price, and marketplace copies</p>
             </div>
           </div>
-          <div className="px-6 py-5 space-y-3">
-            {phaseBSteps.map((step, i) => (
-              <div key={step.id} className="flex items-center gap-3">
-                <StepIcon status={step.status} index={i} />
-                <span className={`text-sm flex-1 transition-colors ${
-                  step.status === 'active' ? 'text-[#C9A84C] font-semibold' :
-                  step.status === 'done'   ? 'text-gray-800 font-medium' :
-                  step.status === 'error'  ? 'text-red-500' : 'text-gray-400'}`}>{step.label}</span>
-                {step.status === 'active' && <span className="text-[10px] text-amber-500 animate-pulse">Running…</span>}
-                {step.status === 'done'   && <span className="text-[10px] text-emerald-500">Done</span>}
-              </div>
-            ))}
+          <div className="px-6 py-8 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" />
           </div>
         </div>
       )}
@@ -3288,18 +3166,8 @@ function AIAgentView() {
               <p className="text-xs text-gray-400">Distributing to eBay, Facebook, and website inventory</p>
             </div>
           </div>
-          <div className="px-6 py-5 space-y-3">
-            {phaseCSteps.map((step, i) => (
-              <div key={step.id} className="flex items-center gap-3">
-                <StepIcon status={step.status} index={i} />
-                <span className={`text-sm flex-1 transition-colors ${
-                  step.status === 'active' ? 'text-[#C9A84C] font-semibold' :
-                  step.status === 'done'   ? 'text-gray-800 font-medium' :
-                  step.status === 'error'  ? 'text-red-500' : 'text-gray-400'}`}>{step.label}</span>
-                {step.status === 'active' && <span className="text-[10px] text-amber-500 animate-pulse">Running…</span>}
-                {step.status === 'done'   && <span className="text-[10px] text-emerald-500">Done</span>}
-              </div>
-            ))}
+          <div className="px-6 py-8 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" />
           </div>
         </div>
       )}

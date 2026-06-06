@@ -391,11 +391,6 @@ export interface PhaseCRequest {
   suggested_price?: number;
 }
 
-export type AgentEvent =
-  | { type: 'step_start'; step: AgentStepId; label: string }
-  | { type: 'step_done';  step: AgentStepId }
-  | { type: 'complete';   result: AgentResult }
-  | { type: 'error';      message: string };
 
 export interface CreateVehiclePayload {
 

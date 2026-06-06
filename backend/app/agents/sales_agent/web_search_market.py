@@ -31,23 +31,24 @@ log = logging.getLogger(__name__)
 
 # ── DuckDuckGo helper ─────────────────────────────────────────────────────────
 
-def _ddg_search(query: str, max_results: int = 6) -> list[dict[str, Any]]:
-    """Synchronous DuckDuckGo text search wrapped for asyncio.to_thread."""
-    try:
-        from duckduckgo_search import DDGS
-        with DDGS() as ddgs:
-            return list(ddgs.text(query, max_results=max_results))
-    except Exception as exc:  # noqa: BLE001
-        log.warning("[DDG] Search failed (%s): %s", type(exc).__name__, exc)
-        return []
+def _ddg_search(query: str, max_results: int = 10) -> list[dict[str, Any]]:
+    """Synchronous DDGS text search — call via asyncio.to_thread."""
+    from ddgs import DDGS
+    with DDGS() as ddgs:
+        results = list(ddgs.text(query, max_results=max_results))
+    log.info("[WebSearch] DDGS returned %d results for: %s", len(results), query)
+    log.info("[WebSearch] DDGS raw results: %s", results)
+    return results
 
 
 def _snippets(results: list[dict[str, Any]]) -> str:
-    return "\n".join(
-        f"{r.get('title', '')}: {r.get('body', '')}"
-        for r in results
-        if r.get("body")
-    )
+    """Extract title+body pairs. DDGS field names: title, href, body."""
+    lines = []
+    for r in results:
+        body = r.get("body", "")
+        if body:
+            lines.append(f"{r.get('title', '')}: {body}")
+    return "\n".join(lines)
 
 
 # ── Main node ─────────────────────────────────────────────────────────────────
@@ -77,19 +78,29 @@ async def web_search_market(state: AgentState) -> AgentState:
     price_snippets = ""
     selling_snippets = ""
 
+    fallback_reason = ""
     try:
         price_results, selling_results = await asyncio.gather(
             asyncio.to_thread(_ddg_search, f"{vehicle_str} market value price range"),
             asyncio.to_thread(_ddg_search, f"{vehicle_str} features highlights review"),
         )
+        total_returned = len(price_results) + len(selling_results)
         price_snippets = _snippets(price_results)
         selling_snippets = _snippets(selling_results)
+        snippet_count = sum(1 for r in price_results + selling_results if r.get("body"))
+        log.info("[WebSearch] DDGS totals — results: %d, snippets with body: %d", total_returned, snippet_count)
+
         if price_snippets or selling_snippets:
-            log.info("[WebSearch] DDG returned results for %s", vehicle_str)
+            log.info("[WebSearch] Using DDGS research successfully")
+        elif total_returned == 0:
+            fallback_reason = "DDGS returned zero results"
+            log.info("[WebSearch] %s — falling back to GPT training knowledge", fallback_reason)
         else:
-            log.info("[WebSearch] DDG returned no usable snippets — using GPT knowledge")
+            fallback_reason = "DDGS parsing failed — results contained no body text"
+            log.info("[WebSearch] %s — falling back to GPT training knowledge", fallback_reason)
     except Exception as exc:
-        log.warning("[WebSearch] DDG gather failed: %s", exc)
+        fallback_reason = f"DDGS exception: {exc}"
+        log.warning("[WebSearch] DDGS gather failed: %s — falling back to GPT training knowledge", exc)
 
     client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 

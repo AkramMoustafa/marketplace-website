@@ -29,7 +29,19 @@
       "Bash(Select-Object -Property FullName, PSIsContainer)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\marketplace-website\\\\backend\" -Recurse -Force | where { $_.PSIsContainer } | Select-Object -ExpandProperty FullName)",
       "Bash(python -c \"from app.routes.agent import router, ws_router; from app.main import app; print\\('OK'\\)\")",
-      "Bash(python *)"
+      "Bash(python *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:8000/health\" -Method GET -TimeoutSec 5 2>&1)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:8000/health\" -TimeoutSec 5; $r.StatusCode; $r.Content } catch { \"ERROR: $_\" })",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s -X POST http://localhost:8000/api/agent/vehicle-intelligence -H 'Content-Type: application/json' -H 'x-admin-auth: true' -d '{\"vin\": \"1FAFP404X1F192345\"}')",
+      "Bash(python3 -c ' *)",
+      "Bash(.\\\\venv\\\\Scripts\\\\python.exe *)",
+      "PowerShell(cd C:\\\\marketplace-website\\\\backend; $env:PYTHONIOENCODING=\"utf-8\"; .\\\\venv\\\\Scripts\\\\python.exe test_ebay_inventory.py)",
+      "PowerShell(cd C:\\\\marketplace-website\\\\backend; $env:PYTHONIOENCODING=\"utf-8\"; .\\\\venv\\\\Scripts\\\\python.exe test_ebay_refresh.py)",
+      "Bash(Get-Content C:\\\\marketplace-website\\\\backend\\\\.env)",
+      "Bash(Select-String -Pattern \"EBAY\")"
     ]
   }
 }

@@ -21,9 +21,18 @@ from __future__ import annotations
 import logging
 
 from app.config.settings import get_settings
+from app.services.marketplaces.ebay import (
+    EbayAPIClient,
+    EbayAPIError,
+    EbayConfigError,
+    build_inventory_item_payload,
+    build_offer_payload,
+)
 from .state import AgentState
 
 log = logging.getLogger(__name__)
+
+_EBAY_CATEGORY_CARS = "6001"  # eBay Motors > Cars & Trucks
 
 
 def _require_vehicle_id(state: AgentState, errors: dict, tool: str) -> bool:
@@ -68,17 +77,122 @@ async def distribute_ebay(state: AgentState) -> AgentState:
             "errors": errors,
         }
 
-    log.info("[eBay PROD] Approval pending for VIN %s", vin)
+    # ── Real eBay Inventory API ───────────────────────────────────────────────
+
+    if not settings.EBAY_USER_TOKEN:
+        dist = dict(state.get("distribution_status") or {})
+        dist["ebay"] = "needs_user_token"
+        log.warning(
+            "[eBay PROD] EBAY_USER_TOKEN not set — cannot publish VIN %s. "
+            "Obtain a user token from developer.ebay.com → App Keys → User Tokens "
+            "(required scopes: sell.inventory  sell.account)",
+            vin,
+        )
+        return {
+            **state,
+            "ebay_status": "needs_user_token",
+            "ebay_listing_id": None,
+            "ebay_message": (
+                "EBAY_USER_TOKEN is not configured. "
+                "Obtain a user token from developer.ebay.com → Application Keys → "
+                "your app → User Tokens (scopes: sell.inventory  sell.account) "
+                "and set it in backend/.env."
+            ),
+            "distribution_status": dist,
+            "errors": errors,
+        }
+
+    # Build SKU and payloads from agent state
+    sku = f"NOVA-{vin}" if vin else f"NOVA-{vehicle_id}"
+
+    make: str = state.get("make") or ""
+    model: str = state.get("model") or ""
+    year = state.get("year") or 0
+    trim: str = state.get("trim") or ""
+    mileage: int | None = state.get("mileage")
+    features: list = state.get("features") or []
+
+    # Price: user asking_price takes precedence over AI suggested_price
+    price_raw = state.get("asking_price") or state.get("suggested_price") or 0.0
+    price = float(price_raw)
+
+    # Build description for inventory item
+    ebay_desc: str = state.get("ebay_listing_description") or state.get("listing_description") or title
+    if features:
+        ebay_desc += "\n\nKey Features:\n" + "\n".join(f"• {f}" for f in features)
+
+    inventory_payload = build_inventory_item_payload(
+        title=title,
+        description=ebay_desc,
+        make=make,
+        model=model,
+        year=year,
+        vin=vin,
+        mileage=mileage,
+    )
+
+    client = EbayAPIClient()
+
+    try:
+        policies = await client.fetch_policies()
+    except (EbayAPIError, EbayConfigError) as exc:
+        log.error("[eBay PROD] Policy fetch failed for VIN %s: %s", vin, exc)
+        dist = dict(state.get("distribution_status") or {})
+        dist["ebay"] = "policy_error"
+        errors["distribute_ebay"] = f"Policy fetch failed: {exc}"
+        return {
+            **state,
+            "ebay_status": "policy_error",
+            "ebay_listing_id": None,
+            "ebay_message": f"eBay policy fetch failed: {exc}",
+            "distribution_status": dist,
+            "errors": errors,
+        }
+
+    offer_payload = build_offer_payload(
+        sku=sku,
+        price=price,
+        category_id=_EBAY_CATEGORY_CARS,
+        marketplace_id=settings.EBAY_MARKETPLACE_ID,
+        fulfillment_policy_id=policies["fulfillment_id"],
+        payment_policy_id=policies["payment_id"],
+        return_policy_id=policies["return_id"],
+        listing_description=ebay_desc,
+    )
+
+    try:
+        result = await client.publish_listing(sku, inventory_payload, offer_payload)
+    except EbayAPIError as exc:
+        log.error("[eBay PROD] Publish failed (HTTP %s) for VIN %s: %s", exc.status_code, vin, exc)
+        dist = dict(state.get("distribution_status") or {})
+        dist["ebay"] = "failed"
+        errors["distribute_ebay"] = str(exc)
+        return {
+            **state,
+            "ebay_status": "failed",
+            "ebay_listing_id": None,
+            "ebay_message": f"eBay publish failed: {exc}",
+            "distribution_status": dist,
+            "errors": errors,
+        }
+
+    listing_id: str = result["listing_id"]
+    offer_id: str = result["offer_id"]
+    log.info(
+        "[eBay PROD] Published VIN %s → listingId=%s offerId=%s sku=%s",
+        vin, listing_id, offer_id, sku,
+    )
+
     dist = dict(state.get("distribution_status") or {})
-    dist["ebay"] = "pending_approval"
+    dist["ebay"] = f"published:{listing_id}"
 
     return {
         **state,
-        "ebay_status": "pending_ebay_api_approval",
-        "ebay_listing_id": None,
+        "ebay_status": "published",
+        "ebay_listing_id": listing_id,
         "ebay_message": (
-            "eBay developer-account approval is pending. "
-            "The listing will be submitted once credentials are active."
+            f"Listed on eBay. "
+            f"Listing ID: {listing_id}  Offer ID: {offer_id}  SKU: {sku}"
         ),
         "distribution_status": dist,
         "errors": errors,

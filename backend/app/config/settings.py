@@ -31,8 +31,24 @@ class Settings(BaseSettings):
     EBAY_MOCK_MODE: bool = True
     EBAY_CLIENT_ID: str = ""
     EBAY_CLIENT_SECRET: str = ""
+    EBAY_DEV_ID: str = ""
     EBAY_REDIRECT_URI: str = ""
     EBAY_ENVIRONMENT: str = "sandbox"  # "sandbox" | "production"
+    EBAY_MARKETPLACE_ID: str = "EBAY_US"
+    # OAuth token lifecycle — prefer refresh token over static access token
+    # Long-lived refresh token from Authorization Code flow (never expires, survives restarts)
+    EBAY_REFRESH_TOKEN: str = ""
+    # Optional pre-seeded access token — seeds in-memory cache on startup
+    EBAY_ACCESS_TOKEN: str = ""
+    # Unix timestamp (float as string) of EBAY_ACCESS_TOKEN expiry — e.g. "1703012345.0"
+    EBAY_TOKEN_EXPIRES_AT: str = ""
+    # Legacy static access token — used only when EBAY_REFRESH_TOKEN is not set
+    # Expires every 2 hours and must be replaced manually
+    EBAY_USER_TOKEN: str = ""
+    # Business policy IDs — auto-fetched from Account API if left empty
+    EBAY_FULFILLMENT_POLICY_ID: str = ""
+    EBAY_PAYMENT_POLICY_ID: str = ""
+    EBAY_RETURN_POLICY_ID: str = ""
 
     # Seed
     ADMIN_EMAIL: str = "admin@marketplace.com"

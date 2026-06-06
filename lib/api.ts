@@ -8,7 +8,7 @@ import type {
   ContactMessagePayload, ContactMessageOut,
   PublicReview, PublicReviewCreate,
   VehicleSearchResult,
-  AgentEvent, AgentResult, AgentStepId, PhaseBRequest, PhaseCRequest,
+  AgentResult, PhaseBRequest, PhaseCRequest,
 } from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -336,106 +336,16 @@ export function getImageUrl(path: string | null | undefined): string {
   return `${BASE}${path}`;
 }
 
-// ── AI Sales Agent (WebSocket streaming) ──────────────────────────────────────
+// ── AI Sales Agent (REST) ─────────────────────────────────────────────────────
 
-const WS_BASE = BASE.replace(/^https?/, p => p === 'https' ? 'wss' : 'ws');
-
-function _adminAuth(): string {
-  if (typeof window === 'undefined') return 'true';
-  return localStorage.getItem('adminAuthenticated') || 'true';
+export function fetchVehicleIntelligence(vin: string): Promise<AgentResult> {
+  return req('/api/agent/vehicle-intelligence', { method: 'POST', body: JSON.stringify({ vin }) });
 }
 
-async function* _streamWS(payload: Record<string, unknown>): AsyncGenerator<AgentEvent> {
-  const fullPayload = { ...payload, x_admin_auth: _adminAuth() };
-
-  // Producer-consumer queue so WebSocket callbacks can feed the async generator.
-  const queue: Array<AgentEvent | Error | null> = [];
-  let notifyConsumer: (() => void) | null = null;
-
-  function enqueue(item: AgentEvent | Error | null) {
-    queue.push(item);
-    notifyConsumer?.();
-    notifyConsumer = null;
-  }
-
-  function waitForItem(): Promise<void> {
-    return new Promise(resolve => { notifyConsumer = resolve; });
-  }
-
-  const wsRef = { current: null as WebSocket | null };
-  let reconnects = 0;
-  const maxReconnects = 3;
-
-  function connect() {
-    const socket = new WebSocket(`${WS_BASE}/ws/vehicle-processing`);
-    wsRef.current = socket;
-
-    socket.onopen = () => {
-      reconnects = 0;
-      socket.send(JSON.stringify(fullPayload));
-    };
-
-    socket.onmessage = (evt) => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = JSON.parse(evt.data as string) as any;
-        if (data.type === 'step_start') {
-          enqueue({ type: 'step_start', step: data.step as AgentStepId, label: data.message as string });
-        } else if (data.type === 'step_done') {
-          enqueue({ type: 'step_done', step: data.step as AgentStepId });
-        } else if (data.status === 'completed' || data.type === 'complete') {
-          enqueue({ type: 'complete', result: data.result as AgentResult });
-          enqueue(null); // signals done
-        } else if (data.type === 'error' || data.status === 'error') {
-          enqueue(new Error(data.message as string));
-        }
-      } catch { /* skip malformed frames */ }
-    };
-
-    socket.onclose = (evt) => {
-      if (evt.code === 1000) return; // clean close — generator handles shutdown
-      if (reconnects < maxReconnects) {
-        reconnects++;
-        setTimeout(connect, 500 * reconnects); // back-off: 500 ms, 1 s, 1.5 s
-      } else {
-        enqueue(new Error(`WebSocket disconnected (code ${evt.code}) after ${maxReconnects} reconnect attempts`));
-      }
-    };
-
-    socket.onerror = () => { /* onclose always follows onerror */ };
-  }
-
-  connect();
-
-  try {
-    while (true) {
-      while (queue.length === 0) await waitForItem();
-      const item = queue.shift()!;
-      if (item === null) return;           // completed sentinel
-      if (item instanceof Error) throw item;
-      yield item;
-    }
-  } finally {
-    wsRef.current?.close(1000, 'generator-closed');
-  }
+export function fetchGenerateListing(data: PhaseBRequest): Promise<AgentResult> {
+  return req('/api/agent/generate-listing', { method: 'POST', body: JSON.stringify(data) });
 }
 
-/** Phase A — VIN decode + market research (WebSocket). */
-export function streamVehicleIntelligence(vin: string): AsyncGenerator<AgentEvent> {
-  return _streamWS({ phase: 'A', vin });
-}
-
-/** Phase B — listing generation with user review inputs (WebSocket). */
-export function streamGenerateListing(data: PhaseBRequest): AsyncGenerator<AgentEvent> {
-  return _streamWS({ phase: 'B', ...data });
-}
-
-/** Phase C — distribution (vehicle_id must be set) (WebSocket). */
-export function streamDistribute(data: PhaseCRequest): AsyncGenerator<AgentEvent> {
-  return _streamWS({ phase: 'C', ...data });
-}
-
-/** Legacy single-pass pipeline (kept for backward compat, WebSocket). */
-export function streamAgentPipeline(vin: string, adminPrice?: number): AsyncGenerator<AgentEvent> {
-  return _streamWS({ phase: 'legacy', vin, admin_price: adminPrice ?? null });
+export function fetchDistribute(data: PhaseCRequest): Promise<AgentResult> {
+  return req('/api/agent/distribute', { method: 'POST', body: JSON.stringify(data) });
 }
