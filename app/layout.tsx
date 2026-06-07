@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter, Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import Providers from './providers';
 import ChatWidget from '@/components/chat/ChatWidget';
 import './globals.css';
@@ -16,6 +16,12 @@ const playfair = Playfair_Display({
   display: 'swap',
 });
 
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-jakarta',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'Nova Motors | Detroit, MI',
   description: 'Nova Motors — 2940 East 8 Mile Detroit, MI 48234. Call (313) 251-7447.',
@@ -23,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${jakarta.variable}`}>
       <body>
         <Providers>{children}</Providers>
         <ChatWidget />
