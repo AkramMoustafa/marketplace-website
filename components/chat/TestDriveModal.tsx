@@ -296,7 +296,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
 
               {/* ── Booking summary strip ────────────────────────── */}
               {selectedDate && selectedTime && (
-                <div className="flex items-center gap-3 bg-orange-50 border border-orange-100 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                   <CalIcon size={15} className="text-[#B22222] shrink-0" />
                   <p className="text-sm font-semibold text-gray-800">
                     {selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}

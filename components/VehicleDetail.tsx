@@ -483,7 +483,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
               <Gallery images={vehicle.images ?? []} vehicleTitle={vehicle.title} />
 
               <div className="mt-4 rounded-[20px] bg-white p-7" style={{ boxShadow: '0 12px 40px rgba(0,0,0,.06)' }}>
-                <p className="text-[10px] font-bold uppercase tracking-[3px] mb-4" style={{ color: '#f97316' }}>
+                <p className="text-[10px] font-bold uppercase tracking-[3px] mb-4" style={{ color: '#B22222' }}>
                   About This Vehicle
                 </p>
                 <p className="text-sm leading-relaxed" style={{ color: '#555', maxWidth: '60ch' }}>

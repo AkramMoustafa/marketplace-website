@@ -13,7 +13,7 @@ export default function BookingCTA({ onOpen }: Props) {
       style={{ animation: 'alexFadeIn 0.25s ease-out' }}
     >
       {/* Card header */}
-      <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-white border-b border-gray-100 flex items-center gap-3">
+      <div className="px-4 py-3 bg-gradient-to-r from-red-50 to-white border-b border-gray-100 flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-[#B22222] flex items-center justify-center shrink-0">
           <Car size={16} className="text-white" />
         </div>

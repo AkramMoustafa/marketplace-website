@@ -68,7 +68,7 @@ export default async function VehicleDetailPage({
           <a
             href="/inventory"
             style={{
-              color: '#f97316',
+              color: '#B22222',
               fontSize: 13,
               fontWeight: 600,
             }}

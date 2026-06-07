@@ -163,7 +163,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
                 className={`
                   w-full aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-all
                   ${disabled ? 'text-gray-300 cursor-not-allowed' : ''}
-                  ${!disabled && !selected ? 'text-gray-700 hover:bg-orange-50 hover:text-[#B22222]' : ''}
+                  ${!disabled && !selected ? 'text-gray-700 hover:bg-red-50 hover:text-[#B22222]' : ''}
                   ${selected ? 'bg-[#B22222] text-white font-bold shadow-sm' : ''}
                   ${todayCell && !selected ? 'ring-1 ring-[#B22222]/40 text-[#B22222] font-bold' : ''}
                 `}
@@ -190,7 +190,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
                   py-1.5 px-1 text-[11px] font-semibold rounded-lg border transition-all text-center
                   ${selectedTime === slot
                     ? 'bg-[#B22222] text-white border-[#B22222] shadow-sm'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#B22222]/50 hover:text-[#B22222] hover:bg-orange-50'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#B22222]/50 hover:text-[#B22222] hover:bg-red-50'
                   }
                 `}
               >
@@ -242,7 +242,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
 
       {/* Selected summary */}
       {selectedDate && selectedTime && (
-        <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2">
+        <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
           <Calendar size={13} className="text-[#B22222] shrink-0" />
           <p className="text-[11px] text-gray-700 font-medium">
             {selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {selectedTime}

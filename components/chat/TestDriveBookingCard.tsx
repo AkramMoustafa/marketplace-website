@@ -119,7 +119,7 @@ export default function TestDriveBookingCard({ vehicleId, vehicleTitle: vehicleT
       style={{ animation: 'alexFadeIn 0.25s ease-out' }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-50 to-white border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-red-50 to-white border-b border-gray-100">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-[#B22222] flex items-center justify-center shrink-0 shadow-sm shadow-[#B22222]/30">
             <Car size={15} className="text-white" />

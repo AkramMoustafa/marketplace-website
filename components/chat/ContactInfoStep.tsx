@@ -31,19 +31,19 @@ export default function ContactInfoStep({
   return (
     <form onSubmit={handleSubmit} noValidate>
       {/* Summary strip */}
-      <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 mb-3">
+      <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2 mb-3">
         <span className="flex items-center gap-1 text-[11px] text-gray-700">
           <Calendar size={11} className="text-[#B22222]" />
           {dateStr}
         </span>
-        <div className="w-px h-3 bg-orange-200" />
+        <div className="w-px h-3 bg-red-200" />
         <span className="flex items-center gap-1 text-[11px] text-gray-700">
           <Clock size={11} className="text-[#B22222]" />
           {time}
         </span>
         {vehicleTitle && (
           <>
-            <div className="w-px h-3 bg-orange-200" />
+            <div className="w-px h-3 bg-red-200" />
             <span className="text-[11px] text-gray-500 truncate max-w-[100px]">{vehicleTitle}</span>
           </>
         )}

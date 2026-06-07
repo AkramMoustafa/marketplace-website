@@ -104,7 +104,7 @@ export default function CalendarPicker({ value, onChange, minDate }: Props) {
                 disabled
                   ? 'text-gray-300 cursor-not-allowed'
                   : !selected
-                    ? 'text-gray-700 hover:bg-orange-50 hover:text-[#B22222]'
+                    ? 'text-gray-700 hover:bg-red-50 hover:text-[#B22222]'
                     : '',
                 selected
                   ? 'bg-[#B22222] text-white font-bold shadow-sm shadow-[#B22222]/30'
