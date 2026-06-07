@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -13,109 +13,98 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === "/";
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const opaque = !isHome || scrolled || mobileOpen;
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        opaque
-          ? "bg-[#0A0A0A]/96 backdrop-blur-md border-b border-[#C9A84C]/10 shadow-[0_2px_30px_rgba(0,0,0,.6)]"
-          : "bg-transparent border-b border-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="flex items-center justify-between h-18 py-4">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="w-7 h-7 border border-[#C9A84C] rotate-45 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#C9A84C]">
-              <span className="font-serif text-[10px] font-bold text-[#C9A84C] group-hover:text-black -rotate-45 transition-colors duration-300">
-                LM
-              </span>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-white">
+        <div className="bg-white border-b border-white">
+          <div className="max-w-[1600px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between bg-white">
+            <div className="flex items-center gap-3 bg-white">
+              <Search size={18} className="text-black" />
+              <input
+                type="text"
+                placeholder="Search inventory"
+                className="bg-white text-black placeholder:text-black outline-none text-sm w-64"
+              />
             </div>
-            <span className="font-serif text-white text-lg tracking-widest uppercase">
-              Luxury<span className="text-[#C9A84C]">Motors</span>
-            </span>
-          </Link>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-9">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative text-[11px] tracking-[0.18em] uppercase font-sans transition-colors duration-300 group ${
-                  pathname === link.href ? "text-[#C9A84C]" : "text-white/60 hover:text-white"
-                }`}
-              >
-                {link.label}
-                <span
-                  className={`absolute -bottom-0.5 left-0 h-px bg-[#C9A84C] transition-all duration-300 ${
-                    pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
-                  }`}
-                />
+            <div className="hidden md:flex items-center gap-8 bg-white">
+              <Link href="/inventory" className="text-sm text-black">
+                Inventory
               </Link>
-            ))}
+              <Link href="/about" className="text-sm text-black">
+                About
+              </Link>
+              <Link href="/admin" className="text-sm text-black">
+                Admin
+              </Link>
+            </div>
           </div>
+        </div>
 
-          {/* CTA + mobile toggle */}
-          <div className="flex items-center gap-4">
-            <Link
-              href="/inventory"
-              className="hidden md:inline-flex items-center border border-[#C9A84C]/60 text-[#C9A84C] text-[10px] tracking-[0.18em] uppercase px-5 py-2.5 hover:bg-[#C9A84C] hover:text-black transition-all duration-300 font-sans"
-            >
-              View Inventory
+        <div className="bg-white">
+          <div className="max-w-[1600px] mx-auto px-6 lg:px-12 h-20 flex items-center justify-between bg-white">
+            <Link href="/" className="text-black font-black text-3xl tracking-tight">
+              NOVA MOTORS
             </Link>
+
+            <nav className="hidden lg:flex items-center gap-12 bg-white">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-medium ${
+                    pathname === link.href ? "text-black" : "text-black"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
             <button
-              className="md:hidden text-white/70 hover:text-white transition-colors"
+              className="lg:hidden text-black bg-white"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${
-          mobileOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+        className={`fixed inset-0 z-[60] bg-white transition-transform duration-300 lg:hidden ${
+          mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="bg-[#0A0A0A] border-t border-[#C9A84C]/10 px-6 py-6 flex flex-col gap-5">
+        <div className="h-20 px-6 flex items-center justify-between bg-white border-b border-white">
+          <span className="text-black font-black text-2xl">NOVA MOTORS</span>
+
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="text-black bg-white"
+            aria-label="Close menu"
+          >
+            <X size={28} />
+          </button>
+        </div>
+
+        <div className="p-8 flex flex-col bg-white">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className={`text-[11px] tracking-[0.2em] uppercase font-sans transition-colors duration-200 ${
-                pathname === link.href ? "text-[#C9A84C]" : "text-white/60 hover:text-white"
-              }`}
+              className="py-5 text-2xl text-black bg-white"
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/inventory"
-            onClick={() => setMobileOpen(false)}
-            className="mt-1 border border-[#C9A84C]/60 text-[#C9A84C] text-[10px] tracking-[0.18em] uppercase px-5 py-3 text-center hover:bg-[#C9A84C] hover:text-black transition-all duration-300 font-sans"
-          >
-            View Inventory
-          </Link>
         </div>
       </div>
-    </nav>
+    </>
   );
 }
