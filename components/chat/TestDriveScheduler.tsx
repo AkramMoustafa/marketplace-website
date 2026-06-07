@@ -163,9 +163,9 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
                 className={`
                   w-full aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-all
                   ${disabled ? 'text-gray-300 cursor-not-allowed' : ''}
-                  ${!disabled && !selected ? 'text-gray-700 hover:bg-orange-50 hover:text-[#FF5500]' : ''}
-                  ${selected ? 'bg-[#FF5500] text-white font-bold shadow-sm' : ''}
-                  ${todayCell && !selected ? 'ring-1 ring-[#FF5500]/40 text-[#FF5500] font-bold' : ''}
+                  ${!disabled && !selected ? 'text-gray-700 hover:bg-orange-50 hover:text-[#B22222]' : ''}
+                  ${selected ? 'bg-[#B22222] text-white font-bold shadow-sm' : ''}
+                  ${todayCell && !selected ? 'ring-1 ring-[#B22222]/40 text-[#B22222] font-bold' : ''}
                 `}
               >
                 {day}
@@ -189,8 +189,8 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
                 className={`
                   py-1.5 px-1 text-[11px] font-semibold rounded-lg border transition-all text-center
                   ${selectedTime === slot
-                    ? 'bg-[#FF5500] text-white border-[#FF5500] shadow-sm'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#FF5500]/50 hover:text-[#FF5500] hover:bg-orange-50'
+                    ? 'bg-[#B22222] text-white border-[#B22222] shadow-sm'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#B22222]/50 hover:text-[#B22222] hover:bg-orange-50'
                   }
                 `}
               >
@@ -215,7 +215,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
               placeholder="Your name (optional)"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF5500]/60 text-gray-800 placeholder-gray-400"
+              className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#B22222]/60 text-gray-800 placeholder-gray-400"
             />
           </div>
 
@@ -226,7 +226,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
               placeholder="Phone number *"
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF5500]/60 text-gray-800 placeholder-gray-400"
+              className="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#B22222]/60 text-gray-800 placeholder-gray-400"
             />
           </div>
 
@@ -235,7 +235,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
             value={notes}
             onChange={e => setNotes(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF5500]/60 text-gray-800 placeholder-gray-400 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#B22222]/60 text-gray-800 placeholder-gray-400 resize-none"
           />
         </div>
       )}
@@ -243,7 +243,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
       {/* Selected summary */}
       {selectedDate && selectedTime && (
         <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2">
-          <Calendar size={13} className="text-[#FF5500] shrink-0" />
+          <Calendar size={13} className="text-[#B22222] shrink-0" />
           <p className="text-[11px] text-gray-700 font-medium">
             {selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {selectedTime}
           </p>
@@ -259,7 +259,7 @@ export default function TestDriveScheduler({ onClose, onSuccess }: Props) {
       <button
         onClick={handleSubmit}
         disabled={!selectedDate || !selectedTime || !phone.trim() || submitting}
-        className="w-full py-2.5 rounded-xl bg-[#FF5500] text-white text-sm font-black tracking-wide hover:bg-[#FF7733] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+        className="w-full py-2.5 rounded-xl bg-[#B22222] text-white text-sm font-black tracking-wide hover:bg-[#8B1A1A] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
       >
         {submitting ? (
           <span className="animate-spin w-4 h-4 border-2 border-white/40 border-t-white rounded-full" />

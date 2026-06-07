@@ -11,7 +11,7 @@ const SLIDES = [
   { image: heroImage, alt: 'Nova Motors Inventory' },
 ] as const;
 
-export default function HeroSection(_props: { onOpenFinder?: () => void }) {
+export default function HeroSection({ onOpenFinder }: { onOpenFinder?: () => void }) {
   const [current, setCurrent] = useState(0);
 
   const next = useCallback(() => {
@@ -66,10 +66,16 @@ export default function HeroSection(_props: { onOpenFinder?: () => void }) {
                   compare options, and connect directly with our team.
                 </p>
 
-                <div className="mt-6">
+                <div className="mt-6 flex flex-col gap-2.5">
+                  <button
+                    onClick={onOpenFinder}
+                    className="inline-flex items-center justify-center px-8 py-3 bg-[#B22222] text-white text-sm font-bold uppercase tracking-[2px] hover:bg-[#8B1A1A] transition-all duration-200"
+                  >
+                    Find Your Dream Car
+                  </button>
                   <a
                     href="/inventory"
-                    className="inline-flex items-center justify-center px-8 py-3 bg-[#B22222] text-white text-sm font-bold uppercase tracking-[2px] hover:bg-[#8B1A1A] transition-all duration-200"
+                    className="inline-flex items-center justify-center px-8 py-2.5 border border-black/20 text-black/70 text-xs font-semibold uppercase tracking-[1.5px] hover:bg-black/5 transition-all duration-200"
                   >
                     View Inventory
                   </a>

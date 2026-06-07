@@ -238,7 +238,7 @@ export default function CarDetailPage({ car }: { car: CarRec | null }) {
       }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 7 }}>
           <span style={{ color: '#fff', fontWeight: 900, fontSize: '1.1rem', letterSpacing: '4px' }}>NOVA</span>
-          <span style={{ color: '#FF5500', fontSize: '0.58rem', fontWeight: 800, letterSpacing: '5px', textTransform: 'uppercase' }}>
+          <span style={{ color: '#B22222', fontSize: '0.58rem', fontWeight: 800, letterSpacing: '5px', textTransform: 'uppercase' }}>
             MOTORS
           </span>
         </Link>
@@ -353,8 +353,8 @@ export default function CarDetailPage({ car }: { car: CarRec | null }) {
               gap:          10,
               padding:      '10px 18px',
               borderRadius: 10,
-              background:   'rgba(255,85,0,0.08)',
-              border:       '1px solid rgba(255,85,0,0.28)',
+              background:   'rgba(178,34,34,0.08)',
+              border:       '1px solid rgba(178,34,34,0.28)',
               marginBottom: 22,
             }}>
               <span style={{
@@ -370,7 +370,7 @@ export default function CarDetailPage({ car }: { car: CarRec | null }) {
               <span style={{
                 fontSize:      '1.5rem',
                 fontWeight:    900,
-                color:         '#FF5500',
+                color:         '#B22222',
                 letterSpacing: '-0.02em',
                 lineHeight:    1,
               }}>
@@ -585,7 +585,7 @@ export default function CarDetailPage({ car }: { car: CarRec | null }) {
                   <p style={{
                     fontSize:   '1.15rem',
                     fontWeight: 900,
-                    color:      '#FF5500',
+                    color:      '#B22222',
                     margin:     '0 0 14px',
                   }}>
                     {v.price}
@@ -625,7 +625,7 @@ export default function CarDetailPage({ car }: { car: CarRec | null }) {
         <p style={{ fontSize: '1.6rem', fontWeight: 900, letterSpacing: '5px', color: '#fff', margin: '0 0 4px' }}>
           NOVA
         </p>
-        <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '7px', color: '#FF5500', textTransform: 'uppercase', margin: 0 }}>
+        <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '7px', color: '#B22222', textTransform: 'uppercase', margin: 0 }}>
           MOTORS
         </p>
       </footer>

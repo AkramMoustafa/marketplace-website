@@ -85,7 +85,7 @@ export default function HomeFooter() {
                 </h3>
                 <p
                   className="text-[10px] uppercase tracking-[8px] mt-1 font-bold"
-                  style={{ color: "#FF5500" }}
+                  style={{ color: "#B22222" }}
                 >
                   MOTORS
                 </p>
@@ -105,8 +105,8 @@ export default function HomeFooter() {
                     className="
                       w-9 h-9 flex items-center justify-center
                       rounded border border-white/10 text-white/70
-                      hover:border-[#FF5500]/55 hover:text-[#FF5500]
-                      hover:shadow-[0_0_14px_rgba(255,85,0,0.3)]
+                      hover:border-[#B22222]/55 hover:text-[#B22222]
+                      hover:shadow-[0_0_14px_rgba(178,34,34,0.3)]
                       transition-all duration-300
                     "
                   >
@@ -127,7 +127,7 @@ export default function HomeFooter() {
                 className="h-px mb-5"
                 style={{
                   background:
-                    "linear-gradient(90deg, #FF5500 0%, transparent 100%)",
+                    "linear-gradient(90deg, #B22222 0%, transparent 100%)",
                 }}
               />
 
@@ -138,7 +138,7 @@ export default function HomeFooter() {
                       href={href}
                       className="
                         text-white/70 text-[13px] font-sans tracking-wide
-                        hover:text-[#FF5500] transition-colors duration-300
+                        hover:text-[#B22222] transition-colors duration-300
                       "
                     >
                       {label}
@@ -159,7 +159,7 @@ export default function HomeFooter() {
                 className="h-px mb-5"
                 style={{
                   background:
-                    "linear-gradient(90deg, #FF5500 0%, transparent 100%)",
+                    "linear-gradient(90deg, #B22222 0%, transparent 100%)",
                 }}
               />
 
@@ -168,7 +168,7 @@ export default function HomeFooter() {
                   <Phone
                     size={13}
                     className="shrink-0"
-                    style={{ color: "#FF5500" }}
+                    style={{ color: "#B22222" }}
                   />
                   <a
                     href="tel:+12125550199"
@@ -182,7 +182,7 @@ export default function HomeFooter() {
                   <Mail
                     size={13}
                     className="shrink-0"
-                    style={{ color: "#FF5500" }}
+                    style={{ color: "#B22222" }}
                   />
                   <a
                     href="mailto:hello@novamotors.com"
@@ -196,7 +196,7 @@ export default function HomeFooter() {
                   <MapPin
                     size={13}
                     className="mt-0.5 shrink-0"
-                    style={{ color: "#FF5500" }}
+                    style={{ color: "#B22222" }}
                   />
                   <span className="text-white/75 text-[13px] leading-relaxed">
                     425 Park Avenue
@@ -209,7 +209,7 @@ export default function HomeFooter() {
                   <Clock
                     size={13}
                     className="mt-0.5 shrink-0"
-                    style={{ color: "#FF5500" }}
+                    style={{ color: "#B22222" }}
                   />
                   <span className="text-white/90 text-[13px] leading-relaxed">
                     Mon – Sat: 9am – 7pm
@@ -235,8 +235,8 @@ export default function HomeFooter() {
                   href={href}
                   aria-label={label}
                   className="
-                    text-white/50 hover:text-[#FF5500]
-                    hover:drop-shadow-[0_0_6px_rgba(255,85,0,0.7)]
+                    text-white/50 hover:text-[#B22222]
+                    hover:drop-shadow-[0_0_6px_rgba(178,34,34,0.7)]
                     transition-all duration-300
                   "
                 >

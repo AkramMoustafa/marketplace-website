@@ -73,14 +73,14 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing, onNa
 
       {/* Content */}
       <div className="p-2.5">
-        <span className="text-[9px] font-black uppercase tracking-wider text-[#FF5500] block">
+        <span className="text-[9px] font-black uppercase tracking-wider text-[#B22222] block">
           {vehicle.make}
         </span>
         {/* Title — clickable */}
         <button
           type="button"
           onClick={handleNavigate}
-          className="text-[10px] font-black text-gray-900 leading-tight line-clamp-2 mt-0.5 min-h-[26px] text-left w-full hover:text-[#FF5500] transition-colors"
+          className="text-[10px] font-black text-gray-900 leading-tight line-clamp-2 mt-0.5 min-h-[26px] text-left w-full hover:text-[#B22222] transition-colors"
         >
           {vehicle.title}
         </button>
@@ -99,14 +99,14 @@ export default function VehicleChatCard({ vehicle, onSchedule, onFinancing, onNa
           <button
             type="button"
             onClick={handleNavigate}
-            className="flex items-center justify-center w-full py-1.5 bg-gray-900 text-white text-[10px] font-black rounded-lg hover:bg-[#FF5500] transition-colors"
+            className="flex items-center justify-center w-full py-1.5 bg-gray-900 text-white text-[10px] font-black rounded-lg hover:bg-[#B22222] transition-colors"
           >
             View Vehicle
           </button>
           <button
             type="button"
             onClick={onSchedule}
-            className="flex items-center justify-center w-full py-1.5 bg-[#FF5500]/10 text-[#FF5500] text-[10px] font-black rounded-lg hover:bg-[#FF5500] hover:text-white transition-colors border border-[#FF5500]/20"
+            className="flex items-center justify-center w-full py-1.5 bg-[#B22222]/10 text-[#B22222] text-[10px] font-black rounded-lg hover:bg-[#B22222] hover:text-white transition-colors border border-[#B22222]/20"
           >
             Test Drive
           </button>

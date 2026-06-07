@@ -42,7 +42,7 @@ export default function TopTrustBar() {
         {/* Location + phone */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-1.5">
-            <MapPin size={10} className="text-[#FF5500] shrink-0" />
+            <MapPin size={10} className="text-[#B22222] shrink-0" />
             <span className="text-[10px] text-slate-400 tracking-wide">
               2940 East 8 Mile, Detroit MI 48234
             </span>
@@ -51,7 +51,7 @@ export default function TopTrustBar() {
           <span className="hidden sm:block h-3 w-px bg-white/[0.12]" />
 
           <div className="flex items-center gap-1.5">
-            <Phone size={10} className="text-[#FF5500] shrink-0" />
+            <Phone size={10} className="text-[#B22222] shrink-0" />
             <a
               href="tel:3132517447"
               className="text-[10px] text-slate-400 hover:text-white transition-colors duration-200"

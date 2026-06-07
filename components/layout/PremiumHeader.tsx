@@ -120,7 +120,7 @@ export default function PremiumHeader({ query = '', onQueryChange }: PremiumHead
               {/* Primary CTA — square, dark */}
               <Link
                 href="/inventory"
-                className="hidden sm:inline-flex items-center px-5 py-2.5 bg-gray-900 text-white text-[10px] font-bold tracking-[1.5px] uppercase hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
+                className="hidden sm:inline-flex items-center px-5 py-2.5 bg-[#B22222] text-white text-[10px] font-bold tracking-[1.5px] uppercase hover:bg-[#8B1A1A] transition-colors duration-200 whitespace-nowrap"
               >
                 View Inventory
               </Link>
@@ -217,7 +217,7 @@ export default function PremiumHeader({ query = '', onQueryChange }: PremiumHead
               <Link
                 href="/inventory"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center w-full py-3 bg-gray-900 text-white text-[10px] font-bold tracking-[2px] uppercase hover:bg-gray-700 transition-colors"
+                className="flex items-center justify-center w-full py-3 bg-[#B22222] text-white text-[10px] font-bold tracking-[2px] uppercase hover:bg-[#8B1A1A] transition-colors"
               >
                 View Inventory
               </Link>

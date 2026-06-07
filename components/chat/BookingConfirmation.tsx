@@ -22,7 +22,7 @@ export default function BookingConfirmation({ data, onClose }: Props) {
         <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center">
           <CheckCircle size={40} className="text-green-500" strokeWidth={1.5} />
         </div>
-        <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#FF5500] flex items-center justify-center border-2 border-white">
+        <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#B22222] flex items-center justify-center border-2 border-white">
           <Car size={14} className="text-white" />
         </div>
       </div>
@@ -35,8 +35,8 @@ export default function BookingConfirmation({ data, onClose }: Props) {
       {/* Details card */}
       <div className="w-full bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden text-left">
         <div className="px-5 py-3.5 flex items-center gap-3 border-b border-gray-200">
-          <div className="w-9 h-9 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-            <Car size={16} className="text-[#FF5500]" />
+          <div className="w-9 h-9 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+            <Car size={16} className="text-[#B22222]" />
           </div>
           <div className="min-w-0">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Vehicle</p>
@@ -45,8 +45,8 @@ export default function BookingConfirmation({ data, onClose }: Props) {
         </div>
 
         <div className="px-5 py-3.5 flex items-center gap-3 border-b border-gray-200">
-          <div className="w-9 h-9 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-            <Calendar size={16} className="text-[#FF5500]" />
+          <div className="w-9 h-9 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+            <Calendar size={16} className="text-[#B22222]" />
           </div>
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date</p>
@@ -55,8 +55,8 @@ export default function BookingConfirmation({ data, onClose }: Props) {
         </div>
 
         <div className="px-5 py-3.5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-            <Clock size={16} className="text-[#FF5500]" />
+          <div className="w-9 h-9 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+            <Clock size={16} className="text-[#B22222]" />
           </div>
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Time</p>
@@ -66,10 +66,10 @@ export default function BookingConfirmation({ data, onClose }: Props) {
       </div>
 
       {/* Confirmation number */}
-      <div className="w-full rounded-2xl bg-gradient-to-r from-[#FF5500] to-[#FF7733] p-px">
+      <div className="w-full rounded-2xl bg-gradient-to-r from-[#B22222] to-[#8B1A1A] p-px">
         <div className="bg-white rounded-[15px] px-5 py-3.5 text-center">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Confirmation #</p>
-          <p className="text-2xl font-black text-[#FF5500] tracking-widest mt-1">{data.confirmationId}</p>
+          <p className="text-2xl font-black text-[#B22222] tracking-widest mt-1">{data.confirmationId}</p>
         </div>
       </div>
 

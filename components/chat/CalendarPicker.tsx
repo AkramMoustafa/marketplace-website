@@ -104,13 +104,13 @@ export default function CalendarPicker({ value, onChange, minDate }: Props) {
                 disabled
                   ? 'text-gray-300 cursor-not-allowed'
                   : !selected
-                    ? 'text-gray-700 hover:bg-orange-50 hover:text-[#FF5500]'
+                    ? 'text-gray-700 hover:bg-orange-50 hover:text-[#B22222]'
                     : '',
                 selected
-                  ? 'bg-[#FF5500] text-white font-bold shadow-sm shadow-[#FF5500]/30'
+                  ? 'bg-[#B22222] text-white font-bold shadow-sm shadow-[#B22222]/30'
                   : '',
                 todayCell && !selected
-                  ? 'ring-2 ring-[#FF5500]/30 text-[#FF5500] font-bold'
+                  ? 'ring-2 ring-[#B22222]/30 text-[#B22222] font-bold'
                   : '',
               ].filter(Boolean).join(' ')}
             >

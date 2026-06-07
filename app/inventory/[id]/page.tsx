@@ -54,7 +54,7 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
             <div className="text-4xl mb-3">✓</div>
             <h3 className="text-lg font-black text-slate-900 mb-1">Appointment Booked!</h3>
             <p className="text-slate-500 text-sm mb-4">We&apos;ll confirm your appointment shortly.</p>
-            <button onClick={onClose} className="px-6 py-2.5 bg-[#FF5500] text-black font-black text-sm rounded-lg">
+            <button onClick={onClose} className="px-6 py-2.5 bg-[#B22222] text-black font-black text-sm rounded-lg">
               Close
             </button>
           </div>
@@ -68,7 +68,7 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Service Type</label>
                 <select value={serviceType} onChange={e => setServiceType(e.target.value)} required
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]">
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222]">
                   <option value="test_drive">Test Drive</option>
                   <option value="general_inspection">General Inspection</option>
                   <option value="oil_change">Oil Change</option>
@@ -81,21 +81,21 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Preferred Date & Time</label>
                 <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)} required
                   min={new Date().toISOString().slice(0, 16)}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222]" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Phone</label>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required placeholder="(555) 000-0000"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222]" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Notes (optional)</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Any specific requests…"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500] resize-none" />
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222] resize-none" />
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <button type="submit" disabled={loading}
-                className="w-full py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-[#FF5500] hover:text-black transition disabled:opacity-60">
+                className="w-full py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-[#B22222] hover:text-black transition disabled:opacity-60">
                 {loading ? 'Booking…' : 'Confirm Appointment'}
               </button>
             </form>
@@ -135,7 +135,7 @@ export default function VehicleDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-slate-600 border-t-[#FF5500] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-slate-600 border-t-[#B22222] rounded-full animate-spin" />
       </div>
     );
   }
@@ -144,7 +144,7 @@ export default function VehicleDetailPage() {
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex flex-col items-center justify-center gap-4 text-slate-300">
         <p className="text-lg">{error || 'Vehicle not found'}</p>
-        <Link href="/inventory" className="text-[#FF5500] hover:underline">← Back to Inventory</Link>
+        <Link href="/inventory" className="text-[#B22222] hover:underline">← Back to Inventory</Link>
       </div>
     );
   }
@@ -192,7 +192,7 @@ export default function VehicleDetailPage() {
                 {images.map((src, i) => (
                   <button key={i} onClick={() => setActiveImg(i)}
                     className={`relative shrink-0 w-20 h-14 rounded-md overflow-hidden border-2 transition ${
-                      i === activeImg ? 'border-[#FF5500]' : 'border-transparent opacity-60 hover:opacity-90'
+                      i === activeImg ? 'border-[#B22222]' : 'border-transparent opacity-60 hover:opacity-90'
                     }`}>
                     <Image src={getImageUrl(src!)} alt="" fill className="object-cover" />
                   </button>
@@ -214,10 +214,10 @@ export default function VehicleDetailPage() {
             <h1 className="text-3xl font-black text-slate-100 leading-tight mb-2">{vehicle.title}</h1>
             <p className="text-slate-400 text-sm mb-6 font-mono">VIN: {vehicle.vin}</p>
 
-            <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-[#FF5500]/8 border border-[#FF5500]/25">
+            <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-[#B22222]/8 border border-[#B22222]/25">
               <span className="text-slate-400 text-xs uppercase tracking-wide">Price</span>
               <div className="w-px h-5 bg-white/10" />
-              <span className="text-3xl font-black text-[#FF5500]">{priceDisplay}</span>
+              <span className="text-3xl font-black text-[#B22222]">{priceDisplay}</span>
             </div>
 
             {vehicle.description && (
@@ -226,7 +226,7 @@ export default function VehicleDetailPage() {
 
             <div className="flex flex-col gap-3">
               <button onClick={() => setApptOpen(true)}
-                className="flex items-center justify-center gap-2 py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#FF7733] transition">
+                className="flex items-center justify-center gap-2 py-3.5 bg-[#B22222] text-black font-black text-sm uppercase tracking-wide rounded-xl hover:bg-[#8B1A1A] transition">
                 <Calendar size={16} /> Schedule Test Drive
               </button>
             </div>
@@ -240,7 +240,7 @@ export default function VehicleDetailPage() {
             {specItems.map(({ label, value, Icon }) => (
               <div key={label} className="p-4 rounded-xl bg-slate-800/60 border border-white/[0.06]">
                 <div className="flex items-center gap-2 mb-2">
-                  <Icon size={13} className="text-[#FF5500]" />
+                  <Icon size={13} className="text-[#B22222]" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
                 </div>
                 <p className="font-bold text-slate-200">{value}</p>
@@ -280,7 +280,7 @@ export default function VehicleDetailPage() {
                   : `$${parseFloat(s.price).toLocaleString()}`;
                 return (
                   <Link key={s.id} href={`/inventory/${s.id}`}
-                    className="group rounded-xl bg-slate-800/60 border border-white/[0.06] overflow-hidden hover:border-[#FF5500]/40 transition-all">
+                    className="group rounded-xl bg-slate-800/60 border border-white/[0.06] overflow-hidden hover:border-[#B22222]/40 transition-all">
                     <div className="relative aspect-[4/3] bg-slate-700/50">
                       {thumb ? (
                         <Image src={getImageUrl(thumb)} alt={s.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -291,7 +291,7 @@ export default function VehicleDetailPage() {
                     <div className="p-4">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">{s.year}</p>
                       <p className="font-black text-slate-100 text-sm leading-tight mb-1">{s.title}</p>
-                      <p className="text-[#FF5500] font-black text-base">{priceDisplay}</p>
+                      <p className="text-[#B22222] font-black text-base">{priceDisplay}</p>
                       <p className="text-slate-500 text-xs mt-1">{s.mileage.toLocaleString()} mi</p>
                     </div>
                   </Link>

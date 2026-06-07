@@ -27,7 +27,7 @@ export default function VehicleCarousel({ vehicles, onSchedule, onFinancing, onN
         </p>
         <Link
           href="/inventory"
-          className="text-xs font-bold text-[#FF5500] hover:underline"
+          className="text-xs font-bold text-[#B22222] hover:underline"
         >
           Browse All Inventory →
         </Link>

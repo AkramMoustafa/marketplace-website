@@ -61,7 +61,7 @@ function FilterPanel({
   status, onStatusChange,
   hasFilters, onClearAll,
 }: FilterPanelProps) {
-  const inputCls = 'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#FF5500] bg-white';
+  const inputCls = 'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#B22222] bg-white';
   const labelCls = 'text-[10px] font-black uppercase tracking-[2px] text-slate-400 block mb-2';
 
   return (
@@ -132,7 +132,7 @@ function FilterPanel({
       </div>
       {hasFilters && (
         <button onClick={onClearAll}
-          className="w-full py-2 text-[10px] font-black uppercase tracking-[1.5px] text-[#FF5500] hover:underline">
+          className="w-full py-2 text-[10px] font-black uppercase tracking-[1.5px] text-[#B22222] hover:underline">
           Clear All Filters
         </button>
       )}
@@ -266,7 +266,7 @@ export default function InventoryPage() {
             {/* Mobile filter button */}
             <button onClick={() => setFiltersOpen(true)}
               className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-800">
-              <SlidersHorizontal size={14} className="text-[#FF5500]" />
+              <SlidersHorizontal size={14} className="text-[#B22222]" />
               Filters
             </button>
           </div>
@@ -282,7 +282,7 @@ export default function InventoryPage() {
               onChange={e => handleSearchChange(e.target.value)}
               placeholder="Search by make, model, keyword…"
               className="w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:border-[#FF5500] focus:ring-2 focus:ring-[#FF5500]/10
+                         focus:outline-none focus:border-[#B22222] focus:ring-2 focus:ring-[#B22222]/10
                          shadow-sm placeholder:text-slate-400"
             />
             {searchInput && (
@@ -329,21 +329,21 @@ export default function InventoryPage() {
               {pages > 1 && (
                 <div className="mt-8 flex items-center justify-center gap-2">
                   <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
-                    className="p-2 rounded-lg border border-slate-200 bg-white hover:border-[#FF5500] disabled:opacity-40 transition">
+                    className="p-2 rounded-lg border border-slate-200 bg-white hover:border-[#B22222] disabled:opacity-40 transition">
                     <ChevronLeft size={16} />
                   </button>
                   {Array.from({ length: pages }, (_, i) => i + 1).map(p => (
                     <button key={p} onClick={() => setPage(p)}
                       className={`w-9 h-9 rounded-lg text-sm font-bold border transition ${
                         p === page
-                          ? 'bg-[#FF5500] text-white border-[#FF5500]'
-                          : 'bg-white border-slate-200 text-slate-600 hover:border-[#FF5500]'
+                          ? 'bg-[#B22222] text-white border-[#B22222]'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-[#B22222]'
                       }`}>
                       {p}
                     </button>
                   ))}
                   <button disabled={page >= pages} onClick={() => setPage(p => p + 1)}
-                    className="p-2 rounded-lg border border-slate-200 bg-white hover:border-[#FF5500] disabled:opacity-40 transition">
+                    className="p-2 rounded-lg border border-slate-200 bg-white hover:border-[#B22222] disabled:opacity-40 transition">
                     <ChevronRight size={16} />
                   </button>
                 </div>
@@ -356,7 +356,7 @@ export default function InventoryPage() {
             <div className="py-24 text-center">
               <p className="text-lg text-slate-400">No vehicles found</p>
               {hasFilters && (
-                <button onClick={clearFilters} className="mt-4 text-[#FF5500] hover:underline text-sm">
+                <button onClick={clearFilters} className="mt-4 text-[#B22222] hover:underline text-sm">
                   Clear filters
                 </button>
               )}

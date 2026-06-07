@@ -151,7 +151,7 @@ export default function HomePage() {
                   Featured Inventory
                 </h2>
                 <div className="mt-2.5 flex items-center gap-3">
-                  <div className="h-[3px] w-12 bg-[#FF5500] rounded-full" />
+                  <div className="h-[3px] w-12 bg-[#B22222] rounded-full" />
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
                     {loading ? 'Loading…' : `${total} vehicle${total !== 1 ? 's' : ''} available`}
                     {query && !loading && <> · &ldquo;{query}&rdquo;</>}
@@ -194,7 +194,7 @@ export default function HomePage() {
             {!loading && !error && vehicles.length === 0 && (
               <div className="py-24 text-center">
                 <p className="text-lg text-slate-400">No vehicles found</p>
-                <button onClick={clearAll} className="mt-4 text-[#FF5500] hover:underline">
+                <button onClick={clearAll} className="mt-4 text-[#B22222] hover:underline">
                   Clear filters
                 </button>
               </div>
