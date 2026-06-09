@@ -226,7 +226,7 @@ export default function ChatWidget() {
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shrink-0">
               <div className="relative">
-                <div className="w-9 h-9 rounded-full bg-[#FF5500] flex items-center justify-center text-white font-black text-sm">
+                <div className="w-9 h-9 rounded-full bg-[#B22222] flex items-center justify-center text-white font-black text-sm">
                   A
                 </div>
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
@@ -288,7 +288,7 @@ export default function ChatWidget() {
                   <button
                     key={label}
                     onClick={() => handleQuickReply(label)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-[#FF5500]/50 text-gray-600 hover:text-gray-900 text-xs font-medium rounded-full transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-[#B22222]/50 text-gray-600 hover:text-gray-900 text-xs font-medium rounded-full transition-all"
                   >
                     {label}
                   </button>
@@ -298,7 +298,7 @@ export default function ChatWidget() {
 
             {/* Input */}
             <div className="px-3 py-3 border-t border-gray-200 bg-gray-50 shrink-0">
-              <div className="flex items-end gap-2 bg-white rounded-xl px-3 py-2 border border-gray-300 focus-within:border-[#FF5500]/60 transition">
+              <div className="flex items-end gap-2 bg-white rounded-xl px-3 py-2 border border-gray-300 focus-within:border-[#B22222]/60 transition">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -318,7 +318,7 @@ export default function ChatWidget() {
                 <button
                   onClick={() => sendMessage()}
                   disabled={!input.trim() || typing}
-                  className="p-1.5 rounded-lg bg-[#FF5500] text-white hover:bg-[#FF7733] disabled:opacity-40 disabled:cursor-not-allowed transition shrink-0"
+                  className="p-1.5 rounded-lg bg-[#B22222] text-white hover:bg-[#8B1A1A] disabled:opacity-40 disabled:cursor-not-allowed transition shrink-0"
                 >
                   <Send size={15} />
                 </button>
@@ -332,7 +332,7 @@ export default function ChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="fixed bottom-5 right-5 z-[9999] w-14 h-14 rounded-full bg-[#FF5500] hover:bg-[#FF7733] text-white shadow-lg shadow-[#FF5500]/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-5 right-5 z-[9999] w-14 h-14 rounded-full bg-[#B22222] hover:bg-[#8B1A1A] text-white shadow-lg shadow-[#B22222]/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
       >
         {open ? <X size={22} /> : <MessageCircle size={22} />}
         {!open && unread > 0 && (

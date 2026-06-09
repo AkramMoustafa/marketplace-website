@@ -119,15 +119,15 @@ export default function TestDriveBookingCard({ vehicleId, vehicleTitle: vehicleT
       style={{ animation: 'alexFadeIn 0.25s ease-out' }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-50 to-white border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-red-50 to-white border-b border-gray-100">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-[#FF5500] flex items-center justify-center shrink-0 shadow-sm shadow-[#FF5500]/30">
+          <div className="w-8 h-8 rounded-xl bg-[#B22222] flex items-center justify-center shrink-0 shadow-sm shadow-[#B22222]/30">
             <Car size={15} className="text-white" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-black text-gray-900 leading-tight">Schedule Test Drive</p>
             {vehicleTitle && (
-              <p className="text-[11px] text-[#FF5500] font-semibold truncate mt-0.5">{vehicleTitle}</p>
+              <p className="text-[11px] text-[#B22222] font-semibold truncate mt-0.5">{vehicleTitle}</p>
             )}
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function TestDriveBookingCard({ vehicleId, vehicleTitle: vehicleT
                 <div className="flex items-center gap-1.5">
                   <div className={[
                     'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-all',
-                    active ? 'bg-[#FF5500] text-white' :
+                    active ? 'bg-[#B22222] text-white' :
                       done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400',
                   ].join(' ')}>
                     {done ? '✓' : i + 1}

@@ -22,8 +22,8 @@ export default function TimeSlotPicker({ value, onChange, slots = DEFAULT_TIME_S
           className={[
             'py-2.5 px-1 text-xs font-semibold rounded-xl border transition-all text-center',
             value === slot
-              ? 'bg-[#FF5500] text-white border-[#FF5500] shadow-sm shadow-[#FF5500]/20'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-[#FF5500]/50 hover:text-[#FF5500] hover:bg-orange-50',
+              ? 'bg-[#B22222] text-white border-[#B22222] shadow-sm shadow-[#B22222]/20'
+              : 'bg-white text-gray-600 border-gray-200 hover:border-[#B22222]/50 hover:text-[#B22222] hover:bg-red-50',
           ].join(' ')}
         >
           {slot}

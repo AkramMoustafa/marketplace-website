@@ -52,7 +52,7 @@ function CheckItem({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="w-4 h-4 rounded accent-[#FF5500] cursor-pointer"
+        className="w-4 h-4 rounded accent-[#B22222] cursor-pointer"
       />
       <span
         className={`text-sm font-semibold transition ${
@@ -80,7 +80,7 @@ function FilterContent(props: FilterSidebarProps) {
         {activeCount > 0 && (
           <button
             onClick={props.onClearAll}
-            className="text-[10px] font-bold uppercase tracking-wide text-[#FF5500] hover:text-[#CC4400] transition"
+            className="text-[10px] font-bold uppercase tracking-wide text-[#B22222] hover:text-[#8B1A1A] transition"
           >
             Clear all
           </button>
@@ -148,13 +148,13 @@ export default function FilterSidebar(props: FilterSidebarProps) {
 
       {/* Mobile trigger button */}
       <button
-        className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-800 hover:border-[#FF5500] transition"
+        className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-800 hover:border-[#B22222] transition"
         onClick={() => setDrawerOpen(true)}
       >
-        <SlidersHorizontal size={15} className="text-[#FF5500]" />
+        <SlidersHorizontal size={15} className="text-[#B22222]" />
         Filters
         {activeCount > 0 && (
-          <span className="ml-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-[#FF5500] text-white text-[10px] font-black">
+          <span className="ml-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-[#B22222] text-white text-[10px] font-black">
             {activeCount}
           </span>
         )}

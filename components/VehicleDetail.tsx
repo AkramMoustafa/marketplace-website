@@ -232,7 +232,7 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
             <div className="text-4xl mb-3">✓</div>
             <h3 className="text-lg font-black text-slate-900 mb-1">Test Drive Confirmed!</h3>
             <p className="text-slate-500 text-sm mb-4">Your test drive appointment is confirmed. See you soon!</p>
-            <button onClick={onClose} className="px-6 py-2.5 bg-[#FF5500] text-black font-black text-sm rounded-lg">Close</button>
+            <button onClick={onClose} className="px-6 py-2.5 bg-[#B22222] text-black font-black text-sm rounded-lg">Close</button>
           </div>
         ) : (
           <>
@@ -245,21 +245,21 @@ function AppointmentModal({ vehicleId, onClose }: { vehicleId: string; onClose: 
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Preferred Date & Time</label>
                 <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)} required
                   min={new Date().toISOString().slice(0, 16)}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222]" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Phone</label>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required placeholder="(555) 000-0000"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500]" />
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222]" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Notes (optional)</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Any specific requests…"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#FF5500] resize-none" />
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#B22222] resize-none" />
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <button type="submit" disabled={loading}
-                className="w-full py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-[#FF5500] hover:text-black transition disabled:opacity-60">
+                className="w-full py-3 bg-slate-900 text-white font-black text-sm uppercase tracking-wide rounded-lg hover:bg-[#B22222] hover:text-black transition disabled:opacity-60">
                 {loading ? 'Booking…' : 'Confirm Appointment'}
               </button>
             </form>
@@ -483,7 +483,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
               <Gallery images={vehicle.images ?? []} vehicleTitle={vehicle.title} />
 
               <div className="mt-4 rounded-[20px] bg-white p-7" style={{ boxShadow: '0 12px 40px rgba(0,0,0,.06)' }}>
-                <p className="text-[10px] font-bold uppercase tracking-[3px] mb-4" style={{ color: '#f97316' }}>
+                <p className="text-[10px] font-bold uppercase tracking-[3px] mb-4" style={{ color: '#B22222' }}>
                   About This Vehicle
                 </p>
                 <p className="text-sm leading-relaxed" style={{ color: '#555', maxWidth: '60ch' }}>

@@ -126,13 +126,13 @@ export default function CarCard({ car }: { car: DisplayCar }) {
         {/* Card content: flex-col flex-1 so it grows and pushes button to bottom */}
         <div className="p-3.5 flex flex-col flex-1">
 
-          <span className="inline-block mb-1 text-[9px] font-black uppercase tracking-[2px] text-[#FF5500]">
+          <span className="inline-block mb-1 text-[9px] font-black uppercase tracking-[2px] text-[#B22222]">
             {car.make}
           </span>
 
           <Link href={detailHref}>
             <h3 className="text-[13px] font-black uppercase tracking-wide leading-snug
-              text-slate-900 line-clamp-2 min-h-[34px] hover:text-[#FF5500] transition-colors duration-200">
+              text-slate-900 line-clamp-2 min-h-[34px] hover:text-[#B22222] transition-colors duration-200">
               {car.title}
             </h3>
           </Link>
@@ -181,7 +181,7 @@ export default function CarCard({ car }: { car: DisplayCar }) {
             href={detailHref}
             className="mt-auto pt-3 flex items-center justify-center w-full py-3.5 rounded-xl
               bg-slate-900 text-white text-[11px] font-black uppercase tracking-[1.5px]
-              hover:bg-[#FF5500] transition-colors duration-200"
+              hover:bg-[#B22222] transition-colors duration-200"
           >
             View Vehicle
           </Link>

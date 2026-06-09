@@ -45,7 +45,7 @@ export default function LoginPage() {
       {/* Logo */}
       <Link href="/" className="flex items-baseline gap-2 mb-10">
         <span className="text-white font-black text-2xl tracking-[5px]">NOVA</span>
-        <span className="text-[#FF5500] text-[9px] font-black tracking-[6px] uppercase">MOTORS</span>
+        <span className="text-[#B22222] text-[9px] font-black tracking-[6px] uppercase">MOTORS</span>
       </Link>
 
       <div className="w-full max-w-sm bg-slate-900 rounded-2xl border border-white/[0.06] p-8">
@@ -55,7 +55,7 @@ export default function LoginPage() {
           {(['login', 'register'] as const).map(m => (
             <button key={m} onClick={() => { setMode(m); setError(''); }}
               className={`flex-1 py-2 text-xs font-black uppercase tracking-[1.5px] rounded-lg transition ${
-                mode === m ? 'bg-[#FF5500] text-black' : 'text-slate-400 hover:text-slate-200'
+                mode === m ? 'bg-[#B22222] text-black' : 'text-slate-400 hover:text-slate-200'
               }`}>
               {m === 'login' ? 'Sign In' : 'Register'}
             </button>
@@ -69,7 +69,7 @@ export default function LoginPage() {
               <input value={name} onChange={e => setName(e.target.value)} required
                 placeholder="John Smith"
                 className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder:text-slate-500
-                  focus:outline-none focus:border-[#FF5500] transition" />
+                  focus:outline-none focus:border-[#B22222] transition" />
             </div>
           )}
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
               placeholder="you@example.com"
               className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder:text-slate-500
-                focus:outline-none focus:border-[#FF5500] transition" />
+                focus:outline-none focus:border-[#B22222] transition" />
           </div>
 
           <div>
@@ -87,7 +87,7 @@ export default function LoginPage() {
               <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
                 placeholder="Min. 8 characters"
                 className="w-full px-4 py-3 pr-11 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder:text-slate-500
-                  focus:outline-none focus:border-[#FF5500] transition" />
+                  focus:outline-none focus:border-[#B22222] transition" />
               <button type="button" onClick={() => setShowPw(s => !s)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -102,8 +102,8 @@ export default function LoginPage() {
           )}
 
           <button type="submit" disabled={loading}
-            className="w-full py-3.5 bg-[#FF5500] text-black font-black text-sm uppercase tracking-[1.5px] rounded-xl
-              hover:bg-[#FF7733] disabled:opacity-60 transition mt-2">
+            className="w-full py-3.5 bg-[#B22222] text-black font-black text-sm uppercase tracking-[1.5px] rounded-xl
+              hover:bg-[#8B1A1A] disabled:opacity-60 transition mt-2">
             {loading ? (mode === 'login' ? 'Signing in…' : 'Creating account…') : (mode === 'login' ? 'Sign In' : 'Create Account')}
           </button>
         </form>
@@ -111,7 +111,7 @@ export default function LoginPage() {
         {mode === 'login' && (
           <p className="mt-5 text-center text-xs text-slate-500">
             Don&apos;t have an account?{' '}
-            <button onClick={() => setMode('register')} className="text-[#FF5500] hover:underline font-bold">
+            <button onClick={() => setMode('register')} className="text-[#B22222] hover:underline font-bold">
               Register
             </button>
           </p>

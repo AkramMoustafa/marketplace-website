@@ -13,7 +13,7 @@ export default function VehicleFeatures({ features }: Props) {
           className="flex items-center gap-3 px-4 py-3.5 rounded-xl
             bg-[#0d1526] border border-white/[0.05]"
         >
-          <CheckCircle2 size={14} className="text-[#FF5500] shrink-0" />
+          <CheckCircle2 size={14} className="text-[#B22222] shrink-0" />
           <span className="text-sm text-slate-300 font-medium">{feature}</span>
         </div>
       ))}

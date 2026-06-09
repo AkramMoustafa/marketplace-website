@@ -6,7 +6,7 @@ export default function App() {
       {/* Demo page background */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-8">
         <div className="text-center max-w-lg">
-          <div className="inline-block px-3 py-1 bg-orange-500/10 text-orange-400 text-xs font-bold uppercase tracking-widest rounded-full border border-orange-500/20 mb-6">
+          <div className="inline-block px-3 py-1 bg-[#B22222]/10 text-[#B22222] text-xs font-bold uppercase tracking-widest rounded-full border border-[#B22222]/20 mb-6">
             Demo Page
           </div>
           <h1 className="text-4xl font-black text-white mb-3">

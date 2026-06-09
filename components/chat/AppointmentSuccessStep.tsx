@@ -21,7 +21,7 @@ export default function AppointmentSuccessStep({ vehicleTitle, date, time, confi
         <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
           <CheckCircle size={28} className="text-green-500" strokeWidth={1.5} />
         </div>
-        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#FF5500] flex items-center justify-center border-2 border-white">
+        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#B22222] flex items-center justify-center border-2 border-white">
           <Car size={11} className="text-white" />
         </div>
       </div>
@@ -34,8 +34,8 @@ export default function AppointmentSuccessStep({ vehicleTitle, date, time, confi
       {/* Details */}
       <div className="w-full bg-gray-50 border border-gray-200 rounded-xl overflow-hidden text-left">
         <div className="px-3 py-2.5 flex items-center gap-2.5 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-            <Car size={13} className="text-[#FF5500]" />
+          <div className="w-7 h-7 rounded-lg bg-[#B22222]/10 flex items-center justify-center shrink-0">
+            <Car size={13} className="text-[#B22222]" />
           </div>
           <div className="min-w-0">
             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Vehicle</p>
@@ -44,8 +44,8 @@ export default function AppointmentSuccessStep({ vehicleTitle, date, time, confi
         </div>
 
         <div className="px-3 py-2.5 flex items-center gap-2.5 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-            <Calendar size={13} className="text-[#FF5500]" />
+          <div className="w-7 h-7 rounded-lg bg-[#B22222]/10 flex items-center justify-center shrink-0">
+            <Calendar size={13} className="text-[#B22222]" />
           </div>
           <div>
             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Date</p>
@@ -54,8 +54,8 @@ export default function AppointmentSuccessStep({ vehicleTitle, date, time, confi
         </div>
 
         <div className="px-3 py-2.5 flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-            <Clock size={13} className="text-[#FF5500]" />
+          <div className="w-7 h-7 rounded-lg bg-[#B22222]/10 flex items-center justify-center shrink-0">
+            <Clock size={13} className="text-[#B22222]" />
           </div>
           <div>
             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Time</p>
@@ -65,10 +65,10 @@ export default function AppointmentSuccessStep({ vehicleTitle, date, time, confi
       </div>
 
       {/* Confirmation number */}
-      <div className="w-full rounded-xl bg-gradient-to-r from-[#FF5500] to-[#FF7733] p-px">
+      <div className="w-full rounded-xl bg-gradient-to-r from-[#B22222] to-[#8B1A1A] p-px">
         <div className="bg-white rounded-[11px] px-4 py-2.5 text-center">
           <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Confirmation #</p>
-          <p className="text-lg font-black text-[#FF5500] tracking-widest mt-0.5">{confirmationId}</p>
+          <p className="text-lg font-black text-[#B22222] tracking-widest mt-0.5">{confirmationId}</p>
         </div>
       </div>
     </div>

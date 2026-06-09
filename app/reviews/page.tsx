@@ -54,7 +54,7 @@ function StarDisplay({ rating, size = 16 }: { rating: number; size?: number }) {
     <div className="flex gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
         <svg key={i} width={size} height={size} viewBox="0 0 24 24"
-          fill={i < rating ? '#FF5500' : '#e2e8f0'}>
+          fill={i < rating ? '#B22222' : '#e2e8f0'}>
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       ))}
@@ -77,8 +77,8 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
               onMouseLeave={() => setHovered(0)}
               className="focus:outline-none transition-transform hover:scale-110">
               <svg width="32" height="32" viewBox="0 0 24 24"
-                fill={n <= (hovered || value) ? '#FF5500' : 'none'}
-                stroke={n <= (hovered || value) ? '#FF5500' : '#cbd5e1'}
+                fill={n <= (hovered || value) ? '#B22222' : 'none'}
+                stroke={n <= (hovered || value) ? '#B22222' : '#cbd5e1'}
                 strokeWidth="1.5">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
@@ -101,7 +101,7 @@ function Avatar({ name, size = 40 }: { name: string; size?: number }) {
       className="rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 relative"
       style={{ width: size, height: size, backgroundColor: color }}>
       {initials}
-      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#FF5500] border-2 border-white flex items-center justify-center">
+      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#B22222] border-2 border-white flex items-center justify-center">
         <svg width="8" height="8" viewBox="0 0 24 24" fill="white">
           <path d="M20 6L9 17l-5-5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
         </svg>
@@ -178,17 +178,17 @@ function VehicleSelector({
 
   const borderBase = error
     ? 'border-red-300 focus-within:border-red-400 focus-within:ring-red-100'
-    : 'border-slate-200 focus-within:border-[#FF5500] focus-within:ring-[#FF5500]/10';
+    : 'border-slate-200 focus-within:border-[#B22222] focus-within:ring-[#B22222]/10';
 
   return (
     <div ref={containerRef} className="relative">
       <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-        Vehicle Purchased <span className="text-[#FF5500]">*</span>
+        Vehicle Purchased <span className="text-[#B22222]">*</span>
       </label>
 
       {/* ── Selected state: show pill ── */}
       {value ? (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#FF5500]/40 bg-[#FF5500]/5">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#B22222]/40 bg-[#B22222]/5">
           {value.featured_image ? (
             <img
               src={api.getImageUrl(value.featured_image)}
@@ -256,7 +256,7 @@ function VehicleSelector({
                   <button
                     type="button"
                     onClick={() => select(v)}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#FF5500]/5 text-left transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#B22222]/5 text-left transition-colors"
                   >
                     {v.featured_image ? (
                       <img
@@ -327,7 +327,7 @@ function ReviewCard({ review, index }: { review: PublicReview; index: number }) 
               <div className="text-white font-black text-sm leading-tight truncate">
                 {vehicle.make} {vehicle.model}
               </div>
-              <div className="text-[#FF5500] text-[9px] tracking-[2px] mt-0.5 font-bold uppercase">
+              <div className="text-[#B22222] text-[9px] tracking-[2px] mt-0.5 font-bold uppercase">
                 Purchased Vehicle
               </div>
             </div>
@@ -342,7 +342,7 @@ function ReviewCard({ review, index }: { review: PublicReview; index: number }) 
         {/* Bottom-right year chip */}
         {vehicle && (
           <div className="absolute bottom-3 right-3">
-            <span className="bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full">
+            <span className="bg-[#B22222] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full">
               {vehicle.year}
             </span>
           </div>
@@ -353,7 +353,7 @@ function ReviewCard({ review, index }: { review: PublicReview; index: number }) 
       <div className="p-5 flex flex-col gap-3 flex-1">
         {/* Vehicle label (only when linked) */}
         {vehicle && (
-          <p className="text-[11px] font-bold text-[#FF5500] uppercase tracking-wider -mb-1">
+          <p className="text-[11px] font-bold text-[#B22222] uppercase tracking-wider -mb-1">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </p>
         )}
@@ -363,7 +363,7 @@ function ReviewCard({ review, index }: { review: PublicReview; index: number }) 
           <Avatar name={review.title} size={40} />
           <div className="min-w-0">
             <p className="text-slate-900 font-bold text-sm truncate">{review.title}</p>
-            <p className="text-[#FF5500] text-xs font-bold tracking-wide">✓ Verified Buyer</p>
+            <p className="text-[#B22222] text-xs font-bold tracking-wide">✓ Verified Buyer</p>
           </div>
           <div className="ml-auto flex-shrink-0">
             <StarDisplay rating={review.rating} size={13} />
@@ -396,7 +396,7 @@ function RatingBar({ label, pct }: { label: string; pct: number }) {
     <div className="flex items-center gap-2 text-xs">
       <span className="text-slate-500 w-12 flex-shrink-0">{label}</span>
       <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-        <div className="h-full bg-[#FF5500] rounded-full transition-all duration-700"
+        <div className="h-full bg-[#B22222] rounded-full transition-all duration-700"
           style={{ width: `${pct}%` }} />
       </div>
       <span className="text-slate-400 w-7 text-right flex-shrink-0">{pct}%</span>
@@ -457,15 +457,15 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
     'placeholder:text-slate-400 focus:outline-none focus:ring-2',
     err
       ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
-      : 'border-slate-200 focus:border-[#FF5500] focus:ring-[#FF5500]/10',
+      : 'border-slate-200 focus:border-[#B22222] focus:ring-[#B22222]/10',
   ].join(' ');
 
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5 bg-[#FF5500]/10 border border-[#FF5500]/20">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5 bg-[#B22222]/10 border border-[#B22222]/20">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-            stroke="#FF5500" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            stroke="#B22222" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
@@ -474,7 +474,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
           Your review has been submitted and is pending approval. We appreciate your feedback!
         </p>
         <button onClick={() => setSubmitted(false)}
-          className="mt-6 text-sm font-bold text-[#FF5500] hover:underline">
+          className="mt-6 text-sm font-bold text-[#B22222] hover:underline">
           Submit another review
         </button>
       </div>
@@ -498,7 +498,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-            Your Name <span className="text-[#FF5500]">*</span>
+            Your Name <span className="text-[#B22222]">*</span>
           </label>
           <div className="relative">
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -531,14 +531,14 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-            Rating <span className="text-[#FF5500]">*</span>
+            Rating <span className="text-[#B22222]">*</span>
           </label>
           <StarPicker value={form.rating} onChange={n => set('rating', n)} />
           {errors.rating && <p className="mt-1 text-xs text-red-500">{errors.rating}</p>}
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-            Review Title <span className="text-[#FF5500]">*</span>
+            Review Title <span className="text-[#B22222]">*</span>
           </label>
           <div className="relative">
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -556,7 +556,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
       {/* ── Review body ── */}
       <div>
         <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-          Your Review <span className="text-[#FF5500]">*</span>
+          Your Review <span className="text-[#B22222]">*</span>
         </label>
         <div className="relative">
           <svg className="absolute left-3.5 top-3.5 text-slate-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -581,7 +581,7 @@ function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
           'w-full py-4 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2',
           'transition-all hover:opacity-90 active:scale-[0.99]',
           'disabled:opacity-60 disabled:cursor-not-allowed',
-          submitting ? 'bg-slate-400' : 'bg-[#FF5500]',
+          submitting ? 'bg-slate-400' : 'bg-[#B22222]',
         ].join(' ')}>
         {submitting ? (
           'Submitting…'
@@ -620,8 +620,8 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
   if (reviews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4 border border-[#FF5500]/20 bg-[#FF5500]/[0.06]">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF5500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4 border border-[#B22222]/20 bg-[#B22222]/[0.06]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B22222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </div>
@@ -635,7 +635,7 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
     <div className="relative px-6">
       {current > 0 && (
         <button onClick={prev}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:border-[#FF5500] hover:text-[#FF5500] transition-colors">
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:border-[#B22222] hover:text-[#B22222] transition-colors">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
@@ -643,7 +643,7 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
       )}
       {current < total - 1 && (
         <button onClick={next}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:border-[#FF5500] hover:text-[#FF5500] transition-colors">
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:border-[#B22222] hover:text-[#B22222] transition-colors">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="9 18 15 12 9 6" />
           </svg>
@@ -663,7 +663,7 @@ function ReviewCarousel({ reviews }: { reviews: PublicReview[] }) {
               className={[
                 'rounded-full transition-all duration-200',
                 i === current
-                  ? 'w-6 h-2.5 bg-[#FF5500]'
+                  ? 'w-6 h-2.5 bg-[#B22222]'
                   : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400',
               ].join(' ')} />
           ))}
@@ -712,12 +712,12 @@ export default function ReviewsPage() {
         <div
           className="absolute inset-x-0 bottom-0 h-px"
           style={{
-            background: 'linear-gradient(90deg, transparent, #FF5500 40%, #FF5500 60%, transparent)',
-            boxShadow: '0 0 16px 2px rgba(255,85,0,0.35)',
+            background: 'linear-gradient(90deg, transparent, #B22222 40%, #B22222 60%, transparent)',
+            boxShadow: '0 0 16px 2px rgba(178,34,34,0.35)',
           }}
         />
         <div className="max-w-4xl mx-auto px-5 py-16 text-center">
-          <p className="text-[10px] font-black uppercase tracking-[5px] text-[#FF5500] mb-3">
+          <p className="text-[10px] font-black uppercase tracking-[5px] text-[#B22222] mb-3">
             Customer Reviews
           </p>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
@@ -741,7 +741,7 @@ export default function ReviewsPage() {
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-start justify-center gap-2">
               <div className="flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5500" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B22222" strokeWidth="2">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   <polyline points="9 12 11 14 15 10" />
                 </svg>
@@ -751,7 +751,7 @@ export default function ReviewsPage() {
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-start justify-center gap-2">
               <div className="flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5500" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B22222" strokeWidth="2">
                   <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
                   <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
                 </svg>
@@ -783,7 +783,7 @@ export default function ReviewsPage() {
         {/* ── REVIEW FORM ──────────────────────────────────────────────── */}
         <div className="border-t border-slate-100 py-14 pb-20">
           <div className="text-center mb-10">
-            <div className="h-[3px] w-10 bg-[#FF5500] rounded-full mx-auto mb-4" />
+            <div className="h-[3px] w-10 bg-[#B22222] rounded-full mx-auto mb-4" />
             <h2 className="text-3xl font-black text-slate-900">Share Your Experience</h2>
             <p className="text-slate-400 text-sm mt-2">
               Select the vehicle you purchased and tell us about your Nova Motors experience.

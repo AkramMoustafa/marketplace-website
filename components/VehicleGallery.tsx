@@ -62,7 +62,7 @@ export default function VehicleGallery({ images, carName }: Props) {
           className="absolute left-3 top-1/2 -translate-y-1/2 z-10
             w-10 h-10 rounded-xl bg-black/50 backdrop-blur-sm border border-white/10
             text-white flex items-center justify-center
-            hover:bg-[#FF5500] hover:border-[#FF5500] hover:text-black transition"
+            hover:bg-[#B22222] hover:border-[#B22222] hover:text-black transition"
         >
           <ChevronLeft size={18} />
         </button>
@@ -72,7 +72,7 @@ export default function VehicleGallery({ images, carName }: Props) {
           className="absolute right-3 top-1/2 -translate-y-1/2 z-10
             w-10 h-10 rounded-xl bg-black/50 backdrop-blur-sm border border-white/10
             text-white flex items-center justify-center
-            hover:bg-[#FF5500] hover:border-[#FF5500] hover:text-black transition"
+            hover:bg-[#B22222] hover:border-[#B22222] hover:text-black transition"
         >
           <ChevronRight size={18} />
         </button>
@@ -87,7 +87,7 @@ export default function VehicleGallery({ images, carName }: Props) {
             aria-label={`View photo ${i + 1}`}
             className={`relative shrink-0 w-[70px] h-[52px] rounded-xl overflow-hidden border-2 transition-all duration-200 ${
               i === active
-                ? 'border-[#FF5500] ring-2 ring-[#FF5500]/20 opacity-100'
+                ? 'border-[#B22222] ring-2 ring-[#B22222]/20 opacity-100'
                 : 'border-white/10 opacity-45 hover:opacity-70'
             }`}
           >

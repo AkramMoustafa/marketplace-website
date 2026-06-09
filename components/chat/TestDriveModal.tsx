@@ -175,7 +175,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-4 pb-4 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FF5500] flex items-center justify-center shadow-sm shadow-[#FF5500]/30">
+            <div className="w-10 h-10 rounded-xl bg-[#B22222] flex items-center justify-center shadow-sm shadow-[#B22222]/30">
               <Car size={20} className="text-white" />
             </div>
             <div>
@@ -211,7 +211,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
                     <select
                       value={vehicleId}
                       onChange={e => setVehicleId(e.target.value)}
-                      className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 bg-white appearance-none cursor-pointer"
+                      className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 bg-white appearance-none cursor-pointer"
                     >
                       <option value="">Select a vehicle…</option>
                       {vehicles.map(v => (
@@ -255,7 +255,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
                     placeholder="Full name *"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400"
+                    className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400"
                   />
                 </FieldRow>
 
@@ -266,7 +266,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
                     placeholder="Phone number *"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400"
+                    className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400"
                   />
                 </FieldRow>
 
@@ -277,7 +277,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
                     placeholder="Email address *"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400"
+                    className="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400"
                   />
                 </FieldRow>
               </section>
@@ -290,14 +290,14 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400 resize-none"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400 resize-none"
                 />
               </section>
 
               {/* ── Booking summary strip ────────────────────────── */}
               {selectedDate && selectedTime && (
-                <div className="flex items-center gap-3 bg-orange-50 border border-orange-100 rounded-xl px-4 py-3">
-                  <CalIcon size={15} className="text-[#FF5500] shrink-0" />
+                <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                  <CalIcon size={15} className="text-[#B22222] shrink-0" />
                   <p className="text-sm font-semibold text-gray-800">
                     {selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                     {' · '}
@@ -320,7 +320,7 @@ export default function TestDriveModal({ onClose, onSuccess, currentVehicleId }:
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="w-full py-3.5 rounded-xl bg-[#FF5500] text-white text-sm font-black tracking-wide hover:bg-[#FF7733] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FF5500]/20"
+                className="w-full py-3.5 rounded-xl bg-[#B22222] text-white text-sm font-black tracking-wide hover:bg-[#8B1A1A] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#B22222]/20"
               >
                 {submitting ? (
                   <><Loader2 size={16} className="animate-spin" /> Booking…</>
@@ -354,7 +354,7 @@ function SectionLabel({
     <div className="flex items-center gap-1.5 mb-2.5">
       <span className="text-gray-400">{icon}</span>
       <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{text}</span>
-      {required && <span className="text-[#FF5500] text-xs">*</span>}
+      {required && <span className="text-[#B22222] text-xs">*</span>}
       {note && <span className="text-xs text-gray-400 normal-case ml-1">({note})</span>}
     </div>
   );

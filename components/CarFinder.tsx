@@ -12,7 +12,7 @@ const INJECTED_CSS = `
     transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
   }
   .cf-option:hover {
-    border-color: #FF5500 !important;
+    border-color: #B22222 !important;
     transform: translateY(-2px);
   }
   .cf-btn {
@@ -20,7 +20,7 @@ const INJECTED_CSS = `
     transition: background 0.18s ease, transform 0.13s ease;
   }
   .cf-btn:not(:disabled):hover {
-    background: #e64d00 !important;
+    background: #9B1414 !important;
     transform: translateY(-1px);
   }
   .cf-btn:disabled { cursor: not-allowed; }
@@ -41,7 +41,7 @@ const INJECTED_CSS = `
     text-align: center;
     transition: background 0.15s ease, transform 0.12s ease;
   }
-  .cf-view-btn:hover { background: #e64d00 !important; transform: translateY(-1px); }
+  .cf-view-btn:hover { background: #9B1414 !important; transform: translateY(-1px); }
 
   @keyframes cf-spin {
     to { transform: rotate(360deg); }
@@ -49,7 +49,7 @@ const INJECTED_CSS = `
   .cf-spinner {
     width: 48px; height: 48px;
     border: 3px solid #1e293b;
-    border-top-color: #FF5500;
+    border-top-color: #B22222;
     border-radius: 50%;
     animation: cf-spin 0.75s linear infinite;
   }
@@ -331,7 +331,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
             ⚠️ {error}
           </p>
           <button className="cf-btn" onClick={reset}
-            style={{ padding: '12px 28px', borderRadius: 10, border: 'none', background: '#FF5500', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>
+            style={{ padding: '12px 28px', borderRadius: 10, border: 'none', background: '#B22222', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>
             Try Again
           </button>
         </div>
@@ -353,7 +353,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
               href="/inventory"
               onClick={onClose}
               className="cf-view-btn"
-              style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FF5500', color: '#fff', fontWeight: 700, fontSize: '0.9rem', marginBottom: 12 }}
+              style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#B22222', color: '#fff', fontWeight: 700, fontSize: '0.9rem', marginBottom: 12 }}
             >
               Browse All Inventory →
             </a>
@@ -444,7 +444,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
 
               {/* Price + Mileage row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 }}>
-                <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FF5500', letterSpacing: '-0.01em' }}>
+                <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#B22222', letterSpacing: '-0.01em' }}>
                   {formatPrice(hero)}
                 </span>
                 <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
@@ -486,7 +486,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
                   padding:       '13px 20px',
                   borderRadius:  10,
                   border:        'none',
-                  background:    '#FF5500',
+                  background:    '#B22222',
                   color:         '#fff',
                   fontSize:      '0.9rem',
                   fontWeight:    800,
@@ -558,7 +558,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
                         <p style={{ fontSize: '0.88rem', fontWeight: 800, lineHeight: 1.2, margin: '0 0 3px', color: '#f1f5f9' }}>
                           {v.year} {v.make} {v.model}
                         </p>
-                        <p style={{ fontSize: '0.92rem', fontWeight: 700, color: '#FF5500', margin: '0 0 6px' }}>
+                        <p style={{ fontSize: '0.92rem', fontWeight: 700, color: '#B22222', margin: '0 0 6px' }}>
                           {formatPrice(v)}
                         </p>
                         <p style={{ fontSize: '0.72rem', color: '#475569', margin: '0 0 8px' }}>
@@ -591,7 +591,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
                             padding:      '8px',
                             borderRadius: 7,
                             border:       'none',
-                            background:   '#FF5500',
+                            background:   '#B22222',
                             color:        '#fff',
                             fontSize:     '0.72rem',
                             fontWeight:   700,
@@ -616,8 +616,8 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
               textAlign:     'center',
               padding:       '12px',
               borderRadius:  10,
-              border:        '1px solid rgba(255,85,0,0.25)',
-              color:         '#FF5500',
+              border:        '1px solid rgba(178,34,34,0.25)',
+              color:         '#B22222',
               fontSize:      '0.85rem',
               fontWeight:    700,
               textDecoration:'none',
@@ -667,8 +667,8 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
                 style={{
                   padding:      '17px 14px',
                   borderRadius: 12,
-                  border:       `2px solid ${sel ? '#FF5500' : '#1e293b'}`,
-                  background:   sel ? 'rgba(255,85,0,0.12)' : '#0a0f1e',
+                  border:       `2px solid ${sel ? '#B22222' : '#1e293b'}`,
+                  background:   sel ? 'rgba(178,34,34,0.12)' : '#0a0f1e',
                   color:        sel ? '#fed7aa' : '#cbd5e1',
                   fontSize:     '0.92rem',
                   fontWeight:   sel ? 700 : 500,
@@ -684,8 +684,8 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
                   height:         18,
                   flexShrink:     0,
                   borderRadius:   isMulti ? 4 : '50%',
-                  border:         `2px solid ${sel ? '#FF5500' : '#334155'}`,
-                  background:     sel ? '#FF5500' : 'transparent',
+                  border:         `2px solid ${sel ? '#B22222' : '#334155'}`,
+                  background:     sel ? '#B22222' : 'transparent',
                   display:        'inline-flex',
                   alignItems:     'center',
                   justifyContent: 'center',
@@ -712,7 +712,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
             padding:       '16px',
             borderRadius:  12,
             border:        'none',
-            background:    canProceed ? '#FF5500' : '#1e293b',
+            background:    canProceed ? '#B22222' : '#1e293b',
             color:         canProceed ? '#fff' : '#475569',
             fontSize:      '1rem',
             fontWeight:    700,
@@ -763,7 +763,7 @@ export default function CarFinder({ isOpen, onClose }: CarFinderProps) {
           borderRadius: 20,
           padding:      '40px 36px 36px',
           border:       '1px solid rgba(255,255,255,0.07)',
-          boxShadow:    '0 32px 80px rgba(0,0,0,0.75), 0 0 60px rgba(255,85,0,0.06), inset 0 1px 0 rgba(255,255,255,0.05)',
+          boxShadow:    '0 32px 80px rgba(0,0,0,0.75), 0 0 60px rgba(178,34,34,0.06), inset 0 1px 0 rgba(255,255,255,0.05)',
           fontFamily:   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           color:        '#fff',
           boxSizing:    'border-box',
@@ -796,7 +796,7 @@ function ProgressBar({ pct, stepLabel }: { pct: number; stepLabel: string }) {
         <span style={{ color: '#475569', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           {stepLabel}
         </span>
-        <span style={{ color: '#FF5500', fontSize: '0.68rem', fontWeight: 700 }}>
+        <span style={{ color: '#B22222', fontSize: '0.68rem', fontWeight: 700 }}>
           {pct}%
         </span>
       </div>
@@ -804,7 +804,7 @@ function ProgressBar({ pct, stepLabel }: { pct: number; stepLabel: string }) {
         <div style={{
           height:       '100%',
           width:        `${pct}%`,
-          background:   'linear-gradient(90deg, #c94200, #FF5500)',
+          background:   'linear-gradient(90deg, #8B1A1A, #B22222)',
           borderRadius: 2,
           transition:   'width 0.42s cubic-bezier(0.4, 0, 0.2, 1)',
         }} />

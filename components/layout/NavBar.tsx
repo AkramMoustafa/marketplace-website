@@ -27,16 +27,16 @@ export default function NavBar() {
                     relative group block px-4 py-[14px]
                     text-xs font-bold tracking-[1px]
                     transition-colors duration-200
-                    ${active ? 'text-[#FF5500]' : 'text-slate-300 hover:text-[#FF5500]'}
+                    ${active ? 'text-[#B22222]' : 'text-slate-300 hover:text-[#B22222]'}
                   `}
                 >
                   {active && (
-                    <span className="absolute inset-0 bg-[#FF5500]/[0.07]" aria-hidden />
+                    <span className="absolute inset-0 bg-[#B22222]/[0.07]" aria-hidden />
                   )}
                   <span className="relative z-10">{label}</span>
                   <span
                     className={`
-                      absolute bottom-0 left-0 h-[2px] rounded-full bg-[#FF5500]
+                      absolute bottom-0 left-0 h-[2px] rounded-full bg-[#B22222]
                       transition-all duration-300 ease-out
                       ${active ? 'w-full' : 'w-0 group-hover:w-full'}
                     `}

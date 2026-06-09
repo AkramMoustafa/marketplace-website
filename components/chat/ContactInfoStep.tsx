@@ -31,19 +31,19 @@ export default function ContactInfoStep({
   return (
     <form onSubmit={handleSubmit} noValidate>
       {/* Summary strip */}
-      <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2 mb-3">
+      <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2 mb-3">
         <span className="flex items-center gap-1 text-[11px] text-gray-700">
-          <Calendar size={11} className="text-[#FF5500]" />
+          <Calendar size={11} className="text-[#B22222]" />
           {dateStr}
         </span>
-        <div className="w-px h-3 bg-orange-200" />
+        <div className="w-px h-3 bg-red-200" />
         <span className="flex items-center gap-1 text-[11px] text-gray-700">
-          <Clock size={11} className="text-[#FF5500]" />
+          <Clock size={11} className="text-[#B22222]" />
           {time}
         </span>
         {vehicleTitle && (
           <>
-            <div className="w-px h-3 bg-orange-200" />
+            <div className="w-px h-3 bg-red-200" />
             <span className="text-[11px] text-gray-500 truncate max-w-[100px]">{vehicleTitle}</span>
           </>
         )}
@@ -69,7 +69,7 @@ export default function ContactInfoStep({
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400 bg-white"
+            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400 bg-white"
           />
         </div>
 
@@ -81,7 +81,7 @@ export default function ContactInfoStep({
             value={phone}
             onChange={e => setPhone(e.target.value)}
             required
-            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400 bg-white"
+            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400 bg-white"
           />
         </div>
 
@@ -93,7 +93,7 @@ export default function ContactInfoStep({
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF5500]/60 text-gray-900 placeholder-gray-400 bg-white"
+            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-[#B22222]/60 text-gray-900 placeholder-gray-400 bg-white"
           />
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function ContactInfoStep({
       <button
         type="submit"
         disabled={!canSubmit}
-        className="w-full mt-3.5 py-2.5 rounded-xl bg-[#FF5500] text-white text-sm font-black hover:bg-[#FF7733] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#FF5500]/20"
+        className="w-full mt-3.5 py-2.5 rounded-xl bg-[#B22222] text-white text-sm font-black hover:bg-[#8B1A1A] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#B22222]/20"
       >
         {submitting ? (
           <><Loader2 size={14} className="animate-spin" /> Booking…</>

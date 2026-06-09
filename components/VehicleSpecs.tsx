@@ -26,10 +26,10 @@ export default function VehicleSpecs({ car }: Props) {
 
       {/* ── Vehicle header card ─────────────────────────────────────── */}
       <div className="rounded-2xl bg-[#0d1526] border border-white/[0.08] overflow-hidden shadow-2xl shadow-black/40">
-        <div className="h-1 bg-[#FF5500]" />
+        <div className="h-1 bg-[#B22222]" />
 
         <div className="px-6 py-5 border-b border-white/[0.06]">
-          <p className="text-[10px] font-black uppercase tracking-[3px] text-[#FF5500] mb-1">
+          <p className="text-[10px] font-black uppercase tracking-[3px] text-[#B22222] mb-1">
             {car.year} · {car.make}
           </p>
           <h1 className="text-2xl font-black text-slate-100 leading-tight">
@@ -38,11 +38,11 @@ export default function VehicleSpecs({ car }: Props) {
         </div>
 
         {/* Price */}
-        <div className="px-6 py-4 border-b border-white/[0.06] bg-[#FF5500]/[0.04]">
+        <div className="px-6 py-4 border-b border-white/[0.06] bg-[#B22222]/[0.04]">
           <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-1">
             Asking Price
           </p>
-          <p className="text-4xl font-black text-[#FF5500] leading-none">{priceFormatted}</p>
+          <p className="text-4xl font-black text-[#B22222] leading-none">{priceFormatted}</p>
         </div>
 
         {/* Spec rows */}
@@ -70,8 +70,8 @@ export default function VehicleSpecs({ car }: Props) {
           <a
             href="tel:+15550000000"
             className="w-full flex items-center justify-center gap-2 py-3.5
-              bg-[#FF5500] text-black font-black text-[11px] uppercase tracking-widest
-              rounded-xl hover:bg-[#FF7733] transition shadow-lg shadow-[#FF5500]/15"
+              bg-[#B22222] text-black font-black text-[11px] uppercase tracking-widest
+              rounded-xl hover:bg-[#8B1A1A] transition shadow-lg shadow-[#B22222]/15"
           >
             <Phone size={13} /> Call Dealership
           </a>
@@ -81,7 +81,7 @@ export default function VehicleSpecs({ car }: Props) {
             className="w-full flex items-center justify-center gap-2 py-3.5
               bg-slate-700/50 border border-white/[0.07] text-slate-200
               font-black text-[11px] uppercase tracking-widest rounded-xl
-              hover:border-[#FF5500]/40 hover:text-[#FF5500] transition"
+              hover:border-[#B22222]/40 hover:text-[#B22222] transition"
           >
             <Calendar size={13} /> Schedule Test Drive
           </a>

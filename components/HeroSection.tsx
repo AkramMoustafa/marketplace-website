@@ -1,133 +1,89 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { MapPin } from 'lucide-react';
 
 import heroImage from '@/assets/charger-2.jpg';
 
-const STATS = [
-  { value: '500+',    label: 'Vehicles'       },
-  { value: '24hr',    label: 'Financing'      },
-  { value: 'Detroit', label: 'Trusted Dealer' },
+const SLIDES = [
+  { image: heroImage, alt: 'Nova Motors Inventory' },
+  { image: heroImage, alt: 'Nova Motors Inventory' },
+  { image: heroImage, alt: 'Nova Motors Inventory' },
 ] as const;
 
-interface HeroSectionProps {
-  onOpenFinder: () => void;
-}
+export default function HeroSection({ onOpenFinder }: { onOpenFinder?: () => void }) {
+  const [current, setCurrent] = useState(0);
 
-export default function HeroSection({ onOpenFinder }: HeroSectionProps) {
+  const next = useCallback(() => {
+    setCurrent((c) => (c + 1) % SLIDES.length);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(next, 7000);
+    return () => clearInterval(timer);
+  }, [next]);
+
   return (
-    <section className="relative w-full min-h-[460px] lg:h-[560px] bg-slate-900 overflow-hidden">
+    <section className="relative h-[560px] overflow-hidden bg-black">
 
-      <div className="absolute inset-0">
-        <Image
-          src={heroImage}
-          alt="Premium vehicles at Nova Motors Detroit"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[56%_48%]"
-        />
-      </div>
+      {/* Slides */}
+      {SLIDES.map((slide, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ opacity: i === current ? 1 : 0 }}
+        >
+          <Image
+            src={slide.image}
+            alt={slide.alt}
+            fill
+            priority={i === 0}
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
+      ))}
 
-      <div className="absolute inset-0 bg-gradient-to-r
-        from-slate-900
-        via-slate-900/45
-        to-slate-900/[0.02]" />
+      {/* Content */}
+      <div className="relative z-10 h-full">
+        <div className="w-full h-full px-4 lg:px-10">
+          <div className="h-full flex justify-end items-center pr-8 lg:pr-16">
+            <div className="w-[300px] lg:w-[340px] mr-4 lg:mr-8">
+              <div className="bg-white/95 backdrop-blur-md p-6 lg:p-8 rounded-md shadow-2xl">
 
-      <div className="absolute inset-0 bg-slate-900/55 lg:hidden" />
-
-      <div className="pointer-events-none absolute -bottom-10 left-[28%]
-        w-[300px] h-[160px] rounded-full
-        bg-[#FF5500]/[0.1] blur-[70px]" />
-
-      <div className="relative z-10 h-full max-w-7xl mx-auto
-        px-6 lg:px-12 flex items-center py-12 lg:py-0">
-
-        <div className="max-w-[580px]">
-
-          <div
-            className="hero-animate inline-flex items-center gap-1.5
-              px-3 py-1.5 rounded bg-[#FF5500] text-black mb-4"
-            style={{ animationDelay: '40ms' }}
-          >
-            <MapPin size={10} strokeWidth={3} className="shrink-0" />
-            <span className="text-[9px] font-black uppercase tracking-[2.5px]">
-              Detroit, MI · Trusted Dealer
-            </span>
-          </div>
-
-          <h1
-            className="hero-animate font-sans font-black text-white
-              uppercase tracking-tight leading-[0.88]
-              text-[3.8rem] lg:text-[5.6rem]"
-            style={{ animationDelay: '140ms' }}
-          >
-            FIND YOUR<br />DREAM RIDE
-          </h1>
-
-          <p
-            className="hero-animate mt-4 text-slate-300 text-base max-w-[340px] leading-snug"
-            style={{ animationDelay: '250ms' }}
-          >
-            Browse our inventory and drive home today.
-          </p>
-
-          {/* CTAs */}
-          <div
-            className="hero-animate mt-6 flex flex-wrap gap-3"
-            style={{ animationDelay: '350ms' }}
-          >
-            <a
-              href="/inventory"
-              className="inline-flex items-center
-                px-8 py-4
-                bg-[#FF5500] text-black
-                text-sm font-black uppercase tracking-[1.5px]
-                border-4 border-[#FF5500]
-                hover:bg-black hover:text-[#FF5500]
-                active:scale-95
-                transition-all duration-150"
-            >
-              SHOP INVENTORY
-            </a>
-
-            <button
-              onClick={onOpenFinder}
-              className="inline-flex items-center
-                px-8 py-4
-                bg-transparent text-white
-                text-sm font-black uppercase tracking-[1.5px]
-                border-4 border-white
-                hover:bg-white hover:text-black
-                active:scale-95
-                transition-all duration-150"
-            >
-              Let&apos;s Find Your Car
-            </button>
-          </div>
-
-          <div
-            className="hero-animate mt-7 pt-5 border-t border-white/[0.12]"
-            style={{ animationDelay: '460ms' }}
-          >
-            <div className="flex items-center gap-5 sm:gap-7">
-              {STATS.map(({ value, label }, i) => (
-                <div key={label} className="flex items-center gap-5 sm:gap-7">
-                  {i > 0 && <div className="h-6 w-px shrink-0 bg-white/[0.12]" />}
-                  <div>
-                    <p className="text-[1.75rem] font-black text-[#FF5500] leading-none">
-                      {value}
-                    </p>
-                    <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[1.5px] text-slate-500">
-                      {label}
-                    </p>
-                  </div>
+                <div className="uppercase text-black/70 tracking-[4px] text-xs font-semibold mb-4">
+                  Detroit • Premium Pre-Owned Inventory
                 </div>
-              ))}
+
+                <h1 className="text-black font-black uppercase tracking-[-0.03em] leading-[0.95] text-2xl lg:text-4xl">
+                  FIND YOUR
+                  <br />
+                  NEXT VEHICLE
+                </h1>
+
+                <p className="mt-4 text-black/70 text-sm lg:text-base leading-relaxed">
+                  Browse hundreds of vehicles, explore detailed listings,
+                  compare options, and connect directly with our team.
+                </p>
+
+                <div className="mt-6 flex flex-col gap-2.5">
+                  <button
+                    onClick={onOpenFinder}
+                    className="inline-flex items-center justify-center px-8 py-3 bg-[#B22222] text-white text-sm font-bold uppercase tracking-[2px] hover:bg-[#8B1A1A] transition-all duration-200"
+                  >
+                    Find Your Dream Car
+                  </button>
+                  <a
+                    href="/inventory"
+                    className="inline-flex items-center justify-center px-8 py-2.5 border border-black/20 text-black/70 text-xs font-semibold uppercase tracking-[1.5px] hover:bg-black/5 transition-all duration-200"
+                  >
+                    View Inventory
+                  </a>
+                </div>
+
+              </div>
             </div>
           </div>
-
         </div>
       </div>
 

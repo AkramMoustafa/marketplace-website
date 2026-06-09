@@ -39,30 +39,30 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
       <form onSubmit={submit} className="w-full max-w-xs space-y-4">
-        <p className="text-[10px] uppercase tracking-[3px] text-slate-600 text-center">Create Admin Password</p>
+        <p className="text-[10px] uppercase tracking-[3px] text-gray-500 text-center">Create Admin Password</p>
         <div className="relative">
           <input autoFocus type={showPw ? 'text' : 'password'} value={pw}
             onChange={e => setPw(e.target.value)} placeholder="Password"
-            className="w-full px-4 py-3 pr-10 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/50 transition" />
+            className="w-full px-4 py-3 pr-10 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition" />
           <button type="button" onClick={() => setShowPw(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition">
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
             {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>
         </div>
         <div className="relative">
           <input type={showConfirm ? 'text' : 'password'} value={confirm}
             onChange={e => setConfirm(e.target.value)} placeholder="Confirm Password"
-            className="w-full px-4 py-3 pr-10 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/50 transition" />
+            className="w-full px-4 py-3 pr-10 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition" />
           <button type="button" onClick={() => setShowConfirm(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition">
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
             {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>
         </div>
         {error && <p className="text-red-400 text-xs text-center">{error}</p>}
         <button type="submit" disabled={loading}
-          className="w-full py-3 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-60 transition">
+          className="w-full py-3 bg-blue-600 text-white font-semibold uppercase tracking-wide text-xs rounded-xl hover:bg-blue-700 disabled:opacity-60 transition">
           {loading ? 'Creating…' : 'Create'}
         </button>
       </form>
@@ -94,21 +94,21 @@ function AdminLogin({ onLoggedIn }: { onLoggedIn: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
       <form onSubmit={submit}
         className={`w-full max-w-xs space-y-4 ${shake ? 'animate-[shake_0.4s_ease]' : ''}`}>
-        <p className="text-[10px] uppercase tracking-[3px] text-slate-600 text-center">Admin Password</p>
+        <p className="text-[10px] uppercase tracking-[3px] text-gray-500 text-center">Admin Password</p>
         <div className="relative">
           <input autoFocus type={show ? 'text' : 'password'} value={pw}
             onChange={e => setPw(e.target.value)} placeholder="Password"
-            className="w-full px-4 py-3 pr-10 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#C9A84C]/50 transition" />
+            className="w-full px-4 py-3 pr-10 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition" />
           <button type="button" onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition">
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
             {show ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>
         </div>
         <button type="submit" disabled={loading}
-          className="w-full py-3 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-60 transition">
+          className="w-full py-3 bg-blue-600 text-white font-semibold uppercase tracking-wide text-xs rounded-xl hover:bg-blue-700 disabled:opacity-60 transition">
           {loading ? 'Logging in…' : 'Login'}
         </button>
       </form>
@@ -140,10 +140,10 @@ function aiReadyToGenerate(f: AIVehicleFormSnapshot): boolean {
 // ── AI Assist Banner ────────────────────────────────────────────────────────────
 function AIAssistBanner({ onGenerate }: { onGenerate: (t: AIContentType) => void }) {
   return (
-    <div className="rounded-xl border border-[#C9A84C]/30 bg-[#C9A84C]/[0.04] px-4 py-3.5">
+    <div className="rounded-xl border border-blue-200 bg-blue-50/50 px-4 py-3.5">
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles size={13} className="text-[#C9A84C]" />
-        <span className="text-[10px] font-black uppercase tracking-[2px] text-[#C9A84C]">
+        <Sparkles size={13} className="text-blue-600" />
+        <span className="text-[10px] font-black uppercase tracking-[2px] text-blue-600">
           AI Suggestions Available
         </span>
       </div>
@@ -153,7 +153,7 @@ function AIAssistBanner({ onGenerate }: { onGenerate: (t: AIContentType) => void
             key={t}
             type="button"
             onClick={() => onGenerate(t)}
-            className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wide bg-[#C9A84C]/10 border border-[#C9A84C]/40 text-[#C9A84C] rounded-lg hover:bg-[#C9A84C]/20 transition"
+            className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wide bg-blue-50 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-100 transition"
           >
             Generate {t === 'description' ? 'Description' : t === 'highlights' ? 'Highlights' : 'SEO Copy'}
           </button>
@@ -236,17 +236,17 @@ function AIContentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#111] border border-white/[0.08] rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
+      <div className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col max-h-[88vh]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-2">
-            <Sparkles size={13} className="text-[#C9A84C]" />
-            <h2 className="text-xs font-black uppercase tracking-[2px] text-white">
+            <Sparkles size={13} className="text-blue-600" />
+            <h2 className="text-xs font-black uppercase tracking-[2px] text-gray-900">
               AI Generated {label}
             </h2>
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition">
             <X size={15} />
           </button>
         </div>
@@ -256,8 +256,8 @@ function AIContentModal({
 
           {loading && (
             <div className="flex flex-col items-center justify-center h-36 gap-3">
-              <div className="w-5 h-5 border-2 border-slate-700 border-t-[#C9A84C] rounded-full animate-spin" />
-              <p className="text-xs text-slate-500">Generating AI content…</p>
+              <div className="w-5 h-5 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
+              <p className="text-xs text-gray-400">Generating AI content…</p>
             </div>
           )}
 
@@ -265,7 +265,7 @@ function AIContentModal({
             <div className="flex flex-col items-center justify-center h-36 gap-3">
               <p className="text-red-400 text-sm text-center">{genError}</p>
               <button onClick={generate}
-                className="px-4 py-1.5 text-xs font-bold border border-slate-700 text-slate-400 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+                className="px-4 py-1.5 text-xs font-bold border border-gray-200 text-gray-500 rounded-lg hover:border-blue-500 hover:text-blue-600 transition">
                 Retry
               </button>
             </div>
@@ -274,13 +274,13 @@ function AIContentModal({
           {!loading && result && !editing && (
             <div className="space-y-2.5">
               {type === 'description' && (
-                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{result.description}</p>
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{result.description}</p>
               )}
               {type === 'highlights' && (
                 <ul className="space-y-2.5">
                   {result.highlights.map((h, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-slate-300">
-                      <span className="text-[#C9A84C] shrink-0 mt-0.5">✦</span>
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-600">
+                      <span className="text-blue-600 shrink-0 mt-0.5">✦</span>
                       <span>{h}</span>
                     </li>
                   ))}
@@ -289,14 +289,14 @@ function AIContentModal({
               {type === 'seo' && (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">SEO Title</p>
-                    <p className="text-sm text-white font-bold">{result.seo_title}</p>
-                    <p className="text-[10px] text-slate-600 mt-0.5">{result.seo_title.length} / 60 chars</p>
+                    <p className="text-[10px] uppercase tracking-[2px] text-gray-400 mb-1.5">SEO Title</p>
+                    <p className="text-sm text-gray-900 font-bold">{result.seo_title}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{result.seo_title.length} / 60 chars</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">Meta Description</p>
-                    <p className="text-sm text-slate-300 leading-relaxed">{result.meta_description}</p>
-                    <p className="text-[10px] text-slate-600 mt-0.5">{result.meta_description.length} / 160 chars</p>
+                    <p className="text-[10px] uppercase tracking-[2px] text-gray-400 mb-1.5">Meta Description</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{result.meta_description}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{result.meta_description.length} / 160 chars</p>
                   </div>
                 </div>
               )}
@@ -307,31 +307,31 @@ function AIContentModal({
             <div className="space-y-3">
               {type === 'description' && (
                 <>
-                  <p className="text-[10px] uppercase tracking-[2px] text-slate-500">Edit Description</p>
+                  <p className="text-[10px] uppercase tracking-[2px] text-gray-400">Edit Description</p>
                   <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={7}
-                    className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none" />
                 </>
               )}
               {type === 'highlights' && (
                 <>
-                  <p className="text-[10px] uppercase tracking-[2px] text-slate-500">Edit Highlights — one per line</p>
+                  <p className="text-[10px] uppercase tracking-[2px] text-gray-400">Edit Highlights — one per line</p>
                   <textarea value={editHighlights} onChange={e => setEditHighlights(e.target.value)} rows={7}
-                    className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none" />
                 </>
               )}
               {type === 'seo' && (
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">SEO Title</p>
+                    <p className="text-[10px] uppercase tracking-[2px] text-gray-400 mb-1.5">SEO Title</p>
                     <input type="text" value={editSeoTitle} onChange={e => setEditSeoTitle(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]" />
-                    <p className="text-[10px] text-slate-600 mt-0.5">{editSeoTitle.length} / 60 chars</p>
+                      className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+                    <p className="text-[10px] text-gray-500 mt-0.5">{editSeoTitle.length} / 60 chars</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-1.5">Meta Description</p>
+                    <p className="text-[10px] uppercase tracking-[2px] text-gray-400 mb-1.5">Meta Description</p>
                     <textarea value={editMetaDesc} onChange={e => setEditMetaDesc(e.target.value)} rows={3}
-                      className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
-                    <p className="text-[10px] text-slate-600 mt-0.5">{editMetaDesc.length} / 160 chars</p>
+                      className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none" />
+                    <p className="text-[10px] text-gray-500 mt-0.5">{editMetaDesc.length} / 160 chars</p>
                   </div>
                 </div>
               )}
@@ -341,35 +341,35 @@ function AIContentModal({
 
         {/* Footer */}
         {(result && !loading) && (
-          <div className="flex items-center gap-2 px-6 py-4 border-t border-white/[0.06] shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 px-6 py-4 border-t border-gray-100 shrink-0 flex-wrap">
             {type === 'seo' && !editing ? (
               <button onClick={copyAll}
-                className="flex items-center gap-1.5 px-4 py-2 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] transition">
+                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-blue-700 transition">
                 {copied && <Check size={11} />}
                 {copied ? 'Copied!' : 'Copy to Clipboard'}
               </button>
             ) : (
               <button onClick={handleAccept}
-                className="px-4 py-2 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] transition">
+                className="px-4 py-2 bg-blue-600 text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-blue-700 transition">
                 Accept
               </button>
             )}
             <button onClick={generate}
-              className="px-4 py-2 text-xs font-bold border border-slate-700 text-slate-400 rounded-xl hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+              className="px-4 py-2 text-xs font-bold border border-gray-200 text-gray-500 rounded-xl hover:border-blue-500 hover:text-blue-600 transition">
               Regenerate
             </button>
             <button onClick={() => setEditing(e => !e)}
-              className="px-4 py-2 text-xs font-bold border border-slate-700 text-slate-400 rounded-xl hover:border-white hover:text-white transition">
+              className="px-4 py-2 text-xs font-bold border border-gray-200 text-gray-500 rounded-xl hover:border-gray-400 hover:text-gray-700 transition">
               {editing ? 'Preview' : 'Edit'}
             </button>
-            <button onClick={onClose} className="ml-auto px-3 py-2 text-xs text-slate-500 hover:text-white transition">
+            <button onClick={onClose} className="ml-auto px-3 py-2 text-xs text-gray-400 hover:text-gray-700 transition">
               Cancel
             </button>
           </div>
         )}
         {(!result && !loading) && (
-          <div className="flex justify-end px-6 py-4 border-t border-white/[0.06] shrink-0">
-            <button onClick={onClose} className="px-4 py-2 text-xs text-slate-500 hover:text-white transition">
+          <div className="flex justify-end px-6 py-4 border-t border-gray-100 shrink-0">
+            <button onClick={onClose} className="px-4 py-2 text-xs text-gray-400 hover:text-gray-700 transition">
               Close
             </button>
           </div>
@@ -443,7 +443,7 @@ function AIImageAnalyzePanel({
   /* ── idle ── */
   if (phase === 'idle') return (
     <button type="button" onClick={analyze}
-      className="flex items-center gap-1.5 text-xs font-bold text-[#C9A84C]/60 hover:text-[#C9A84C] transition mt-2">
+      className="flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-600 transition mt-2">
       <Sparkles size={11} />
       Analyze image with AI
     </button>
@@ -451,8 +451,8 @@ function AIImageAnalyzePanel({
 
   /* ── loading ── */
   if (phase === 'loading') return (
-    <div className="flex items-center gap-2 text-xs text-slate-500 mt-2">
-      <div className="w-3.5 h-3.5 border-2 border-slate-700 border-t-[#C9A84C] rounded-full animate-spin" />
+    <div className="flex items-center gap-2 text-xs text-gray-400 mt-2">
+      <div className="w-3.5 h-3.5 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
       Analyzing image…
     </div>
   );
@@ -462,33 +462,33 @@ function AIImageAnalyzePanel({
     <div className="flex items-center gap-3 text-xs mt-2">
       <span className="text-red-400">{errMsg}</span>
       <button type="button" onClick={analyze}
-        className="text-slate-400 hover:text-white transition underline underline-offset-2">Retry</button>
+        className="text-gray-500 hover:text-gray-700 transition underline underline-offset-2">Retry</button>
     </div>
   );
 
   /* ── done: no detectable fields ── */
   if (!result || suggestions.length === 0) return (
-    <div className="flex items-center gap-3 text-xs text-slate-500 mt-2">
+    <div className="flex items-center gap-3 text-xs text-gray-400 mt-2">
       <span>AI could not identify vehicle details from this image.</span>
       <button type="button" onClick={analyze}
-        className="text-slate-400 hover:text-white transition underline underline-offset-2">Re-analyze</button>
+        className="text-gray-500 hover:text-gray-700 transition underline underline-offset-2">Re-analyze</button>
     </div>
   );
 
   /* ── done: suggestions panel ── */
   return (
-    <div className="mt-2 rounded-xl border border-[#C9A84C]/20 bg-[#C9A84C]/[0.03] px-4 py-3.5 space-y-3">
+    <div className="mt-2 rounded-xl border border-blue-200 bg-blue-50/50 px-4 py-3.5 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles size={12} className="text-[#C9A84C]" />
-          <span className="text-[10px] font-black uppercase tracking-[2px] text-[#C9A84C]">
+          <Sparkles size={12} className="text-blue-600" />
+          <span className="text-[10px] font-black uppercase tracking-[2px] text-blue-600">
             AI Detected Details
           </span>
         </div>
         {!allApplied && (
           <button type="button" onClick={applyAll}
-            className="text-[10px] font-black uppercase tracking-wide text-[#C9A84C] hover:text-[#D4B96A] transition">
+            className="text-[10px] font-black uppercase tracking-wide text-blue-600 hover:text-blue-700 transition">
             Apply All
           </button>
         )}
@@ -505,13 +505,13 @@ function AIImageAnalyzePanel({
           const isApplied = applied.has(field);
           return (
             <div key={field} className="flex items-center gap-3">
-              <span className="text-[10px] text-slate-500 w-16 shrink-0">{label}</span>
-              <span className="text-xs text-white flex-1 truncate">{String(value)}</span>
+              <span className="text-[10px] text-gray-400 w-16 shrink-0">{label}</span>
+              <span className="text-xs text-gray-900 flex-1 truncate">{String(value)}</span>
               <button type="button" onClick={() => !isApplied && applyOne(field, value)}
                 className={`shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-lg border transition ${
                   isApplied
                     ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 cursor-default'
-                    : 'border-[#C9A84C]/40 text-[#C9A84C] hover:bg-[#C9A84C]/10'
+                    : 'border-blue-200 text-blue-600 hover:bg-blue-50'
                 }`}>
                 {isApplied ? <><Check size={9} /> Applied</> : 'Apply'}
               </button>
@@ -522,7 +522,7 @@ function AIImageAnalyzePanel({
 
       {/* Confidence note */}
       {result.confidence_note && (
-        <p className="text-[10px] text-slate-600 border-t border-white/[0.04] pt-2.5 leading-relaxed">
+        <p className="text-[10px] text-gray-500 border-t border-gray-100 pt-2.5 leading-relaxed">
           {result.confidence_note}
         </p>
       )}
@@ -530,11 +530,11 @@ function AIImageAnalyzePanel({
       {/* Footer actions */}
       <div className="flex items-center gap-4 pt-0.5">
         <button type="button" onClick={analyze}
-          className="text-[10px] text-slate-500 hover:text-[#C9A84C] transition">
+          className="text-[10px] text-gray-400 hover:text-blue-600 transition">
           Re-analyze
         </button>
         <button type="button" onClick={() => { setPhase('idle'); setResult(null); }}
-          className="text-[10px] text-slate-500 hover:text-slate-400 transition">
+          className="text-[10px] text-gray-400 hover:text-gray-500 transition">
           Dismiss
         </button>
       </div>
@@ -567,18 +567,18 @@ function ImageDropZone({ onFiles, className = '' }: { onFiles: (f: File[]) => vo
       onDrop={e => { e.preventDefault(); setDragging(false); handle(e.dataTransfer.files); }}
       onClick={() => inputRef.current?.click()}
       className={`cursor-pointer border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 py-8 transition select-none ${
-        dragging ? 'border-[#C9A84C] bg-[#C9A84C]/5' : 'border-white/10 hover:border-white/20'
+        dragging ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
       } ${className}`}
     >
-      <Upload size={22} className="text-slate-500 pointer-events-none" />
+      <Upload size={22} className="text-gray-400 pointer-events-none" />
       <div className="text-center pointer-events-none">
-        <p className="text-sm text-slate-400">Drag and drop images here</p>
-        <p className="text-xs text-slate-600 mt-1">or</p>
+        <p className="text-sm text-gray-500">Drag and drop images here</p>
+        <p className="text-xs text-gray-500 mt-1">or</p>
       </div>
       <button
         type="button"
         onClick={e => { e.stopPropagation(); inputRef.current?.click(); }}
-        className="px-4 py-1.5 text-xs font-bold uppercase tracking-wide border border-slate-600 text-slate-300 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] transition"
+        className="px-4 py-1.5 text-xs font-bold uppercase tracking-wide border border-gray-300 text-gray-600 rounded-lg hover:border-blue-500 hover:text-blue-600 transition"
       >
         Choose Images
       </button>
@@ -600,7 +600,7 @@ function ImageEntryGrid({
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 mt-3">
       {entries.map((entry, i) => (
-        <div key={i} className="relative aspect-video rounded-lg overflow-hidden bg-slate-800 group">
+        <div key={i} className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 group">
           <img src={entry.preview} alt="" className="w-full h-full object-cover" />
           {entry.status === 'idle' && (
             <button
@@ -635,10 +635,10 @@ function ImageEntryGrid({
 // ── Stat card ──────────────────────────────────────────────────────────────────
 const StatCard = memo(function StatCard({ label, value, sub }: { label: string; value: number; sub?: string }) {
   return (
-    <div className="bg-[#111] border border-[#C9A84C]/10 rounded-xl p-5">
-      <p className="text-xs uppercase tracking-[2px] text-slate-500 mb-2">{label}</p>
-      <p className="text-3xl font-black text-white">{value}</p>
-      {sub && <p className="mt-1 text-xs text-[#C9A84C]">{sub}</p>}
+    <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+      <p className="text-xs uppercase tracking-[2px] text-gray-400 mb-2">{label}</p>
+      <p className="text-3xl font-black text-gray-900">{value}</p>
+      {sub && <p className="mt-1 text-xs text-blue-600">{sub}</p>}
     </div>
   );
 });
@@ -657,7 +657,7 @@ const Badge = memo(function Badge({ status }: { status: string }) {
     cancelled: 'bg-red-500/10 text-red-400',
   };
   return (
-    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${map[status] ?? 'bg-slate-700 text-slate-300'}`}>
+    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${map[status] ?? 'bg-gray-200 text-gray-600'}`}>
       {status.replace('_', ' ')}
     </span>
   );
@@ -667,13 +667,13 @@ const Badge = memo(function Badge({ status }: { status: string }) {
 function DashboardSkeleton() {
   return (
     <div>
-      <div className="h-8 w-44 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <div className="h-8 w-44 bg-gray-200 rounded-lg animate-pulse mb-6" />
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-[#111] border border-[#C9A84C]/10 rounded-xl p-5">
-            <div className="h-2.5 w-24 bg-slate-800 rounded animate-pulse mb-3" />
-            <div className="h-8 w-14 bg-slate-800 rounded animate-pulse mb-2" />
-            <div className="h-2.5 w-32 bg-slate-700 rounded animate-pulse" />
+          <div key={i} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <div className="h-2.5 w-24 bg-gray-200 rounded animate-pulse mb-3" />
+            <div className="h-8 w-14 bg-gray-200 rounded animate-pulse mb-2" />
+            <div className="h-2.5 w-32 bg-gray-200 rounded animate-pulse" />
           </div>
         ))}
       </div>
@@ -697,11 +697,11 @@ function DashboardView() {
   }, []);
 
   if (loading) return <DashboardSkeleton />;
-  if (error || !stats) return <p className="text-slate-400">Failed to load stats.</p>;
+  if (error || !stats) return <p className="text-gray-500">Failed to load stats.</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-black text-white mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-black text-gray-900 mb-6">Dashboard</h1>
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <StatCard label="Total Vehicles" value={stats.vehicles.total} sub={`${stats.vehicles.available} available · ${stats.vehicles.sold} sold`} />
         <StatCard label="Total Users" value={stats.users.total} />
@@ -800,21 +800,21 @@ function EditVehicleImages({ vehicle, onDone }: { vehicle: VehicleListItem; onDo
     <div>
       <div className="flex items-center gap-4 mb-6">
         <button onClick={onDone}
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition">
+          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition">
           <ChevronLeft size={14} /> Back
         </button>
-        <h1 className="text-xl font-black text-white">{vehicle.title} — Images</h1>
-        {reordering && <span className="text-xs text-[#C9A84C]">Saving order…</span>}
+        <h1 className="text-xl font-black text-gray-900">{vehicle.title} — Images</h1>
+        {reordering && <span className="text-xs text-blue-600">Saving order…</span>}
       </div>
 
       {/* Existing images — draggable to reorder */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-3">
-          <p className="text-[10px] uppercase tracking-[2px] text-slate-500">
+          <p className="text-[10px] uppercase tracking-[2px] text-gray-400">
             Current Images{images.length > 0 ? ` (${images.length})` : ''}
           </p>
           {images.length > 1 && (
-            <p className="text-[10px] text-slate-600">drag to reorder</p>
+            <p className="text-[10px] text-gray-500">drag to reorder</p>
           )}
         </div>
         {images.length > 0 ? (
@@ -833,18 +833,18 @@ function EditVehicleImages({ vehicle, onDone }: { vehicle: VehicleListItem; onDo
                   setDragIdx(null);
                   setDragOverIdx(null);
                 }}
-                className={`relative aspect-video rounded-xl overflow-hidden bg-slate-800 group cursor-grab active:cursor-grabbing transition-all ${
+                className={`relative aspect-video rounded-xl overflow-hidden bg-gray-100 group cursor-grab active:cursor-grabbing transition-all ${
                   dragIdx === i ? 'opacity-40 scale-95' : ''
                 } ${
                   dragOverIdx === i && dragIdx !== i
-                    ? 'ring-2 ring-[#C9A84C] scale-[1.03]'
+                    ? 'ring-2 ring-blue-500 scale-[1.03]'
                     : ''
                 }`}
               >
                 <img src={api.getImageUrl(url)} alt="" className="w-full h-full object-cover pointer-events-none" />
                 {/* first image badge */}
                 {i === 0 && (
-                  <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-[#C9A84C] text-black text-[9px] font-black uppercase rounded">
+                  <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-semibold uppercase rounded">
                     Cover
                   </span>
                 )}
@@ -866,13 +866,13 @@ function EditVehicleImages({ vehicle, onDone }: { vehicle: VehicleListItem; onDo
             ))}
           </div>
         ) : (
-          <p className="text-slate-500 text-sm">No images yet.</p>
+          <p className="text-gray-400 text-sm">No images yet.</p>
         )}
       </div>
 
       {/* Add more */}
       <div className="mb-6">
-        <p className="text-[10px] uppercase tracking-[2px] text-slate-500 mb-3">Add More Images</p>
+        <p className="text-[10px] uppercase tracking-[2px] text-gray-400 mb-3">Add More Images</p>
         <ImageDropZone onFiles={handleNewFiles} />
         <ImageEntryGrid entries={pending} onRemove={removeEntry} />
       </div>
@@ -883,7 +883,7 @@ function EditVehicleImages({ vehicle, onDone }: { vehicle: VehicleListItem; onDo
           <button
             onClick={uploadAll}
             disabled={uploading || idleCount === 0}
-            className="px-5 py-2.5 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-50 transition"
+            className="px-5 py-2.5 bg-blue-600 text-white font-semibold uppercase tracking-wide text-xs rounded-xl hover:bg-blue-700 disabled:opacity-50 transition"
           >
             {uploading
               ? `Uploading ${doneCount} / ${pending.length}…`
@@ -894,7 +894,7 @@ function EditVehicleImages({ vehicle, onDone }: { vehicle: VehicleListItem; onDo
       )}
 
       <button onClick={onDone}
-        className="px-5 py-2.5 text-xs font-bold uppercase tracking-wide border border-slate-700 text-slate-400 rounded-xl hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+        className="px-5 py-2.5 text-xs font-bold uppercase tracking-wide border border-gray-200 text-gray-500 rounded-xl hover:border-blue-500 hover:text-blue-600 transition">
         Done
       </button>
     </div>
@@ -993,13 +993,13 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
 
   const field = (label: string, key: keyof typeof form, type = 'text', placeholder = '') => (
     <div>
-      <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">{label}</label>
+      <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">{label}</label>
       <input
         type={type}
         value={String(form[key])}
         placeholder={placeholder}
         onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)}
-        className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] transition"
+        className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
       />
     </div>
   );
@@ -1008,14 +1008,14 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
     return (
       <div>
         <div className="flex items-center gap-4 mb-6">
-          <div className="h-4 w-16 bg-slate-800 rounded animate-pulse" />
-          <div className="h-7 w-56 bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+          <div className="h-7 w-56 bg-gray-200 rounded-lg animate-pulse" />
         </div>
-        <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6 max-w-2xl space-y-4">
+        <div className="bg-white border border-gray-100 rounded-xl p-6 max-w-2xl space-y-4">
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i}>
-              <div className="h-2.5 w-20 bg-slate-800 rounded animate-pulse mb-1.5" />
-              <div className="h-10 bg-slate-800/80 rounded-xl animate-pulse" style={{ opacity: 1 - i * 0.06 }} />
+              <div className="h-2.5 w-20 bg-gray-200 rounded animate-pulse mb-1.5" />
+              <div className="h-10 bg-gray-200/80 rounded-xl animate-pulse" style={{ opacity: 1 - i * 0.06 }} />
             </div>
           ))}
         </div>
@@ -1035,17 +1035,17 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
       )}
 
       <div className="flex items-center gap-4 mb-6">
-        <button onClick={onDone} className="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition">
+        <button onClick={onDone} className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition">
           <ChevronLeft size={14} /> Back
         </button>
-        <h1 className="text-xl font-black text-white">Edit Vehicle</h1>
+        <h1 className="text-xl font-black text-gray-900">Edit Vehicle</h1>
       </div>
 
-      <form onSubmit={save} className="bg-[#111] border border-white/[0.06] rounded-xl p-6 max-w-2xl space-y-5">
+      <form onSubmit={save} className="bg-white border border-gray-100 rounded-xl p-6 max-w-2xl space-y-5">
 
         {/* Core identity */}
         <div>
-          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Identity</p>
+          <p className="text-[9px] uppercase tracking-[3px] text-gray-500 mb-3">Identity</p>
           {field('Title', 'title', 'text', '2023 BMW M3 Competition')}
           <div className="grid grid-cols-2 gap-4 mt-4">
             {field('Make', 'make', 'text', 'BMW')}
@@ -1057,11 +1057,11 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
           </div>
         </div>
 
-        <div className="border-t border-white/[0.04]" />
+        <div className="border-t border-gray-100" />
 
         {/* Specs */}
         <div>
-          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Specs</p>
+          <p className="text-[9px] uppercase tracking-[3px] text-gray-500 mb-3">Specs</p>
           <div className="grid grid-cols-2 gap-4">
             {field('Mileage', 'mileage', 'number')}
             {field('Color', 'color', 'text', 'Midnight Black')}
@@ -1069,9 +1069,9 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
           <div className="grid grid-cols-2 gap-4 mt-4">
             {field('Body Type', 'body_type', 'text', 'Sedan')}
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Transmission</label>
+              <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Transmission</label>
               <select value={form.transmission} onChange={e => set('transmission', e.target.value as TransmissionType)}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]">
+                className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
                 <option value="automatic">Automatic</option>
                 <option value="manual">Manual</option>
                 <option value="cvt">CVT</option>
@@ -1080,9 +1080,9 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
             </div>
           </div>
           <div className="mt-4">
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Fuel Type</label>
+            <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Fuel Type</label>
             <select value={form.fuel_type} onChange={e => set('fuel_type', e.target.value as FuelType)}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]">
+              className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
               <option value="gasoline">Gasoline</option>
               <option value="diesel">Diesel</option>
               <option value="electric">Electric</option>
@@ -1100,19 +1100,19 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
           </div>
         </div>
 
-        <div className="border-t border-white/[0.04]" />
+        <div className="border-t border-gray-100" />
 
         {/* Pricing */}
         <div>
-          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Pricing</p>
+          <p className="text-[9px] uppercase tracking-[3px] text-gray-500 mb-3">Pricing</p>
           <div className="flex gap-4 items-end">
             <div className="flex-1">
               {field('Price ($)', 'price', 'text', '89500.00')}
             </div>
             <label className={`flex items-center gap-2.5 shrink-0 mb-0.5 px-4 py-2.5 rounded-xl border cursor-pointer transition select-none ${
               form.price_on_call
-                ? 'border-[#C9A84C]/60 bg-[#C9A84C]/8 text-[#C9A84C]'
-                : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'
+                ? 'border-blue-300 bg-blue-50 text-blue-600'
+                : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
             }`}>
               <input type="checkbox" checked={form.price_on_call}
                 onChange={e => set('price_on_call', e.target.checked)} className="hidden" />
@@ -1121,22 +1121,22 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
             </label>
           </div>
           {form.price_on_call && (
-            <p className="mt-2 text-[11px] text-[#C9A84C]/70">
+            <p className="mt-2 text-[11px] text-blue-500">
               Price is saved internally but customers will see &quot;Call for Price&quot; instead.
             </p>
           )}
         </div>
 
-        <div className="border-t border-white/[0.04]" />
+        <div className="border-t border-gray-100" />
 
         {/* Availability */}
         <div>
-          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Availability</p>
+          <p className="text-[9px] uppercase tracking-[3px] text-gray-500 mb-3">Availability</p>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Status</label>
+              <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Status</label>
               <select value={form.status} onChange={e => set('status', e.target.value as VehicleStatus)}
-                className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]">
+                className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
                 <option value="available">Available</option>
                 <option value="reserved">Reserved</option>
                 <option value="pending">Pending</option>
@@ -1145,8 +1145,8 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
             </div>
             <label className={`flex items-center gap-2.5 shrink-0 mt-5 px-4 py-2.5 rounded-xl border cursor-pointer transition select-none ${
               form.featured
-                ? 'border-[#C9A84C]/60 bg-[#C9A84C]/8 text-[#C9A84C]'
-                : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'
+                ? 'border-blue-300 bg-blue-50 text-blue-600'
+                : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
             }`}>
               <input type="checkbox" checked={form.featured}
                 onChange={e => set('featured', e.target.checked)} className="hidden" />
@@ -1155,7 +1155,7 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
           </div>
         </div>
 
-        <div className="border-t border-white/[0.04]" />
+        <div className="border-t border-gray-100" />
 
         {/* AI suggestions (shown once minimum required fields are filled) */}
         {aiReadyToGenerate(form) && (
@@ -1164,27 +1164,27 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
 
         {/* Description */}
         <div>
-          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Description</p>
+          <p className="text-[9px] uppercase tracking-[3px] text-gray-500 mb-3">Description</p>
           <textarea
             value={form.description}
             onChange={e => set('description', e.target.value)}
             rows={4}
             placeholder="Optional description shown to customers on the vehicle detail page…"
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none placeholder-slate-600"
+            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none placeholder-gray-400"
           />
         </div>
 
         {/* Features */}
         <div>
-          <p className="text-[9px] uppercase tracking-[3px] text-slate-600 mb-3">Features</p>
+          <p className="text-[9px] uppercase tracking-[3px] text-gray-500 mb-3">Features</p>
           <textarea
             value={form.features}
             onChange={e => set('features', e.target.value)}
             rows={4}
             placeholder={"Carbon Fiber Trim\nHeads-Up Display\nApple CarPlay\nHarman Kardon Audio"}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none placeholder-slate-600"
+            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none placeholder-gray-400"
           />
-          <p className="mt-1 text-[10px] text-slate-600">One feature per line</p>
+          <p className="mt-1 text-[10px] text-gray-500">One feature per line</p>
         </div>
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -1192,11 +1192,11 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
 
         <div className="flex items-center gap-3 pt-1">
           <button type="submit" disabled={saving || saved}
-            className="px-6 py-2.5 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-xs rounded-xl hover:bg-[#D4B96A] disabled:opacity-60 transition">
+            className="px-6 py-2.5 bg-blue-600 text-white font-semibold uppercase tracking-wide text-xs rounded-xl hover:bg-blue-700 disabled:opacity-60 transition">
             {saving ? 'Saving…' : saved ? 'Saved!' : 'Save Changes'}
           </button>
           <button type="button" onClick={onDone}
-            className="px-5 py-2.5 text-xs font-bold uppercase tracking-wide border border-slate-700 text-slate-400 rounded-xl hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+            className="px-5 py-2.5 text-xs font-bold uppercase tracking-wide border border-gray-200 text-gray-500 rounded-xl hover:border-blue-500 hover:text-blue-600 transition">
             Cancel
           </button>
         </div>
@@ -1208,21 +1208,21 @@ function EditVehicleDetailsView({ vehicleId, onDone }: { vehicleId: string; onDo
 // ── Table skeleton ─────────────────────────────────────────────────────────────
 function TableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div className="bg-[#111] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="flex items-center gap-6 px-5 py-3 border-b border-white/[0.06]">
+    <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div className="flex items-center gap-6 px-5 py-3 border-b border-gray-100">
         {[120, 48, 72, 64, 56, 32].map((w, i) => (
-          <div key={i} className="h-2.5 bg-slate-800 rounded animate-pulse" style={{ width: w }} />
+          <div key={i} className="h-2.5 bg-gray-200 rounded animate-pulse" style={{ width: w }} />
         ))}
       </div>
-      <div className="divide-y divide-white/[0.04]">
+      <div className="divide-y divide-gray-100">
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="flex items-center gap-6 px-5 py-4">
-            <div className="h-4 flex-1 bg-slate-800/80 rounded animate-pulse" style={{ opacity: 1 - i * 0.08 }} />
-            <div className="h-4 w-12 bg-slate-800/60 rounded animate-pulse" />
-            <div className="h-4 w-20 bg-slate-800/60 rounded animate-pulse" />
-            <div className="h-5 w-16 bg-slate-800/60 rounded-full animate-pulse" />
-            <div className="h-4 w-14 bg-slate-800/60 rounded animate-pulse" />
-            <div className="h-4 w-10 bg-slate-800/40 rounded animate-pulse" />
+            <div className="h-4 flex-1 bg-gray-200/80 rounded animate-pulse" style={{ opacity: 1 - i * 0.08 }} />
+            <div className="h-4 w-12 bg-gray-200/60 rounded animate-pulse" />
+            <div className="h-4 w-20 bg-gray-200/60 rounded animate-pulse" />
+            <div className="h-5 w-16 bg-gray-200/60 rounded-full animate-pulse" />
+            <div className="h-4 w-14 bg-gray-200/60 rounded animate-pulse" />
+            <div className="h-4 w-10 bg-gray-200/40 rounded animate-pulse" />
           </div>
         ))}
       </div>
@@ -1288,7 +1288,7 @@ function VehiclesView() {
     return (
       <div>
         <div className="flex items-center justify-between mb-6">
-          <div className="h-8 w-32 bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-8 w-32 bg-gray-200 rounded-lg animate-pulse" />
         </div>
         <TableSkeleton rows={10} />
       </div>
@@ -1298,12 +1298,12 @@ function VehiclesView() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black text-white">Vehicles</h1>
+        <h1 className="text-2xl font-black text-gray-900">Vehicles</h1>
       </div>
-      <div className="bg-[#111] border border-white/[0.06] rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.06] text-[10px] uppercase tracking-[2px] text-slate-500">
+            <tr className="border-b border-gray-100 text-[10px] uppercase tracking-[2px] text-gray-400">
               <th className="text-left px-5 py-3">Title</th>
               <th className="text-left px-5 py-3">Year</th>
               <th className="text-left px-5 py-3">Price</th>
@@ -1312,27 +1312,27 @@ function VehiclesView() {
               <th className="px-5 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-gray-100">
             {vehicles.map(v => (
-              <tr key={v.id} className="hover:bg-white/[0.02] transition">
-                <td className="px-5 py-3 text-white font-medium">{v.title}</td>
-                <td className="px-5 py-3 text-slate-400">{v.year}</td>
+              <tr key={v.id} className="hover:bg-gray-50 transition">
+                <td className="px-5 py-3 text-gray-900 font-medium">{v.title}</td>
+                <td className="px-5 py-3 text-gray-500">{v.year}</td>
                 <td className="px-5 py-3">
                   {v.price_on_call ? (
-                    <span className="flex items-center gap-1 text-[#C9A84C]/70 text-xs font-bold">
+                    <span className="flex items-center gap-1 text-blue-500 text-xs font-bold">
                       <Phone size={11} /> Call
                     </span>
                   ) : (
-                    <span className="text-[#C9A84C] font-bold">${parseFloat(v.price).toLocaleString()}</span>
+                    <span className="text-blue-600 font-bold">${parseFloat(v.price).toLocaleString()}</span>
                   )}
                 </td>
                 <td className="px-5 py-3"><Badge status={v.status} /></td>
                 <td className="px-5 py-3">
                   <button
                     onClick={() => setEditingVehicle(v)}
-                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-[#C9A84C] transition"
+                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 transition"
                   >
-                    <span className="text-slate-600">{v.images.length}</span>
+                    <span className="text-gray-500">{v.images.length}</span>
                     <span className="underline underline-offset-2">Images</span>
                   </button>
                 </td>
@@ -1340,13 +1340,13 @@ function VehiclesView() {
                   <button
                     onClick={() => setEditingDetailsId(v.id)}
                     title="Edit vehicle details"
-                    className="p-1.5 rounded hover:bg-[#C9A84C]/10 text-slate-500 hover:text-[#C9A84C] transition">
+                    className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition">
                     <Pencil size={14} />
                   </button>
                   <Link href={`/inventory/${v.id}`} target="_blank"
-                    className="text-xs text-slate-400 hover:text-white transition px-1">View</Link>
+                    className="text-xs text-gray-500 hover:text-gray-700 transition px-1">View</Link>
                   <button onClick={() => del(v.id)} disabled={deleting === v.id}
-                    className="p-1.5 rounded hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition">
+                    className="p-1.5 rounded hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition">
                     <Trash2 size={14} />
                   </button>
                 </td>
@@ -1469,10 +1469,10 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
 
   const input = (label: string, key: string, type = 'text', placeholder = '') => (
     <div>
-      <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">{label}</label>
+      <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">{label}</label>
       <input type={type} value={String(form[key as keyof typeof form])} placeholder={placeholder}
         onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)}
-        className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] transition" />
+        className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition" />
     </div>
   );
 
@@ -1489,8 +1489,8 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
         />
       )}
 
-      <h1 className="text-2xl font-black text-white mb-6">Add Vehicle</h1>
-      <form onSubmit={submit} className="bg-[#111] border border-white/[0.06] rounded-xl p-6 max-w-2xl space-y-4">
+      <h1 className="text-2xl font-black text-gray-900 mb-6">Add Vehicle</h1>
+      <form onSubmit={submit} className="bg-white border border-gray-100 rounded-xl p-6 max-w-2xl space-y-4">
         {input('Title', 'title', 'text', '2023 BMW M3 Competition')}
         <div className="grid grid-cols-2 gap-4">
           {input('Make', 'make', 'text', 'BMW')}
@@ -1501,15 +1501,15 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
           {input('Mileage', 'mileage', 'number')}
         </div>
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Price ($)</label>
+          <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Price ($)</label>
           <div className="flex gap-3 items-center">
             <input type="text" value={form.price} placeholder="89500.00"
               onChange={e => set('price', e.target.value)}
-              className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] transition" />
+              className="flex-1 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition" />
             <label className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition select-none whitespace-nowrap ${
               form.price_on_call
-                ? 'border-[#C9A84C]/60 bg-[#C9A84C]/8 text-[#C9A84C]'
-                : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'
+                ? 'border-blue-300 bg-blue-50 text-blue-600'
+                : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
             }`}>
               <input type="checkbox" checked={form.price_on_call}
                 onChange={e => set('price_on_call', e.target.checked)} className="hidden" />
@@ -1518,15 +1518,15 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
             </label>
           </div>
           {form.price_on_call && (
-            <p className="mt-1.5 text-[11px] text-[#C9A84C]/70">Price stored internally; customers see &quot;Call for Price&quot;.</p>
+            <p className="mt-1.5 text-[11px] text-blue-500">Price stored internally; customers see &quot;Call for Price&quot;.</p>
           )}
         </div>
         {input('VIN (17 chars)', 'vin', 'text', 'WBS8M9C52P5A00001')}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Transmission</label>
+            <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Transmission</label>
             <select value={form.transmission} onChange={e => set('transmission', e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]">
+              className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
               <option value="automatic">Automatic</option>
               <option value="manual">Manual</option>
               <option value="cvt">CVT</option>
@@ -1534,9 +1534,9 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Fuel Type</label>
+            <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Fuel Type</label>
             <select value={form.fuel_type} onChange={e => set('fuel_type', e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C]">
+              className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
               <option value="gasoline">Gasoline</option>
               <option value="diesel">Diesel</option>
               <option value="electric">Electric</option>
@@ -1563,21 +1563,21 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
         )}
 
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Description</label>
+          <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Description</label>
           <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none" />
+            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none" />
         </div>
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Features</label>
+          <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Features</label>
           <textarea value={form.features} onChange={e => set('features', e.target.value)} rows={4}
             placeholder={"Carbon Fiber Trim\nHeads-Up Display\nApple CarPlay\nHarman Kardon Audio"}
-            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-[#C9A84C] resize-none placeholder-slate-600" />
-          <p className="mt-1 text-[10px] text-slate-600">One feature per line</p>
+            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none placeholder-gray-400" />
+          <p className="mt-1 text-[10px] text-gray-500">One feature per line</p>
         </div>
 
         {/* ── Image upload section ─────────────────────────────────────── */}
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wide text-slate-400 block mb-1.5">Vehicle Images</label>
+          <label className="text-[10px] font-bold uppercase tracking-wide text-gray-500 block mb-1.5">Vehicle Images</label>
           <ImageDropZone onFiles={handleImages} />
           <ImageEntryGrid entries={imgEntries} onRemove={removeImg} />
           {/* AI image analysis — appears as soon as the first image is dropped */}
@@ -1589,7 +1589,7 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
             />
           )}
           {uploading && (
-            <p className="text-xs text-[#C9A84C] mt-2">
+            <p className="text-xs text-blue-600 mt-2">
               Uploading {doneCount} / {imgEntries.length} images…
             </p>
           )}
@@ -1598,13 +1598,13 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.featured} onChange={e => set('featured', e.target.checked)}
-              className="w-4 h-4 accent-[#C9A84C]" />
-            <span className="text-sm text-slate-300">Featured</span>
+              className="w-4 h-4 accent-blue-600" />
+            <span className="text-sm text-gray-600">Featured</span>
           </label>
           <div className="flex-1" />
           <div>
             <select value={form.status} onChange={e => set('status', e.target.value)}
-              className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-[#C9A84C]">
+              className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
               <option value="available">Available</option>
               <option value="reserved">Reserved</option>
               <option value="sold">Sold</option>
@@ -1618,7 +1618,7 @@ function AddVehicleView({ onCreated }: { onCreated: () => void }) {
         )}
 
         <button type="submit" disabled={loading || phase === 'done'}
-          className="w-full py-3 bg-[#C9A84C] text-black font-black uppercase tracking-wide text-sm rounded-xl hover:bg-[#D4B96A] disabled:opacity-60 transition">
+          className="w-full py-3 bg-blue-600 text-white font-semibold uppercase tracking-wide text-sm rounded-xl hover:bg-blue-700 disabled:opacity-60 transition">
           {phase === 'creating' ? 'Creating vehicle…'
             : phase === 'uploading' ? `Uploading images ${doneCount}/${imgEntries.length}…`
             : phase === 'done' ? 'Done!'
@@ -1659,24 +1659,24 @@ function FinancingView() {
 
   if (loading) return (
     <div>
-      <div className="h-8 w-52 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <div className="h-8 w-52 bg-gray-200 rounded-lg animate-pulse mb-6" />
       <CardListSkeleton count={5} />
     </div>
   );
 
   return (
     <div>
-      <h1 className="text-2xl font-black text-white mb-6">Financing Requests</h1>
+      <h1 className="text-2xl font-black text-gray-900 mb-6">Financing Requests</h1>
       <div className="space-y-3">
         {items.map(req => (
-          <div key={req.id} className="bg-[#111] border border-white/[0.06] rounded-xl p-5 flex flex-col sm:flex-row gap-4">
+          <div key={req.id} className="bg-white border border-gray-100 rounded-xl p-5 flex flex-col sm:flex-row gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
                 <Badge status={req.status} />
-                <span className="text-xs text-slate-500">{new Date(req.created_at).toLocaleDateString()}</span>
+                <span className="text-xs text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
               </div>
-              <p className="text-white font-bold text-sm truncate">{req.phone} · {req.address}</p>
-              <p className="text-slate-400 text-xs mt-1">
+              <p className="text-gray-900 font-bold text-sm truncate">{req.phone} · {req.address}</p>
+              <p className="text-gray-500 text-xs mt-1">
                 Income: ${parseFloat(req.annual_income).toLocaleString()} · Credit: {req.credit_score_range} · Down: ${parseFloat(req.down_payment).toLocaleString()}
               </p>
             </div>
@@ -1702,7 +1702,7 @@ function FinancingView() {
             </div>
           </div>
         ))}
-        {items.length === 0 && <p className="text-slate-400 text-sm">No financing requests.</p>}
+        {items.length === 0 && <p className="text-gray-500 text-sm">No financing requests.</p>}
       </div>
       <Pagination page={page} pages={pages} onChange={setPage} />
     </div>
@@ -1748,26 +1748,26 @@ function ReviewsView() {
 
   if (loading) return (
     <div>
-      <div className="h-8 w-32 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <div className="h-8 w-32 bg-gray-200 rounded-lg animate-pulse mb-6" />
       <CardListSkeleton count={5} />
     </div>
   );
 
   return (
     <div>
-      <h1 className="text-2xl font-black text-white mb-6">Reviews</h1>
+      <h1 className="text-2xl font-black text-gray-900 mb-6">Reviews</h1>
       <div className="space-y-3">
         {items.map(r => (
-          <div key={r.id} className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+          <div key={r.id} className="bg-white border border-gray-100 rounded-xl p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
                   <Badge status={r.status} />
                   <span className="text-amber-400 text-xs font-bold">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
-                  <span className="text-xs text-slate-500">{new Date(r.created_at).toLocaleDateString()}</span>
+                  <span className="text-xs text-gray-400">{new Date(r.created_at).toLocaleDateString()}</span>
                 </div>
-                <p className="text-white font-bold text-sm">{r.title}</p>
-                <p className="text-slate-400 text-xs mt-1 line-clamp-2">{r.body}</p>
+                <p className="text-gray-900 font-bold text-sm">{r.title}</p>
+                <p className="text-gray-500 text-xs mt-1 line-clamp-2">{r.body}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {r.status === 'pending' && (
@@ -1783,14 +1783,14 @@ function ReviewsView() {
                   </>
                 )}
                 <button onClick={() => del(r.id)} disabled={updating === r.id}
-                  className="p-1.5 rounded hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition disabled:opacity-50">
+                  className="p-1.5 rounded hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition disabled:opacity-50">
                   <Trash2 size={13} />
                 </button>
               </div>
             </div>
           </div>
         ))}
-        {items.length === 0 && <p className="text-slate-400 text-sm">No reviews.</p>}
+        {items.length === 0 && <p className="text-gray-500 text-sm">No reviews.</p>}
       </div>
       <Pagination page={page} pages={pages} onChange={setPage} />
     </div>
@@ -1828,7 +1828,7 @@ function ContactView() {
 
   if (loading) return (
     <div>
-      <div className="h-8 w-40 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <div className="h-8 w-40 bg-gray-200 rounded-lg animate-pulse mb-6" />
       <CardListSkeleton count={5} />
     </div>
   );
@@ -1838,24 +1838,24 @@ function ContactView() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <h1 className="text-2xl font-black text-white">Inquiries</h1>
+        <h1 className="text-2xl font-black text-gray-900">Inquiries</h1>
         {unread > 0 && (
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#C9A84C]/20 text-[#C9A84C] border border-[#C9A84C]/30">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-600 border border-blue-200">
             {unread} unread
           </span>
         )}
       </div>
 
       {items.length === 0 ? (
-        <p className="text-slate-400 text-sm">No inquiries yet.</p>
+        <p className="text-gray-500 text-sm">No inquiries yet.</p>
       ) : (
         <div className="space-y-3">
           {items.map(m => {
             const isOpen = expanded === m.id;
             return (
               <div key={m.id}
-                className={`bg-[#111] rounded-xl border transition-colors ${
-                  m.read ? 'border-white/[0.06]' : 'border-[#C9A84C]/25'
+                className={`bg-white rounded-xl border transition-colors ${
+                  m.read ? 'border-gray-100' : 'border-blue-200'
                 }`}>
                 {/* Header row — always visible */}
                 <button
@@ -1866,41 +1866,41 @@ function ContactView() {
                   }}
                 >
                   {/* Unread dot */}
-                  <span className={`w-2 h-2 rounded-full shrink-0 transition-colors ${m.read ? 'bg-transparent' : 'bg-[#C9A84C]'}`} />
+                  <span className={`w-2 h-2 rounded-full shrink-0 transition-colors ${m.read ? 'bg-transparent' : 'bg-blue-600'}`} />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white font-bold text-sm">{m.name}</span>
-                      <span className="text-slate-500 text-xs truncate">{m.email}</span>
-                      {m.phone && <span className="text-slate-600 text-xs">· {m.phone}</span>}
+                      <span className="text-gray-900 font-bold text-sm">{m.name}</span>
+                      <span className="text-gray-400 text-xs truncate">{m.email}</span>
+                      {m.phone && <span className="text-gray-500 text-xs">· {m.phone}</span>}
                     </div>
-                    <p className="text-[#C9A84C] text-[10px] font-black uppercase tracking-wide mt-0.5">{m.subject}</p>
+                    <p className="text-blue-600 text-[10px] font-black uppercase tracking-wide mt-0.5">{m.subject}</p>
                   </div>
 
-                  <span className="text-slate-600 text-xs shrink-0">
+                  <span className="text-gray-500 text-xs shrink-0">
                     {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </span>
 
                   {/* Chevron */}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     strokeWidth="2.5" strokeLinecap="round"
-                    className={`text-slate-600 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                    className={`text-gray-500 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}>
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
 
                 {/* Expanded message body */}
                 {isOpen && (
-                  <div className="px-5 pb-5 border-t border-white/[0.05]">
-                    <p className="text-slate-300 text-sm leading-relaxed pt-4 whitespace-pre-wrap">{m.message}</p>
-                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-white/[0.05]">
+                  <div className="px-5 pb-5 border-t border-gray-100">
+                    <p className="text-gray-600 text-sm leading-relaxed pt-4 whitespace-pre-wrap">{m.message}</p>
+                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
                       <a href={`mailto:${m.email}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C9A84C]/10 text-[#C9A84C] text-xs font-bold hover:bg-[#C9A84C]/20 transition">
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-100 transition">
                         <Phone size={11} /> Reply via Email
                       </a>
                       {!m.read && (
                         <button onClick={() => markRead(m.id)} disabled={marking === m.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] text-slate-400 text-xs font-bold hover:bg-white/[0.09] transition disabled:opacity-50">
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-500 text-xs font-bold hover:bg-gray-100 transition disabled:opacity-50">
                           <Check size={11} /> Mark as read
                         </button>
                       )}
@@ -1923,13 +1923,13 @@ function CardListSkeleton({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-[#111] border border-white/[0.06] rounded-xl p-5" style={{ opacity: 1 - i * 0.12 }}>
+        <div key={i} className="bg-white border border-gray-100 rounded-xl p-5" style={{ opacity: 1 - i * 0.12 }}>
           <div className="flex items-center gap-3 mb-3">
-            <div className="h-4 w-16 bg-slate-800 rounded-full animate-pulse" />
-            <div className="h-3 w-20 bg-slate-800 rounded animate-pulse" />
+            <div className="h-4 w-16 bg-gray-200 rounded-full animate-pulse" />
+            <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
           </div>
-          <div className="h-4 w-3/4 bg-slate-800 rounded animate-pulse mb-2" />
-          <div className="h-3 w-1/2 bg-slate-700 rounded animate-pulse" />
+          <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="h-3 w-1/2 bg-gray-200 rounded animate-pulse" />
         </div>
       ))}
     </div>
@@ -1954,28 +1954,28 @@ function TradeInsView() {
 
   if (loading) return (
     <div>
-      <div className="h-8 w-36 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <div className="h-8 w-36 bg-gray-200 rounded-lg animate-pulse mb-6" />
       <CardListSkeleton count={5} />
     </div>
   );
   return (
     <div>
-      <h1 className="text-2xl font-black text-white mb-6">Trade-Ins</h1>
+      <h1 className="text-2xl font-black text-gray-900 mb-6">Trade-Ins</h1>
       <div className="space-y-3">
         {items.map(t => (
-          <div key={t.id} className="bg-[#111] border border-white/[0.06] rounded-xl p-5">
+          <div key={t.id} className="bg-white border border-gray-100 rounded-xl p-5">
             <div className="flex items-center gap-3 mb-2">
               <Badge status={t.status} />
-              <span className="text-xs text-slate-500">{new Date(t.created_at).toLocaleDateString()}</span>
+              <span className="text-xs text-gray-400">{new Date(t.created_at).toLocaleDateString()}</span>
             </div>
-            <p className="text-white font-bold">{t.year} {t.make} {t.model} · {t.mileage.toLocaleString()} mi</p>
-            <p className="text-slate-400 text-xs mt-1">
+            <p className="text-gray-900 font-bold">{t.year} {t.make} {t.model} · {t.mileage.toLocaleString()} mi</p>
+            <p className="text-gray-500 text-xs mt-1">
               Condition: {t.condition} · Accident: {t.accident_history ? 'Yes' : 'No'}
               {t.asking_price && ` · Asking: $${parseFloat(t.asking_price).toLocaleString()}`}
             </p>
           </div>
         ))}
-        {items.length === 0 && <p className="text-slate-400 text-sm">No trade-ins.</p>}
+        {items.length === 0 && <p className="text-gray-500 text-sm">No trade-ins.</p>}
       </div>
     </div>
   );
@@ -2009,23 +2009,23 @@ function AppointmentsView() {
 
   if (loading) return (
     <div>
-      <div className="h-8 w-44 bg-slate-800 rounded-lg animate-pulse mb-6" />
+      <div className="h-8 w-44 bg-gray-200 rounded-lg animate-pulse mb-6" />
       <CardListSkeleton count={5} />
     </div>
   );
   return (
     <div>
-      <h1 className="text-2xl font-black text-white mb-6">Appointments</h1>
+      <h1 className="text-2xl font-black text-gray-900 mb-6">Appointments</h1>
       <div className="space-y-3">
         {items.map(a => (
-          <div key={a.id} className="bg-[#111] border border-white/[0.06] rounded-xl p-5 flex items-center gap-4">
+          <div key={a.id} className="bg-white border border-gray-100 rounded-xl p-5 flex items-center gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">
                 <Badge status={a.status} />
-                <span className="text-xs text-slate-500">{new Date(a.appointment_date).toLocaleString()}</span>
+                <span className="text-xs text-gray-400">{new Date(a.appointment_date).toLocaleString()}</span>
               </div>
-              <p className="text-white font-bold capitalize">{a.service_type.replace('_', ' ')}</p>
-              <p className="text-slate-400 text-xs">{a.phone}</p>
+              <p className="text-gray-900 font-bold capitalize">{a.service_type.replace('_', ' ')}</p>
+              <p className="text-gray-500 text-xs">{a.phone}</p>
             </div>
             {a.status === 'scheduled' && (
               <button onClick={() => confirmAppt(a.id)} disabled={updating === a.id}
@@ -2035,7 +2035,7 @@ function AppointmentsView() {
             )}
           </div>
         ))}
-        {items.length === 0 && <p className="text-slate-400 text-sm">No appointments.</p>}
+        {items.length === 0 && <p className="text-gray-500 text-sm">No appointments.</p>}
       </div>
     </div>
   );
@@ -2045,7 +2045,7 @@ function AppointmentsView() {
 function Spinner() {
   return (
     <div className="flex items-center justify-center py-16">
-      <div className="w-6 h-6 border-2 border-slate-700 border-t-[#C9A84C] rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
     </div>
   );
 }
@@ -2055,12 +2055,12 @@ const Pagination = memo(function Pagination({ page, pages, onChange }: { page: n
   return (
     <div className="mt-6 flex items-center gap-2">
       <button disabled={page <= 1} onClick={() => onChange(page - 1)}
-        className="px-3 py-1.5 text-xs text-slate-400 border border-slate-700 rounded-lg disabled:opacity-40 hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+        className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg disabled:opacity-40 hover:border-blue-500 hover:text-blue-600 transition">
         Prev
       </button>
-      <span className="text-xs text-slate-500">{page} / {pages}</span>
+      <span className="text-xs text-gray-400">{page} / {pages}</span>
       <button disabled={page >= pages} onClick={() => onChange(page + 1)}
-        className="px-3 py-1.5 text-xs text-slate-400 border border-slate-700 rounded-lg disabled:opacity-40 hover:border-[#C9A84C] hover:text-[#C9A84C] transition">
+        className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg disabled:opacity-40 hover:border-blue-500 hover:text-blue-600 transition">
         Next
       </button>
     </div>
@@ -2119,7 +2119,7 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
   };
   return (
     <button onClick={copy}
-      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-gray-200 text-gray-500 rounded-lg hover:border-[#C9A84C] hover:text-[#C9A84C] bg-white transition">
+      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-gray-200 text-gray-500 rounded-lg hover:border-blue-500 hover:text-blue-600 bg-white transition">
       {copied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
       {copied ? 'Copied!' : label}
     </button>
@@ -2233,7 +2233,7 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
       <label className="text-xs font-semibold text-gray-500 block mb-1.5">{label}</label>
       <input type={type} value={String(form[key as keyof typeof form])} placeholder={placeholder}
         onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)}
-        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300" />
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition placeholder-gray-300" />
     </div>
   );
 
@@ -2241,7 +2241,7 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
     <div>
       <label className="text-xs font-semibold text-gray-500 block mb-1.5">{label}</label>
       <select value={String(form[key as keyof typeof form])} onChange={e => set(key, e.target.value)}
-        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition">
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition">
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
@@ -2285,10 +2285,10 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
           <ImageDropZone onFiles={handleImages} />
           <ImageEntryGrid entries={imgEntries} onRemove={uploading ? () => {} : removeImg} />
           {uploading && (
-            <p className="text-xs text-[#C9A84C] font-medium">Uploading {doneCount} / {imgEntries.length} photos…</p>
+            <p className="text-xs text-blue-600 font-medium">Uploading {doneCount} / {imgEntries.length} photos…</p>
           )}
           <button onClick={uploadImages} disabled={uploading}
-            className="w-full py-2.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
+            className="w-full py-2.5 bg-blue-600 text-gray-900 font-bold text-sm rounded-xl hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
             {uploading
               ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading…</>
               : imgEntries.length > 0
@@ -2307,8 +2307,8 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
       <button onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
-            <Check size={14} className="text-[#C9A84C]" />
+          <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+            <Check size={14} className="text-blue-600" />
           </div>
           <div className="text-left">
             <p className="text-sm font-bold text-gray-900">Save to Inventory</p>
@@ -2334,7 +2334,7 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
               <label className="text-xs font-semibold text-gray-500 block mb-1.5">Price ($) *</label>
               <input type="number" value={form.price} placeholder="38500"
                 onChange={e => set('price', e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition" />
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition" />
             </div>
             {inp('Color', 'color', 'text', 'Mineral White')}
           </div>
@@ -2361,7 +2361,7 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
           <div>
             <label className="text-xs font-semibold text-gray-500 block mb-1.5">Description</label>
             <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={4}
-              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition resize-none" />
+              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition resize-none" />
           </div>
           <div className="flex items-center gap-6 pt-1">
             {sel('Status', 'status', [
@@ -2370,7 +2370,7 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
             ])}
             <label className="flex items-center gap-2 cursor-pointer select-none mt-5">
               <div onClick={() => set('featured', !form.featured)}
-                className={`w-9 h-5 rounded-full transition-colors relative ${form.featured ? 'bg-[#C9A84C]' : 'bg-gray-200'}`}>
+                className={`w-9 h-5 rounded-full transition-colors relative ${form.featured ? 'bg-blue-600' : 'bg-gray-200'}`}>
                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${form.featured ? 'left-4' : 'left-0.5'}`} />
               </div>
               <span className="text-sm text-gray-600">Featured</span>
@@ -2385,7 +2385,7 @@ function SaveToInventoryForm({ result, vin }: { result: AgentResult; vin: string
           )}
 
           <button type="submit" disabled={saving}
-            className="w-full py-2.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
+            className="w-full py-2.5 bg-blue-600 text-gray-900 font-bold text-sm rounded-xl hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm">
             {saving
               ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</>
               : <><Check size={14} /> Save to Inventory</>
@@ -2624,12 +2624,12 @@ function AIAgentView() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-black text-white">AI Sales Agent</h1>
+          <h1 className="text-2xl font-black text-gray-900">AI Sales Agent</h1>
           <p className="text-sm text-gray-400 mt-0.5">VIN → 2 questions → complete listing.</p>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap justify-end">
           {['NHTSA', 'DuckDuckGo', 'GPT-4o', 'eBay', 'Facebook'].map(tag => (
-            <span key={tag} className="px-2 py-0.5 bg-white/10 text-gray-400 text-[10px] font-semibold rounded-full border border-white/10">{tag}</span>
+            <span key={tag} className="px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full border border-blue-100">{tag}</span>
           ))}
         </div>
       </div>
@@ -2642,7 +2642,7 @@ function AIAgentView() {
               <div className="flex flex-col items-center gap-1 shrink-0">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   i < phaseIndex ? 'bg-emerald-500 text-white' :
-                  i === phaseIndex ? 'bg-[#C9A84C] text-white shadow-md shadow-[#C9A84C]/30' :
+                  i === phaseIndex ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' :
                   'bg-gray-100 text-gray-400'
                 }`}>
                   {i < phaseIndex ? <Check size={12} /> : i + 1}
@@ -2678,14 +2678,14 @@ function AIAgentView() {
             </div>
             <input value={vin} onChange={e => { setVin(e.target.value.toUpperCase()); setError(''); }} maxLength={17}
               placeholder="e.g. 1HGCM82633A004352"
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 font-mono placeholder-gray-300 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition" />
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 font-mono placeholder-gray-300 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition" />
             <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-300 ${vin.length === 17 ? 'bg-emerald-400' : 'bg-[#C9A84C]'}`}
+              <div className={`h-full rounded-full transition-all duration-300 ${vin.length === 17 ? 'bg-emerald-400' : 'bg-blue-600'}`}
                 style={{ width: `${Math.round((vin.length / 17) * 100)}%` }} />
             </div>
           </div>
           <button onClick={runPhaseA} disabled={vin.trim().length !== 17}
-            className="w-full py-3.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2">
+            className="w-full py-3.5 bg-blue-600 text-gray-900 font-bold text-sm rounded-xl hover:bg-blue-700 disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2">
             <Sparkles size={15} /> Analyze Vehicle
           </button>
         </div>
@@ -2695,8 +2695,8 @@ function AIAgentView() {
       {wizardPhase === 'phase-a' && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
-              <Bot size={16} className="text-[#C9A84C]" />
+            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Bot size={16} className="text-blue-600" />
             </div>
             <div>
               <p className="text-sm font-bold text-gray-900">AI Agent Working…</p>
@@ -2704,7 +2704,7 @@ function AIAgentView() {
             </div>
           </div>
           <div className="px-6 py-8 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
           </div>
         </div>
       )}
@@ -2713,10 +2713,10 @@ function AIAgentView() {
       {wizardPhase === 'clarify' && phaseAResult && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {/* Vehicle found banner */}
-          <div className="px-6 py-5 bg-gradient-to-r from-[#C9A84C]/5 to-transparent border-b border-gray-100">
+          <div className="px-6 py-5 bg-gradient-to-r from-blue-50/50 to-transparent border-b border-gray-100">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/20 flex items-center justify-center shrink-0 mt-0.5">
-                <Bot size={16} className="text-[#C9A84C]" />
+              <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 mt-0.5">
+                <Bot size={16} className="text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 font-bold text-base">
@@ -2729,7 +2729,7 @@ function AIAgentView() {
                 </div>
                 {phaseAResult.market_price_range && (
                   <p className="text-xs text-gray-500 mt-1.5">
-                    Market value: <span className="font-bold text-[#C9A84C]">{phaseAResult.market_price_range}</span>
+                    Market value: <span className="font-bold text-blue-600">{phaseAResult.market_price_range}</span>
                   </p>
                 )}
               </div>
@@ -2744,22 +2744,22 @@ function AIAgentView() {
           <div className="px-6 pb-5 space-y-3">
             {/* Required: mileage */}
             <div className="flex items-center gap-3">
-              <span className="w-5 h-5 rounded-full bg-[#C9A84C] text-white text-[10px] font-black flex items-center justify-center shrink-0">1</span>
+              <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center shrink-0">1</span>
               <div className="flex-1 relative">
                 <input type="number" min={0} value={userReview.mileage || ''}
                   onChange={e => setR('mileage', Number(e.target.value))}
                   placeholder="Mileage"
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-400 pr-14" />
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition placeholder-gray-400 pr-14" />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">miles</span>
               </div>
             </div>
 
             {/* Required: color */}
             <div className="flex items-center gap-3">
-              <span className="w-5 h-5 rounded-full bg-[#C9A84C] text-white text-[10px] font-black flex items-center justify-center shrink-0">2</span>
+              <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center shrink-0">2</span>
               <input value={userReview.color} onChange={e => setR('color', e.target.value)}
                 placeholder="Exterior color  (e.g. Pearl White)"
-                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-400" />
+                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition placeholder-gray-400" />
             </div>
 
             {/* Optional advanced */}
@@ -2778,12 +2778,12 @@ function AIAgentView() {
                       <label className="text-[11px] font-semibold text-gray-500 block mb-1">Asking Price ($)</label>
                       <input type="number" value={userReview.asking_price} onChange={e => setR('asking_price', e.target.value)}
                         placeholder="AI will suggest"
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition placeholder-gray-300" />
                     </div>
                     <div>
                       <label className="text-[11px] font-semibold text-gray-500 block mb-1">Condition</label>
                       <select value={userReview.condition} onChange={e => setR('condition', e.target.value)}
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition">
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition">
                         <option value="excellent">Excellent</option>
                         <option value="good">Good</option>
                         <option value="fair">Fair</option>
@@ -2794,7 +2794,7 @@ function AIAgentView() {
                   <div>
                     <label className="text-[11px] font-semibold text-gray-500 block mb-1">Title Status</label>
                     <select value={userReview.title_status} onChange={e => setR('title_status', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition">
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition">
                       <option value="clean">Clean Title</option>
                       <option value="rebuilt">Rebuilt / Reconstructed</option>
                       <option value="salvage">Salvage Title</option>
@@ -2804,26 +2804,26 @@ function AIAgentView() {
                     <label className="text-[11px] font-semibold text-gray-500 block mb-1">Features <span className="font-normal text-gray-400">(comma-separated)</span></label>
                     <input value={userReview.features} onChange={e => setR('features', e.target.value)}
                       placeholder="Heated seats, Sunroof, Apple CarPlay, Lane Assist"
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition placeholder-gray-300" />
                   </div>
                   <div>
                     <label className="text-[11px] font-semibold text-gray-500 block mb-1">Service History</label>
                     <input value={userReview.service_history} onChange={e => setR('service_history', e.target.value)}
                       placeholder="e.g. Regular oil changes, dealer maintained"
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition placeholder-gray-300" />
                   </div>
                   <div>
                     <label className="text-[11px] font-semibold text-gray-500 block mb-1">Notes for AI</label>
                     <textarea value={userReview.notes} onChange={e => setR('notes', e.target.value)} rows={2}
                       placeholder="Extras, modifications, known issues…"
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition resize-none placeholder-gray-300" />
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition resize-none placeholder-gray-300" />
                   </div>
                 </div>
               )}
             </div>
 
             <button onClick={runPhaseB} disabled={running || !userReview.mileage}
-              className="w-full py-3.5 bg-[#C9A84C] text-white font-bold text-sm rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2 mt-2">
+              className="w-full py-3.5 bg-blue-600 text-gray-900 font-bold text-sm rounded-xl hover:bg-blue-700 disabled:opacity-40 transition-all shadow-sm flex items-center justify-center gap-2 mt-2">
               {running
                 ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generating…</>
                 : <><Sparkles size={15} /> Generate Listing</>}
@@ -2836,8 +2836,8 @@ function AIAgentView() {
       {wizardPhase === 'phase-b' && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
-              <Bot size={16} className="text-[#C9A84C]" />
+            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Bot size={16} className="text-blue-600" />
             </div>
             <div>
               <p className="text-sm font-bold text-gray-900">Writing Your Listing…</p>
@@ -2845,7 +2845,7 @@ function AIAgentView() {
             </div>
           </div>
           <div className="px-6 py-8 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
           </div>
         </div>
       )}
@@ -2872,7 +2872,7 @@ function AIAgentView() {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-base font-black text-gray-900">Vehicle Features</p>
-                <span className="text-xs font-semibold text-[#C9A84C] bg-[#C9A84C]/10 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
                   {selectedFeatures.length} selected
                 </span>
               </div>
@@ -2887,17 +2887,17 @@ function AIAgentView() {
                   value={featureSearch}
                   onChange={e => setFeatureSearch(e.target.value)}
                   placeholder="Search features…"
-                  className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300"
+                  className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition placeholder-gray-300"
                 />
               </div>
             </div>
 
             {/* AI Suggested */}
             {aiSuggestions.length > 0 && !featureSearch && (
-              <div className="bg-white rounded-2xl border border-[#C9A84C]/30 shadow-sm p-5">
+              <div className="bg-white rounded-2xl border border-blue-200 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-5 h-5 rounded-full bg-[#C9A84C]/10 flex items-center justify-center">
-                    <svg className="w-3 h-3 text-[#C9A84C]" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   </div>
@@ -2912,8 +2912,8 @@ function AIAgentView() {
                         onClick={() => toggleFeature(f)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
                           checked
-                            ? 'bg-[#C9A84C] border-[#C9A84C] text-white shadow-sm'
-                            : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-[#C9A84C]/50'
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
+                            : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-blue-300'
                         }`}
                       >
                         {checked && <Check size={11} />}
@@ -2943,8 +2943,8 @@ function AIAgentView() {
                           onClick={() => toggleFeature(f)}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
                             checked
-                              ? 'bg-[#C9A84C] border-[#C9A84C] text-white shadow-sm'
-                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#C9A84C]/50 hover:bg-[#C9A84C]/5'
+                              ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
+                              : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50/50'
                           }`}
                         >
                           {checked && <Check size={11} />}
@@ -2966,12 +2966,12 @@ function AIAgentView() {
                   onChange={e => setCustomFeatureInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { addCustom(); e.preventDefault(); } }}
                   placeholder="e.g. Third Row Seating, Cooled Cup Holders…"
-                  className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C]/20 transition placeholder-gray-300"
+                  className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition placeholder-gray-300"
                 />
                 <button
                   onClick={addCustom}
                   disabled={!customFeatureInput.trim()}
-                  className="px-4 py-2.5 bg-[#C9A84C] text-white text-sm font-bold rounded-xl hover:bg-[#B8943E] disabled:opacity-40 transition shrink-0"
+                  className="px-4 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 disabled:opacity-40 transition shrink-0"
                 >
                   + Add
                 </button>
@@ -2980,7 +2980,7 @@ function AIAgentView() {
               {selectedFeatures.filter(f => !ALL_PREDEFINED.includes(f)).length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
                   {selectedFeatures.filter(f => !ALL_PREDEFINED.includes(f)).map(f => (
-                    <span key={f} className="flex items-center gap-1.5 px-3 py-1 bg-[#C9A84C] border border-[#C9A84C] text-white rounded-full text-sm font-medium">
+                    <span key={f} className="flex items-center gap-1.5 px-3 py-1 bg-blue-600 border border-blue-500 text-white rounded-full text-sm font-medium">
                       {f}
                       <button onClick={() => setSelectedFeatures(prev => prev.filter(x => x !== f))} className="hover:opacity-70 transition leading-none">×</button>
                     </span>
@@ -2992,7 +2992,7 @@ function AIAgentView() {
             {/* Continue */}
             <button
               onClick={() => setWizardPhase('review')}
-              className="w-full py-4 bg-[#C9A84C] text-white font-black text-base rounded-2xl hover:bg-[#B8943E] transition-all shadow-lg shadow-[#C9A84C]/20 flex items-center justify-center gap-2.5"
+              className="w-full py-4 bg-blue-600 text-white font-black text-base rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2.5"
             >
               <Check size={18} /> Continue with {selectedFeatures.length} Feature{selectedFeatures.length !== 1 ? 's' : ''}
             </button>
@@ -3023,7 +3023,7 @@ function AIAgentView() {
                 <span className="text-xl text-gray-300 font-medium select-none">$</span>
                 <input type="number" value={listingEdit.suggested_price} onChange={e => setLE('suggested_price', e.target.value)}
                   placeholder="0"
-                  className="text-4xl font-black text-[#C9A84C] bg-transparent border-none outline-none w-full hover:bg-gray-50 focus:bg-gray-50 rounded-xl px-2 -mx-2 py-1 transition-all" />
+                  className="text-4xl font-black text-blue-600 bg-transparent border-none outline-none w-full hover:bg-gray-50 focus:bg-gray-50 rounded-xl px-2 -mx-2 py-1 transition-all" />
               </div>
             </div>
 
@@ -3047,7 +3047,7 @@ function AIAgentView() {
                 <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Features</p>
                 <button
                   onClick={() => setWizardPhase('features')}
-                  className="text-[10px] text-[#C9A84C] hover:underline font-semibold transition"
+                  className="text-[10px] text-blue-600 hover:underline font-semibold transition"
                 >
                   Edit features
                 </button>
@@ -3114,7 +3114,7 @@ function AIAgentView() {
               <div className="flex-1">
                 <label className="text-[11px] font-semibold text-gray-500 block mb-1">Status</label>
                 <select value={userReview.status} onChange={e => setR('status', e.target.value as VehicleStatus)}
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition">
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition">
                   <option value="available">Available</option>
                   <option value="reserved">Reserved</option>
                   <option value="sold">Sold</option>
@@ -3124,11 +3124,11 @@ function AIAgentView() {
               <div className="flex-1">
                 <label className="text-[11px] font-semibold text-gray-500 block mb-1">Stock #</label>
                 <input value={userReview.stock_number} onChange={e => setR('stock_number', e.target.value)} placeholder="STK-001"
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-[#C9A84C] transition placeholder-gray-300" />
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-blue-500 transition placeholder-gray-300" />
               </div>
               <label className="flex items-center gap-2 cursor-pointer select-none pb-0.5 shrink-0">
                 <div onClick={() => setR('featured', !userReview.featured)}
-                  className={`w-9 h-5 rounded-full transition-colors relative ${userReview.featured ? 'bg-[#C9A84C]' : 'bg-gray-200'}`}>
+                  className={`w-9 h-5 rounded-full transition-colors relative ${userReview.featured ? 'bg-blue-600' : 'bg-gray-200'}`}>
                   <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${userReview.featured ? 'left-4' : 'left-0.5'}`} />
                 </div>
                 <span className="text-sm text-gray-600">Featured</span>
@@ -3145,7 +3145,7 @@ function AIAgentView() {
 
           {/* One-click CTA */}
           <button onClick={approveAndPublish} disabled={running || !listingEdit.suggested_price}
-            className="w-full py-4 bg-[#C9A84C] text-white font-black text-base rounded-2xl hover:bg-[#B8943E] disabled:opacity-40 transition-all shadow-lg shadow-[#C9A84C]/20 flex items-center justify-center gap-2.5">
+            className="w-full py-4 bg-blue-600 text-white font-black text-base rounded-2xl hover:bg-blue-700 disabled:opacity-40 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2.5">
             {running
               ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving &amp; Publishing…</>
               : <><Bot size={18} /> Approve &amp; Publish</>}
@@ -3158,8 +3158,8 @@ function AIAgentView() {
       {wizardPhase === 'phase-c' && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center">
-              <Bot size={16} className="text-[#C9A84C]" />
+            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Bot size={16} className="text-blue-600" />
             </div>
             <div>
               <p className="text-sm font-bold text-gray-900">Publishing…</p>
@@ -3167,7 +3167,7 @@ function AIAgentView() {
             </div>
           </div>
           <div className="px-6 py-8 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
           </div>
         </div>
       )}
@@ -3228,8 +3228,8 @@ function renderView(view: AdminView, setView: (v: AdminView) => void) {
     case 'appointments': return <AppointmentsView />;
     case 'reviews':      return <ReviewsView />;
     case 'contact':      return <ContactView />;
-    case 'reports':      return <div className="text-slate-400">Reports coming soon.</div>;
-    case 'settings':     return <div className="text-slate-400">Settings coming soon.</div>;
+    case 'reports':      return <div className="text-gray-500">Reports coming soon.</div>;
+    case 'settings':     return <div className="text-gray-500">Settings coming soon.</div>;
     case 'ai-agent':     return <AIAgentView />;
   }
 }
@@ -3257,8 +3257,8 @@ export default function AdminPage() {
 
   if (state === 'checking') {
     return (
-      <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-slate-700 border-t-[#C9A84C] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -3267,7 +3267,7 @@ export default function AdminPage() {
   if (state === 'login') return <AdminLogin onLoggedIn={() => setState('panel')} />;
 
   return (
-    <div className="flex min-h-screen bg-[#0D0D0D]">
+    <div className="flex min-h-screen bg-[#F8FAFC] font-jakarta">
       <AdminSidebar
         activeView={view}
         onViewChange={setView}
@@ -3276,14 +3276,14 @@ export default function AdminPage() {
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="flex items-center justify-end px-6 py-4 border-b border-white/[0.04]">
+        <header className="flex items-center justify-end px-6 py-3.5 border-b border-gray-100 bg-white">
           <button onClick={handleExit}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-400 border border-slate-700 rounded-lg hover:border-red-500/50 hover:text-red-400 transition">
-            <LogOut size={12} /> Exit
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:border-red-300 hover:text-red-500 transition font-jakarta">
+            <LogOut size={12} /> Exit Admin
           </button>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 lg:p-8 overflow-auto font-jakarta">
           {renderView(view, setView)}
         </main>
       </div>

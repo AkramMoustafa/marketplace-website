@@ -65,7 +65,7 @@ export default function ContactPage() {
       {/* ── Page hero ── */}
       <div className="bg-slate-900 py-12 px-5">
         <div className="max-w-7xl mx-auto">
-          <p className="text-[10px] font-black uppercase tracking-[4px] text-[#FF5500] mb-2">
+          <p className="text-[10px] font-black uppercase tracking-[4px] text-[#B22222] mb-2">
             Get in Touch
           </p>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
@@ -87,8 +87,8 @@ export default function ContactPage() {
           {/* Address */}
           <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-                <MapPin size={18} className="text-[#FF5500]" />
+              <div className="w-10 h-10 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+                <MapPin size={18} className="text-[#B22222]" />
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-400 mb-1">Location</p>
@@ -99,7 +99,7 @@ export default function ContactPage() {
                   href="https://maps.google.com/?q=2940+East+8+Mile+Road+Detroit+MI+48234"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-block text-xs font-bold text-[#FF5500] hover:underline"
+                  className="mt-2 inline-block text-xs font-bold text-[#B22222] hover:underline"
                 >
                   Get Directions →
                 </a>
@@ -110,14 +110,14 @@ export default function ContactPage() {
           {/* Phone */}
           <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-                <Phone size={18} className="text-[#FF5500]" />
+              <div className="w-10 h-10 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+                <Phone size={18} className="text-[#B22222]" />
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-400 mb-1">Phone</p>
                 <a
                   href="tel:3132517447"
-                  className="text-sm font-bold text-slate-900 hover:text-[#FF5500] transition-colors"
+                  className="text-sm font-bold text-slate-900 hover:text-[#B22222] transition-colors"
                 >
                   (313) 251-7447
                 </a>
@@ -128,14 +128,14 @@ export default function ContactPage() {
           {/* Email */}
           <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-                <Mail size={18} className="text-[#FF5500]" />
+              <div className="w-10 h-10 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+                <Mail size={18} className="text-[#B22222]" />
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-400 mb-1">Email</p>
                 <a
                   href="mailto:info@novamotors.com"
-                  className="text-sm font-bold text-slate-900 hover:text-[#FF5500] transition-colors"
+                  className="text-sm font-bold text-slate-900 hover:text-[#B22222] transition-colors"
                 >
                   info@novamotors.com
                 </a>
@@ -146,8 +146,8 @@ export default function ContactPage() {
           {/* Hours */}
           <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 flex items-center justify-center shrink-0">
-                <Clock size={18} className="text-[#FF5500]" />
+              <div className="w-10 h-10 rounded-xl bg-[#B22222]/10 flex items-center justify-center shrink-0">
+                <Clock size={18} className="text-[#B22222]" />
               </div>
               <div className="flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[2px] text-slate-400 mb-3">Hours</p>
@@ -180,7 +180,7 @@ export default function ContactPage() {
                 </p>
                 <button
                   onClick={() => setSuccess(false)}
-                  className="mt-6 px-6 py-2.5 rounded-full bg-[#FF5500] text-black text-xs font-black uppercase tracking-wide hover:opacity-90 transition"
+                  className="mt-6 px-6 py-2.5 rounded-full bg-[#B22222] text-black text-xs font-black uppercase tracking-wide hover:opacity-90 transition"
                 >
                   Send Another Message
                 </button>
@@ -197,7 +197,7 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-1.5">
-                      Full Name <span className="text-[#FF5500]">*</span>
+                      Full Name <span className="text-[#B22222]">*</span>
                     </label>
                     <input
                       type="text"
@@ -205,12 +205,12 @@ export default function ContactPage() {
                       value={form.name}
                       onChange={e => set('name', e.target.value)}
                       placeholder="John Smith"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF5500] focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white transition"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#B22222] focus:ring-2 focus:ring-[#B22222]/20 focus:bg-white transition"
                     />
                   </div>
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-1.5">
-                      Email Address <span className="text-[#FF5500]">*</span>
+                      Email Address <span className="text-[#B22222]">*</span>
                     </label>
                     <input
                       type="email"
@@ -218,7 +218,7 @@ export default function ContactPage() {
                       value={form.email}
                       onChange={e => set('email', e.target.value)}
                       placeholder="john@example.com"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF5500] focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white transition"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#B22222] focus:ring-2 focus:ring-[#B22222]/20 focus:bg-white transition"
                     />
                   </div>
                 </div>
@@ -234,18 +234,18 @@ export default function ContactPage() {
                       value={form.phone}
                       onChange={e => set('phone', e.target.value)}
                       placeholder="(313) 000-0000"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF5500] focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white transition"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#B22222] focus:ring-2 focus:ring-[#B22222]/20 focus:bg-white transition"
                     />
                   </div>
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-1.5">
-                      Subject <span className="text-[#FF5500]">*</span>
+                      Subject <span className="text-[#B22222]">*</span>
                     </label>
                     <select
                       required
                       value={form.subject}
                       onChange={e => set('subject', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:border-[#FF5500] focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white transition"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:border-[#B22222] focus:ring-2 focus:ring-[#B22222]/20 focus:bg-white transition"
                     >
                       <option value="" disabled>Select a subject…</option>
                       {SUBJECTS.map(s => (
@@ -258,7 +258,7 @@ export default function ContactPage() {
                 {/* Message */}
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-[2px] text-slate-500 mb-1.5">
-                    Message <span className="text-[#FF5500]">*</span>
+                    Message <span className="text-[#B22222]">*</span>
                   </label>
                   <textarea
                     required
@@ -266,7 +266,7 @@ export default function ContactPage() {
                     value={form.message}
                     onChange={e => set('message', e.target.value)}
                     placeholder="Tell us how we can help…"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF5500] focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white transition resize-none"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#B22222] focus:ring-2 focus:ring-[#B22222]/20 focus:bg-white transition resize-none"
                   />
                 </div>
 
@@ -279,7 +279,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3 rounded-full bg-[#FF5500] text-black text-sm font-black uppercase tracking-[1.5px] hover:opacity-90 hover:-translate-y-px hover:shadow-md hover:shadow-[#FF5500]/20 active:translate-y-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+                  className="w-full py-3 rounded-full bg-[#B22222] text-black text-sm font-black uppercase tracking-[1.5px] hover:opacity-90 hover:-translate-y-px hover:shadow-md hover:shadow-[#B22222]/20 active:translate-y-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
                 >
                   {submitting ? 'Sending…' : 'Send Message'}
                 </button>

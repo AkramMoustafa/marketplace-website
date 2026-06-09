@@ -14,12 +14,12 @@ export default function MainHeader({ query = '', onQueryChange }: MainHeaderProp
 
         {/* LOGO — amber left accent bar anchors the mark */}
         <div className="flex items-stretch gap-4 shrink-0">
-          <div className="w-[4px] self-stretch bg-[#FF5500] rounded-full" />
+          <div className="w-[4px] self-stretch bg-[#B22222] rounded-full" />
           <div>
             <div className="text-[3.5rem] font-black tracking-[5px] text-slate-900 leading-none">
               NOVA
             </div>
-            <div className="text-[9px] font-black tracking-[10px] text-[#FF5500] mt-1.5 ml-[1px]">
+            <div className="text-[9px] font-black tracking-[10px] text-[#B22222] mt-1.5 ml-[1px]">
               MOTORS
             </div>
           </div>
@@ -28,14 +28,14 @@ export default function MainHeader({ query = '', onQueryChange }: MainHeaderProp
         {/* CENTER — contact block, large screens only */}
         <div className="hidden lg:flex flex-1 flex-col items-center gap-1.5">
           <div className="flex items-center gap-2 text-slate-400 text-xs tracking-wide">
-            <MapPin size={12} className="text-[#FF5500] shrink-0" />
+            <MapPin size={12} className="text-[#B22222] shrink-0" />
             <span>2940 East 8 Mile Road, Detroit, MI 48234</span>
           </div>
           <a
             href="tel:3132517447"
-            className="flex items-center gap-2 text-[1.1rem] font-bold text-slate-800 hover:text-[#FF5500] transition-colors duration-200 tracking-wide"
+            className="flex items-center gap-2 text-[1.1rem] font-bold text-slate-800 hover:text-[#B22222] transition-colors duration-200 tracking-wide"
           >
-            <Phone size={14} className="text-[#FF5500] shrink-0" />
+            <Phone size={14} className="text-[#B22222] shrink-0" />
             (313) 251-7447
           </a>
         </div>
@@ -59,8 +59,8 @@ export default function MainHeader({ query = '', onQueryChange }: MainHeaderProp
                 border border-slate-200 bg-slate-50
                 text-sm text-slate-700 placeholder:text-slate-400
                 shadow-sm
-                focus:outline-none focus:border-[#FF5500]
-                focus:ring-2 focus:ring-[#FF5500]/20 focus:bg-white
+                focus:outline-none focus:border-[#B22222]
+                focus:ring-2 focus:ring-[#B22222]/20 focus:bg-white
                 transition-all duration-200
               "
             />
@@ -71,11 +71,11 @@ export default function MainHeader({ query = '', onQueryChange }: MainHeaderProp
             href="/inventory"
             className="
               shrink-0 px-5 py-2.5 rounded-full
-              bg-[#FF5500] text-black
+              bg-[#B22222] text-black
               text-[10.5px] font-black uppercase tracking-[1.5px]
               whitespace-nowrap
               hover:-translate-y-px
-              hover:shadow-md hover:shadow-[#FF5500]/20
+              hover:shadow-md hover:shadow-[#B22222]/20
               active:translate-y-0 active:shadow-none
               transition-all duration-200
             "
@@ -88,7 +88,7 @@ export default function MainHeader({ query = '', onQueryChange }: MainHeaderProp
       </div>
 
       {/* Subtle amber rule — separates header from nav */}
-      <div className="h-px bg-gradient-to-r from-transparent via-[#FF5500]/35 to-transparent" />
+      <div className="h-px bg-gradient-to-r from-transparent via-[#B22222]/35 to-transparent" />
     </header>
   );
 }
